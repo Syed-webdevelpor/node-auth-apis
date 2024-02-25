@@ -1,6 +1,6 @@
-import express from "express";
-import dbConnection from "./dbConnection.js";
-import routes from "./routes.js";
+const express = require("express");
+const dbConnection = require("./dbConnection.js");
+const routes = require("./routes.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -20,13 +20,14 @@ app.use((err, req, res, next) => {
 });
 
 // If database is connected successfully, then run the server
-dbConnection
-  .getConnection()
-  .then(() => {
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
-  })
-  .catch((err) => {
-    console.log(`Failed to connect to the database: ${err.message}`);
+dbConnection.connect((err) => {
+  if (err) {
+    console.error(`Failed to connect to the database: ${err.message}`);
+    return;
+  }
+
+  // Start the server if the database connection is successful
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
   });
+});

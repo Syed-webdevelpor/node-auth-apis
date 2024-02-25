@@ -1,172 +1,201 @@
-import bcrypt from 'bcrypt';
-import { createHash } from 'crypto';
-import { validationResult } from 'express-validator';
-import { generateToken, verifyToken } from './tokenHandler.js';
-import DB from './dbConnection.js';
-import { v4 as uuidv4 } from 'uuid';
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const expressValidator = require("express-validator");
+const { generateToken, verifyToken } = require("./tokenHandler.js");
+const DB = require("./dbConnection.js");
+const { v4: uuidv4 } = require("uuid");
 
+const { validationResult } = expressValidator;
+const { createHash } = crypto;
 const validation_result = validationResult.withDefaults({
-    formatter: (error) => error.msg,
+  formatter: (error) => error.msg,
 });
 
-export const validate = (req, res, next) => {
-    const errors = validation_result(req).mapped();
-    if (Object.keys(errors).length) {
-        return res.status(422).json({
-            status: 422,
-            errors,
-        });
+const validate = (req, res, next) => {
+  const errors = validation_result(req).mapped();
+  if (Object.keys(errors).length) {
+    return res.status(422).json({
+      status: 422,
+      errors,
+    });
+  }
+  next();
+};
+
+const fetchUserByEmailOrID = async (data, isEmail = true) => {
+  let sql = "SELECT * FROM `users` WHERE `email`=?";
+  if (!isEmail)
+    sql =
+      "SELECT `id` ,`first_name` ,`last_name` , `email` FROM `users` WHERE `id`=?";
+  const [row] = await DB.execute(sql, [data]);
+  return row;
+};
+
+module.exports = {
+  validate: validate,
+  fetchUserByEmailOrID: fetchUserByEmailOrID,
+  signup: async (req, res, next) => {
+    try {
+      const {
+        first_name,
+        last_name,
+        email,
+        password,
+        phone_no,
+        gender,
+        dob,
+        Nationality,
+        street,
+        Address,
+        State,
+        Country,
+        TIN,
+        employment,
+        employment_status,
+        annual_income,
+        value_of_savings,
+        total_net_assets,
+        source_of_wealth,
+        expected_initial_amount_of_depsoit,
+      } = req.body;
+      const uuid = uuidv4();
+      const saltRounds = 10;
+      const hashPassword = await bcrypt.hash(password, saltRounds);
+
+      const [result] = await DB.execute(
+        "INSERT INTO `users` (`id`,`first_name`, `last_name`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`, `Country`, `TIN`, `employment`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`, `expected_initial_amount_of_depsoit`, `email`, `password`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
+        [
+          uuid,
+          first_name,
+          last_name,
+          phone_no,
+          gender,
+          dob,
+          Nationality,
+          street,
+          Address,
+          State,
+          Country,
+          TIN,
+          employment,
+          employment_status,
+          annual_income,
+          value_of_savings,
+          total_net_assets,
+          source_of_wealth,
+          expected_initial_amount_of_depsoit,
+          email,
+          hashPassword,
+        ]
+      );
+      res.status(201).json({
+        status: 201,
+        message: "You have been successfully registered.",
+        user_id: uuid,
+      });
+    } catch (err) {
+      next(err);
     }
-    next();
-};
+  },
 
-// If email already exists in database
-export const fetchUserByEmailOrID = async (data, isEmail = true) => {
-    let sql = 'SELECT * FROM `users` WHERE `email`=?';
-    if (!isEmail)
-        sql = 'SELECT `id` ,`first_name` ,`last_name` , `email` FROM `users` WHERE `id`=?';
-    const [row] = await DB.execute(sql, [data]);
-    return row;
-};
+  login: async (req, res, next) => {
+    try {
+      const { user, password } = req.body;
+      const verifyPassword = await bcrypt.compare(password, user.password);
+      if (!verifyPassword) {
+        return res.status(422).json({
+          status: 422,
+          message: "Incorrect password!",
+        });
+      }
 
-export default {
-    signup: async (req, res, next) => {
-        try {
-            const { first_name,last_name, email, password, phone_no, gender, dob, Nationality, street, Address, State, Country, TIN, employment, employment_status, annual_income, value_of_savings, total_net_assets, source_of_wealth, expected_initial_amount_of_depsoit } = req.body;
-            const uuid = uuidv4();
-            const saltRounds = 10;
-            // Hash the password
-            const hashPassword = await bcrypt.hash(password, saltRounds);
-    
-            // Store user data in the database
-            const [result] = await DB.execute(
-                'INSERT INTO `users` (`id`,`first_name`, `last_name`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`, `Country`, `TIN`, `employment`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`, `expected_initial_amount_of_depsoit`, `email`, `password`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
-                [uuid,first_name, last_name, phone_no, gender, dob, Nationality, street, Address, State, Country, TIN, employment, employment_status, annual_income, value_of_savings, total_net_assets, source_of_wealth, expected_initial_amount_of_depsoit, email, hashPassword]
-            );
-            res.status(201).json({
-                status: 201,
-                message: 'You have been successfully registered.',
-                user_id: uuid,
-            });
-        } catch (err) {
-            next(err);
-        }
-    },
-    
+      const access_token = generateToken({ id: user.id });
+      const refresh_token = generateToken({ id: user.id }, false);
 
-    login: async (req, res, next) => {
-        try {
-            const { user, password } = req.body;
-            const verifyPassword = await bcrypt.compare(
-                password,
-                user.password
-            );
-            if (!verifyPassword) {
-                return res.status(422).json({
-                    status: 422,
-                    message: 'Incorrect password!',
-                });
-            }
+      const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
 
-            // Generating Access and Refresh Token
-            const access_token = generateToken({ id: user.id });
-            const refresh_token = generateToken({ id: user.id }, false);
+      const [result] = await DB.execute(
+        "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
+        [user.id, md5Refresh]
+      );
 
-            const md5Refresh = createHash('md5')
-                .update(refresh_token)
-                .digest('hex');
+      if (!result.affectedRows) {
+        throw new Error("Failed to whitelist the refresh token.");
+      }
+      res.json({
+        status: 200,
+        access_token,
+        refresh_token,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 
-            // Storing refresh token in MD5 format
-            const [result] = await DB.execute(
-                'INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)',
-                [user.id, md5Refresh]
-            );
+  getUser: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
 
-            if (!result.affectedRows) {
-                throw new Error('Failed to whitelist the refresh token.');
-            }
-            res.json({
-                status: 200,
-                access_token,
-                refresh_token,
-            });
-        } catch (err) {
-            next(err);
-        }
-    },
+      const user = await fetchUserByEmailOrID(data.id, false);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 
-    getUser: async (req, res, next) => {
-        try {
-            // Verify the access token
-            const data = verifyToken(req.headers.access_token);
-            if (data?.status) return res.status(data.status).json(data);
-            // fetching user by the `id` (column)
-            const user = await fetchUserByEmailOrID(data.id, false);
-            if (user.length !== 1) {
-                return res.status(404).json({
-                    status: 404,
-                    message: 'User not found',
-                });
-            }
-            res.json({
-                status: 200,
-                user: user[0],
-            });
-        } catch (err) {
-            next(err);
-        }
-    },
+  refreshToken: async (req, res, next) => {
+    try {
+      const refreshToken = req.headers.refresh_token;
+      const data = verifyToken(refreshToken, false);
+      if (data && data.status) return res.status(data.status).json(data);
 
-    refreshToken: async (req, res, next) => {
-        try {
-            const refreshToken = req.headers.refresh_token;
-            // Verify the refresh token
-            const data = verifyToken(refreshToken, false);
-            if (data?.status) return res.status(data.status).json(data);
+      const md5Refresh = createHash("md5").update(refreshToken).digest("hex");
 
-            // Converting refresh token to md5 format
-            const md5Refresh = createHash('md5')
-                .update(refreshToken)
-                .digest('hex');
+      const [refTokenRow] = await DB.execute(
+        "SELECT * from `refresh_tokens` WHERE token=?",
+        [md5Refresh]
+      );
 
-            // Finding the refresh token in the database
-            const [refTokenRow] = await DB.execute(
-                'SELECT * from `refresh_tokens` WHERE token=?',
-                [md5Refresh]
-            );
+      if (refTokenRow.length !== 1) {
+        return res.json({
+          status: 401,
+          message: "Unauthorized: Invalid Refresh Token.",
+        });
+      }
 
-            if (refTokenRow.length !== 1) {
-                return res.json({
-                    status: 401,
-                    message: 'Unauthorized: Invalid Refresh Token.',
-                });
-            }
+      const access_token = generateToken({ id: data.id });
+      const refresh_token = generateToken({ id: data.id }, false);
 
-            // Generating new access and refresh token
-            const access_token = generateToken({ id: data.id });
-            const refresh_token = generateToken({ id: data.id }, false);
+      const newMd5Refresh = createHash("md5")
+        .update(refresh_token)
+        .digest("hex");
 
-            const newMd5Refresh = createHash('md5')
-                .update(refresh_token)
-                .digest('hex');
+      const [result] = await DB.execute(
+        "UPDATE `refresh_tokens` SET `token`=? WHERE `token`=?",
+        [newMd5Refresh, md5Refresh]
+      );
 
-            // Replacing the old refresh token to new refresh token
-            const [result] = await DB.execute(
-                'UPDATE `refresh_tokens` SET `token`=? WHERE `token`=?',
-                [newMd5Refresh, md5Refresh]
-            );
+      if (!result.affectedRows) {
+        throw new Error("Failed to whitelist the Refresh token.");
+      }
 
-            if (!result.affectedRows) {
-                throw new Error('Failed to whitelist the Refresh token.');
-            }
-
-            res.json({
-                status: 200,
-                access_token,
-                refresh_token,
-            });
-        } catch (err) {
-            next(err);
-        }
-    },
+      res.json({
+        status: 200,
+        access_token,
+        refresh_token,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };
