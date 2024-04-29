@@ -30,68 +30,32 @@ const fetchUserByEmailOrID = async (data, isEmail = true) => {
   const [row] = await DB.execute(sql, [data]);
   return row;
 };
-
+const fetchProfileByID = async (id) => {
+  sql = "SELECT * FROM `profile` WHERE `user_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
 module.exports = {
   validate: validate,
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
     try {
-      const {
-        first_name,
-        last_name,
-        email,
-        password,
-        phone_no,
-        gender,
-        dob,
-        Nationality,
-        street,
-        Address,
-        State,
-        Country,
-        TIN,
-        employment,
-        employment_status,
-        annual_income,
-        value_of_savings,
-        total_net_assets,
-        source_of_wealth,
-        expected_initial_amount_of_depsoit,
-      } = req.body;
-      const uuid = uuidv4();
+      const { id, email, password } = req.body;
+
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
-
+      const user = await fetchUserByEmailOrId(email, true);
+      if (user.length >= 1) {
+        return res.status(403).json("Email Already Exist");
+      }
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`,`first_name`, `last_name`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`, `Country`, `TIN`, `employment`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`, `expected_initial_amount_of_depsoit`, `email`, `password`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
-        [
-          uuid,
-          first_name,
-          last_name,
-          phone_no,
-          gender,
-          dob,
-          Nationality,
-          street,
-          Address,
-          State,
-          Country,
-          TIN,
-          employment,
-          employment_status,
-          annual_income,
-          value_of_savings,
-          total_net_assets,
-          source_of_wealth,
-          expected_initial_amount_of_depsoit,
-          email,
-          hashPassword,
-        ]
+        "INSERT INTO `users` (`id`, `email`, `password`) VALUES (?, ?, ?)",
+        [id, email, hashPassword]
       );
       res.status(201).json({
         status: 201,
         message: "You have been successfully registered.",
-        user_id: uuid,
+        user_id: id,
       });
     } catch (err) {
       next(err);
@@ -193,6 +157,91 @@ module.exports = {
         status: 200,
         access_token,
         refresh_token,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },  
+  createProfile: async (req, res, next) => {
+    try {
+      const {
+        first_name,
+        last_name,
+        email,
+        phone_no,
+        gender,
+        dob,
+        Nationality,
+        street,
+        Address,
+        State,
+        Country,
+        TIN,
+        industry,
+        employment_status,
+        annual_income,
+        value_of_savings,
+        total_net_assets,
+        source_of_wealth,
+        expected_initial_amount_of_deposit,
+        number_of_trading_experience,
+        platform,
+        base_currency,
+        leverage,
+        user_id,
+      } = req.body;
+      const uuid = uuidv4();
+      const [result] = await DB.execute(
+        "INSERT INTO `profile` (`id`,`first_name`, `last_name`,`email`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`,`Country`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`,expected_initial_amount_of_deposit`, `number_of_trading_experience`,`platform`,`base_currency`,`leverage`,`user_id`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
+        [
+          uuid,
+          first_name,
+          email,
+          last_name,
+          phone_no,
+          gender,
+          dob,
+          Nationality,
+          street,
+          Address,
+          State,
+          Country,
+          TIN,
+          industry,
+          employment_status,
+          annual_income,
+          value_of_savings,
+          total_net_assets,
+          source_of_wealth,
+          expected_initial_amount_of_deposit,
+          number_of_trading_experience,
+          platform,
+          base_currency,
+          leverage,
+          user_id,
+        ]
+      );
+      res.status(201).json({
+        status: 201,
+        message: "Your profile have been created",
+        user_id: uuid,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  getProfile: async (req, res, next) => {
+    try {
+      const user = await fetchProfileByID(req.params.userId);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "profile not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user[0],
       });
     } catch (err) {
       next(err);

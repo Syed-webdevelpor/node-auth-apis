@@ -32,22 +32,6 @@ const tokenValidation = (isRefresh = false) => {
 router.post(
   "/signup",
   [
-    body("first_name")
-      .trim()
-      .not()
-      .isEmpty()
-      .withMessage("Name must not be empty.")
-      .isLength({ min: 3 })
-      .withMessage("Name must be at least 3 characters long")
-      .escape(),
-    body("last_name")
-      .trim()
-      .not()
-      .isEmpty()
-      .withMessage("Name must not be empty.")
-      .isLength({ min: 3 })
-      .withMessage("Name must be at least 3 characters long")
-      .escape(),
     body("email", "Invalid email address.")
       .trim()
       .isEmail()
@@ -88,7 +72,8 @@ router.post(
 
 // Get the user data by providing the access token
 router.get("/profile", tokenValidation(), validate, controller.getUser);
-
+router.post("/profile", controller.createProfile);
+router.get("/:userId/getProfile", tokenValidation(), controller.getProfile);
 // Get new access and refresh token by providing the refresh token
 router.get(
   "/refresh",
