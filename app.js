@@ -20,14 +20,13 @@ app.use((err, req, res, next) => {
 });
 
 // If database is connected successfully, then run the server
-dbConnection.connect((err) => {
-  if (err) {
-    console.error(`Failed to connect to the database: ${err.message}`);
-    return;
-  }
-
-  // Start the server if the database connection is successful
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
-});
+dbConnection
+    .getConnection()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    })
+    .catch((err) => {
+        console.log(`Failed to connect to the database: ${err.message}`);
+    });

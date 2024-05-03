@@ -44,7 +44,7 @@ module.exports = {
 
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
-      const user = await fetchUserByEmailOrId(email, true);
+      const user = await fetchUserByEmailOrID(email, true);
       if (user.length >= 1) {
         return res.status(403).json("Email Already Exist");
       }
