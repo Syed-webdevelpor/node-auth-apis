@@ -294,16 +294,18 @@ module.exports = {
         account_id,
         amount,
         transaction_type,
+        status,
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_info` (`id`, `account_id`, `user_id`,`amount`,`transaction_type`) VALUES (?,?,?, ?)",
+        "INSERT INTO `account_info` (`id`, `account_id`, `user_id`,`amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?)",
         [
           uuid,
           account_id,
           user_id,
           amount,
           transaction_type,
+          status,
         ]
       );
       res.status(201).json({

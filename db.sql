@@ -72,6 +72,7 @@ CREATE TABLE `transaction_details` (
   `user_id` varchar(36) DEFAULT NULL,
   `amount` DECIMAL(15, 2) NOT NULL,
   `transaction_type` varchar(70) NOT NULL,
+  `status` varchar(70) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
