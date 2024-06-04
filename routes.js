@@ -72,7 +72,11 @@ router.post(
 
 // Get the user data by providing the access token
 router.get("/profile", tokenValidation(), validate, controller.getUser);
-router.post("/profile", controller.createProfile);
+router.post("/personalInfo", controller.createPersonalInfo);
+router.post("/financialInfo", controller.createFinancialInfo);
+router.post("/accountInfo", controller.createAccountInfo);
+router.post("/account", controller.createAccount);
+router.post("/transactionDetails", controller.transactionDetail);
 router.get("/:userId/getProfile", tokenValidation(), controller.getProfile);
 // Get new access and refresh token by providing the refresh token
 router.get(
