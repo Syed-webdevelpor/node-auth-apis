@@ -25,6 +25,7 @@ CREATE TABLE `users` (
 
 CREATE TABLE `personal_info` (
   `id` VARCHAR(36) NOT NULL,
+  `userId` varchar(36) NOT NULL,
   `first_name` varchar(30) NOT NULL,
   `last_name` varchar(30) NOT NULL,
   `phone_no` varchar(30) NOT NULL,
@@ -42,6 +43,7 @@ CREATE TABLE `personal_info` (
 
 CREATE TABLE `financial_info` (
   `id` VARCHAR(36) NOT NULL,
+  `userId` varchar(36) NOT NULL,
   `TIN` varchar(70) NOT NULL,
   `industry` varchar(70) NOT NULL,
   `employment_status` varchar(70) NOT NULL,
@@ -57,6 +59,7 @@ CREATE TABLE `financial_info` (
 
 CREATE TABLE `account_info` (
   `id` VARCHAR(36) NOT NULL,
+  `userId` varchar(36) NOT NULL,
   `trading_experience` varchar(70) NOT NULL,
   `platform` varchar(70) NOT NULL,
   `base_currency` varchar(70) NOT NULL,
