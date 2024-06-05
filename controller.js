@@ -22,8 +22,8 @@ const validate = (req, res, next) => {
   next();
 };
 
-const fetchUserByEmailOrID = async (data, isEmail = true) => {
-  const column = byEmail ? 'email' : 'id';
+const fetchUserByEmailOrID = async (data, isEmail) => {
+  const column = isEmail ? 'email' : 'id';
   const [rows] = await DB.execute(
     `SELECT 
        users.id, users.email, users.created_at, users.updated_at,
@@ -184,10 +184,11 @@ module.exports = {
         Address,
         State,
         Country,
+        userId,
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `personal_info` (`id`,`first_name`, `last_name`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`,`Country`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `personal_info` (`id`,`first_name`, `last_name`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`,`Country`, `userId`,) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           first_name,
@@ -200,11 +201,12 @@ module.exports = {
           Address,
           State,
           Country,
+          userId
         ]
       );
       await DB.execute(
         "UPDATE `user` SET `personal_info_id` = ? WHERE `id` = ?",
-        [uuid, user_id]
+        [uuid, userId]
       );
       res.status(201).json({
         status: 201,
@@ -226,10 +228,11 @@ module.exports = {
         total_net_assets,
         source_of_wealth,
         expected_initial_amount_of_deposit,
+        userId
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `financial_info` (`id`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`,expected_initial_amount_of_deposit`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `financial_info` (`id`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`,expected_initial_amount_of_deposit`, `userId`) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           TIN,
@@ -240,11 +243,12 @@ module.exports = {
           total_net_assets,
           source_of_wealth,
           expected_initial_amount_of_deposit,
+          userId
         ]
       );
       await DB.execute(
         "UPDATE `user` SET `personal_info_id` = ? WHERE `id` = ?",
-        [uuid, user_id]
+        [uuid, userId]
       );
       res.status(201).json({
         status: 201,
@@ -262,21 +266,23 @@ module.exports = {
         platform,
         base_currency,
         leverage,
+        userId
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_info` (`id`, `trading_experience`,`platform`,`base_currency`,`leverage`) VALUES (?,?,?, ?, ?, ?)",
+        "INSERT INTO `account_info` (`id`, `trading_experience`,`platform`,`base_currency`,`leverage`, `userId`) VALUES (?,?,?,?, ?, ?, ?)",
         [
           uuid,
           trading_experience,
           platform,
           base_currency,
           leverage,
+          userId
         ]
       );
       await DB.execute(
         "UPDATE `user` SET `personal_info_id` = ? WHERE `id` = ?",
-        [uuid, user_id]
+        [uuid, userId]
       );
       res.status(201).json({
         status: 201,
