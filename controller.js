@@ -227,12 +227,14 @@ module.exports = {
         value_of_savings,
         total_net_assets,
         source_of_wealth,
-        expected_initial_amount_of_deposit,
+        expected_initial_amount_of_depsoit,
         userId
       } = req.body;
+      
       const uuid = uuidv4();
+
       const [result] = await DB.execute(
-        "INSERT INTO `financial_info` (`id`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`, `expected_initial_amount_of_deposit`, `userId`) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `financial_info` (`id`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`, `expected_initial_amount_of_depsoit`, `userId`) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           TIN,
@@ -242,10 +244,11 @@ module.exports = {
           value_of_savings,
           total_net_assets,
           source_of_wealth,
-          expected_initial_amount_of_deposit,
+          expected_initial_amount_of_depsoit,
           userId
         ]
       );
+      console.log(uuid);
       await DB.execute(
         "UPDATE `users` SET `financial_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
