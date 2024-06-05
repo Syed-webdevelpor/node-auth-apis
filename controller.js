@@ -232,7 +232,7 @@ module.exports = {
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `financial_info` (`id`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`,expected_initial_amount_of_deposit`, `userId`) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `financial_info` (`id`, `TIN`, `industry`, `employment_status`, `annual_income`, `value_of_savings`, `total_net_assets`, `source_of_wealth`, `expected_initial_amount_of_deposit`, `userId`) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           TIN,
