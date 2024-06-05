@@ -29,7 +29,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
        users.id, users.email, users.created_at, users.updated_at,
        personal_info.first_name, personal_info.last_name, personal_info.phone_no, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
        financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
-       account_info.trading_experience, account_info.platform, account_info.base_currency, account_info.leverage,
+       account_info.trading_experience, account_info.platform, account_info.base_currency, account_info.leverage
      FROM users
      LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
      LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
