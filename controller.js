@@ -205,7 +205,7 @@ module.exports = {
         ]
       );
       await DB.execute(
-        "UPDATE `user` SET `personal_info_id` = ? WHERE `id` = ?",
+        "UPDATE `users` SET `personal_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
       );
       res.status(201).json({
@@ -247,7 +247,7 @@ module.exports = {
         ]
       );
       await DB.execute(
-        "UPDATE `user` SET `personal_info_id` = ? WHERE `id` = ?",
+        "UPDATE `users` SET `personal_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
       );
       res.status(201).json({
@@ -281,7 +281,7 @@ module.exports = {
         ]
       );
       await DB.execute(
-        "UPDATE `user` SET `personal_info_id` = ? WHERE `id` = ?",
+        "UPDATE `users` SET `personal_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
       );
       res.status(201).json({
