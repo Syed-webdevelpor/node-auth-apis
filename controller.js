@@ -376,7 +376,7 @@ module.exports = {
   },
   getProfile: async (req, res, next) => {
     try {
-      const user = await fetchProfileByID(req.params.userId);
+      const user = await fetchUserByEmailOrID(req.params.userId);
       if (user.length !== 1) {
         return res.status(404).json({
           status: 404,
