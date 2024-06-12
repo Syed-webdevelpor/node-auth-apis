@@ -78,6 +78,9 @@ router.post("/accountInfo", controller.createAccountInfo);
 router.post("/account", controller.createAccount);
 router.post("/transactionDetails", controller.transactionDetail);
 router.get("/:userId/getProfile", tokenValidation(), controller.getProfile);
+router.get("/:id/getPersonalInfo", tokenValidation(), controller.getPersonalInfo);
+router.get("/:id/getFinancialInfo", tokenValidation(), controller.getFinancialInfo);
+router.get("/:id/getAccountInfo", tokenValidation(), controller.getAccountInfo);
 // Get new access and refresh token by providing the refresh token
 router.get(
   "/refresh",

@@ -391,7 +391,7 @@ module.exports = {
       next(err);
     }
   },
-  getPerdonalInfo: async (req, res, next) => {
+  getPersonalInfo: async (req, res, next) => {
     try {
       const user = await fetchPersonalInfoByID(req.params.userId);
       if (user.length !== 1) {
