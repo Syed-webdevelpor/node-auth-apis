@@ -40,17 +40,17 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   return rows;
 };
 const fetchPersonalInfoByID = async (id) => {
-  sql = "SELECT * FROM `personal_info` WHERE `id`=?";
+  sql = "SELECT * FROM `personal_info` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
 const fetchFinancialInfoByID = async (id) => {
-  sql = "SELECT * FROM `financial_info` WHERE `id`=?";
+  sql = "SELECT * FROM `financial_info` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
 const fetchaccountInfoByID = async (id) => {
-  sql = "SELECT * FROM `account_info` WHERE `id`=?";
+  sql = "SELECT * FROM `account_info` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
@@ -393,7 +393,7 @@ module.exports = {
   },
   getPersonalInfo: async (req, res, next) => {
     try {
-      const user = await fetchPersonalInfoByID(req.params.userId);
+      const user = await fetchPersonalInfoByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({
           status: 404,
@@ -402,7 +402,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        user: user[0],
+        personal_info: user[0],
       });
     } catch (err) {
       next(err);
@@ -410,7 +410,7 @@ module.exports = {
   },
   getFinancialInfo: async (req, res, next) => {
     try {
-      const user = await fetchFinancialInfoByID(req.params.userId);
+      const user = await fetchFinancialInfoByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({
           status: 404,
@@ -419,7 +419,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        user: user[0],
+        financial_info: user[0],
       });
     } catch (err) {
       next(err);
@@ -427,7 +427,7 @@ module.exports = {
   },
   getAccountInfo: async (req, res, next) => {
     try {
-      const user = await fetchaccountInfoByID(req.params.userId);
+      const user = await fetchaccountInfoByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({
           status: 404,
@@ -436,7 +436,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        user: user[0],
+        account_info: user[0],
       });
     } catch (err) {
       next(err);
