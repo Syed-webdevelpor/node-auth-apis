@@ -39,6 +39,21 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   );
   return rows;
 };
+const fetchPersonalInfoByID = async (id) => {
+  sql = "SELECT * FROM `personal_info` WHERE `id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+const fetchFinancialInfoByID = async (id) => {
+  sql = "SELECT * FROM `financial_info` WHERE `id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+const fetchaccountInfoByID = async (id) => {
+  sql = "SELECT * FROM `account_info` WHERE `id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
 const fetchProfileByID = async (id) => {
   sql = "SELECT * FROM `profile` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
@@ -61,10 +76,12 @@ module.exports = {
         "INSERT INTO `users` (`id`, `email`, `password`) VALUES (?, ?, ?)",
         [id, email, hashPassword]
       );
+      const access_token = generateToken({ id: id });
       res.status(201).json({
         status: 201,
         message: "You have been successfully registered.",
         user_id: id,
+        access_token,
       });
     } catch (err) {
       next(err);
@@ -364,6 +381,57 @@ module.exports = {
         return res.status(404).json({
           status: 404,
           message: "profile not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  getPerdonalInfo: async (req, res, next) => {
+    try {
+      const user = await fetchPersonalInfoByID(req.params.userId);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "personal info not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  getFinancialInfo: async (req, res, next) => {
+    try {
+      const user = await fetchFinancialInfoByID(req.params.userId);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "financial info not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  getAccountInfo: async (req, res, next) => {
+    try {
+      const user = await fetchaccountInfoByID(req.params.userId);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "account info not found",
         });
       }
       res.json({
