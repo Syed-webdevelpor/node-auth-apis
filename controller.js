@@ -40,17 +40,17 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   return rows;
 };
 const fetchPersonalInfoByID = async (id) => {
-  sql = "SELECT * FROM `personal_info` WHERE `user_id`=?";
+  sql = "SELECT * FROM `personal_info` WHERE `userId`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
 const fetchFinancialInfoByID = async (id) => {
-  sql = "SELECT * FROM `financial_info` WHERE `user_id`=?";
+  sql = "SELECT * FROM `financial_info` WHERE `userId`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
 const fetchaccountInfoByID = async (id) => {
-  sql = "SELECT * FROM `account_info` WHERE `user_id`=?";
+  sql = "SELECT * FROM `account_info` WHERE `userId`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
