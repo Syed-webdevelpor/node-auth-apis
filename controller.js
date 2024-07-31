@@ -54,6 +54,11 @@ const fetchaccountInfoByID = async (id) => {
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
+const fetchReferFriendByID = async (id) => {
+  sql = "SELECT * FROM `refer_friends` WHERE `id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
 const fetchProfileByID = async (id) => {
   sql = "SELECT * FROM `profile` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
@@ -368,7 +373,7 @@ module.exports = {
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",
-        account_id: uuid,
+        account_id: account_id,
       });
     } catch (err) {
       next(err);
@@ -442,4 +447,255 @@ module.exports = {
       next(err);
     }
   },
+  updatePersonalInfo: async (req, res, next) => {
+    try {
+      const {
+        id,
+        first_name,
+        last_name,
+        phone_no,
+        gender,
+        dob,
+        Nationality,
+        street,
+        Address,
+        State,
+        Country,
+      } = req.body;
+  
+      const [result] = await DB.execute(
+        "UPDATE `personal_info` SET `first_name` = ?, `last_name` = ?, `phone_no` = ?, `gender` = ?, `dob` = ?, `Nationality` = ?, `street` = ?, `Address` = ?, `State` = ?, `Country` = ? WHERE `id` = ?",
+        [
+          first_name,
+          last_name,
+          phone_no,
+          gender,
+          dob,
+          Nationality,
+          street,
+          Address,
+          State,
+          Country,
+          id
+        ]
+      );
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Personal info not found",
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: "Personal info updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  updateFinancialInfo: async (req, res, next) => {
+    try {
+      const {
+        id,
+        TIN,
+        industry,
+        employment_status,
+        annual_income,
+        value_of_savings,
+        total_net_assets,
+        source_of_wealth,
+        expected_initial_amount_of_depsoit,
+      } = req.body;
+  
+      const [result] = await DB.execute(
+        "UPDATE `financial_info` SET `TIN` = ?, `industry` = ?, `employment_status` = ?, `annual_income` = ?, `value_of_savings` = ?, `total_net_assets` = ?, `source_of_wealth` = ?, `expected_initial_amount_of_depsoit` = ? WHERE `id` = ?",
+        [
+          TIN,
+          industry,
+          employment_status,
+          annual_income,
+          value_of_savings,
+          total_net_assets,
+          source_of_wealth,
+          expected_initial_amount_of_depsoit,
+          id
+        ]
+      );
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Financial info not found",
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: "Financial info updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  updateAccountInfo: async (req, res, next) => {
+    try {
+      const {
+        id,
+        trading_experience,
+        platform,
+        base_currency,
+        leverage,
+      } = req.body;
+  
+      const [result] = await DB.execute(
+        "UPDATE `account_info` SET `trading_experience` = ?, `platform` = ?, `base_currency` = ?, `leverage` = ? WHERE `id` = ?",
+        [
+          trading_experience,
+          platform,
+          base_currency,
+          leverage,
+          id
+        ]
+      );
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Account info not found",
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: "Account info updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  updateTransactionDetail: async (req, res, next) => {
+    try {
+      const {
+        id,
+        account_id,
+        user_id,
+        amount,
+        transaction_type,
+        status,
+      } = req.body;
+  
+      const [result] = await DB.execute(
+        "UPDATE `transaction_details` SET `account_id` = ?, `user_id` = ?, `amount` = ?, `transaction_type` = ?, `status` = ? WHERE `id` = ?",
+        [
+          account_id,
+          user_id,
+          amount,
+          transaction_type,
+          status,
+          id
+        ]
+      );
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Transaction detail not found",
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: "Transaction detail updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  updateAccount: async (req, res, next) => {
+    try {
+      const {
+        id,
+        user_id,
+        total_equiti,
+        total_deposit,
+        total_balance,
+        total_withdraw
+      } = req.body;
+  
+      const [result] = await DB.execute(
+        "UPDATE `account_info` SET `user_id` = ?, `total_equiti` = ?, `total_deposit` = ?, `total_balance` = ?, `total_withdraw` = ? WHERE `id` = ?",
+        [
+          user_id,
+          total_equiti,
+          total_deposit,
+          total_balance,
+          total_withdraw,
+          id
+        ]
+      );
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Account not found",
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: "Account updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  createReferFriend: async (req, res, next) => {
+    try {
+      const {
+        refer_link,
+        total_invited_friends,
+        rewarded_friends,
+        total_earning,
+        rewards_in_progress
+      } = req.body;
+      const uuid = uuidv4();
+      const [result] = await DB.execute(
+        "INSERT INTO `account_info` (`id`, `refer_link`, `total_invited_friends`,`rewarded_friends`,`total_earning`, `rewards_in_progress`) VALUES (?,?,?, ?,?,?)",
+        [
+          uuid,
+          refer_link,
+          total_invited_friends,
+          rewarded_friends,
+          total_earning,
+          rewards_in_progress
+        ]
+      );
+      res.status(201).json({
+        status: 201,
+        message: "Refer Friend has been created",
+        account_id: uuid,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },   
+  getReferFriend: async (req, res, next) => {
+    try {
+      const user = await fetchReferFriendByID(req.params.id);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "Refer Friend not found",
+        });
+      }
+      res.json({
+        status: 200,
+        account_info: user[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },      
 };

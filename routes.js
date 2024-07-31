@@ -77,10 +77,17 @@ router.post("/financialInfo", controller.createFinancialInfo);
 router.post("/accountInfo", controller.createAccountInfo);
 router.post("/account", controller.createAccount);
 router.post("/transactionDetails", controller.transactionDetail);
+router.post("/referFriends", controller.createReferFriend);
 router.get("/:userId/getProfile", tokenValidation(), controller.getProfile);
 router.get("/:id/getPersonalInfo", tokenValidation(), controller.getPersonalInfo);
 router.get("/:id/getFinancialInfo", tokenValidation(), controller.getFinancialInfo);
 router.get("/:id/getAccountInfo", tokenValidation(), controller.getAccountInfo);
+router.get("/:id/getReferFriend", tokenValidation(), controller.getReferFriend);
+router.post("update/personalInfo",tokenValidation(), controller.updatePersonalInfo);
+router.post("update/financialInfo",tokenValidation(), controller.updateFinancialInfo);
+router.post("update/accountInfo",tokenValidation(), controller.updateAccountInfo);
+router.post("update/account",tokenValidation(), controller.updateAccount);
+router.post("update/transactionDetails",tokenValidation(), controller.updateTransactionDetail);
 // Get new access and refresh token by providing the refresh token
 router.get(
   "/refresh",

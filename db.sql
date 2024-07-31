@@ -93,6 +93,17 @@ CREATE TABLE `accounts` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE `refer_friends` (
+  `id` VARCHAR(36) NOT NULL,
+  `refer_link` varchar(70) NOT NULL,
+  `total_invited_friends` DECIMAL(15, 2) NOT NULL,
+  `rewarded_friends` DECIMAL(15, 2) NOT NULL,
+  `total_earning` DECIMAL(15, 2) NOT NULL,
+  `rewards_in_progress` DECIMAL(15, 2) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 ALTER TABLE `refresh_tokens`
   ADD CONSTRAINT `refresh_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
