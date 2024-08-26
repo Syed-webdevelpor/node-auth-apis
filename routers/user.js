@@ -52,7 +52,7 @@ router.post(
 
 // Get the user data by providing the access token
 router.get("/profile", tokenValidation, validate, user.getUser);
-router.get("/:userId/getProfile", tokenValidation, controller.getProfile);
+router.get("/:userId/getProfile", tokenValidation, user.getProfile);
 router.get("/refresh", tokenValidation(true), validate, user.refreshToken);
 
 module.exports = router;
