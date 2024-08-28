@@ -24,51 +24,84 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
 module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
+    const transaction = await DB.beginTransaction();
     try {
       const { id, email, password, referCode } = req.body;
-
+  
+      // Validate input
+      if (!email || !password || !id) {
+        return res.status(400).json("Missing required fields");
+      }
+  
+      // Hash password
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
+  
+      // Generate referral code
       const referralCode = crypto.randomBytes(4).toString("hex");
+  
+      // Check if user with the given email already exists
       const user = await fetchUserByEmailOrID(email, true);
-      if (user.length >= 1) {
-        return res.status(403).json("Email Already Exist");
+      if (user.length > 0) {
+        return res.status(403).json("Email already exists");
       }
-      const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `password`) VALUES (?, ?, ?, ?)",
-        [id, email, hashPassword, referralCode]
-      );
-
+  
+      // Determine affiliation type
+      let affiliationType = "Direct";
+      let referringUser = null;
+      let row = null;
+  
       if (referCode) {
-        // Fetch the user who has this referral code
-        const [referringUser] = await DB.execute(
-          "SELECT * FROM `users` WHERE `referral_code` = ?",
-          [referCode]
-        );
-
+        // Check if referCode belongs to an introducing broker
+        [row] = await DB.execute("SELECT * FROM `introducing_brokers` WHERE `referral_code`=?", [referCode]);
+        if (row) {
+          affiliationType = "Introduced";
+        }
+  
+        // Check if referCode belongs to another user
+        [referringUser] = await DB.execute("SELECT * FROM `users` WHERE `referral_code`=?", [referCode]);
         if (referringUser) {
-          // Add new user's ID to the referring user's subusers array
-          const subusers = referringUser.subusers
-            ? JSON.parse(referringUser.subusers)
-            : [];
-          subusers.push(id);
-
-          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [
-            JSON.stringify(subusers),
-            referringUser.id,
-          ]);
+          affiliationType = "Affiliate";
         }
       }
+  
+      // Insert new user
+      const [result] = await DB.execute(
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`) VALUES (?, ?, ?, ?, ?)",
+        [id, email, hashPassword, referralCode, affiliationType]
+      );
+  
+      if (referCode) {
+        // Update subusers for referring user
+        if (referringUser) {
+          let subusers = referringUser.subusers ? JSON.parse(referringUser.subusers) : [];
+          subusers.push(id);
+          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [JSON.stringify(subusers), referringUser.id]);
+        }
+  
+        // Update subusers for introducing broker
+        if (row) {
+          let subusers = row.subusers ? JSON.parse(row.subusers) : [];
+          subusers.push(id);
+          await DB.execute("UPDATE `introducing_brokers` SET `subusers` = ? WHERE `id` = ?", [JSON.stringify(subusers), row.id]);
+        }
+      }
+  
+      // Commit transaction
+      await transaction.commit();
+  
+      // Generate access token
       const access_token = generateToken({ id: id });
       res.status(201).json({
         status: 201,
         message: "You have been successfully registered.",
         user_id: id,
         access_token,
-        referral_code: referralCode, // Return the generated referral code
-        referred_by: referCode ? referringUser.id : null, // Return the referring user's ID if referral was used
+        referral_code: referralCode,
+        referred_by: referCode ? referringUser.id : null,
       });
     } catch (err) {
+      await transaction.rollback();
       next(err);
     }
   },

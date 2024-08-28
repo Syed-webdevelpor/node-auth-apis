@@ -3,14 +3,14 @@ const { tokenValidation } = require("../middlewares/authentication.js");
 const personalInfo = require("../controllers/personalInfo.js");
 const router = express.Router();
 
-router.post("/personalInfo", personalInfo.createPersonalInfo);
+router.post("/add", personalInfo.createPersonalInfo);
 router.get(
-  "/:id/getPersonalInfo",
+  "/:id/get",
   tokenValidation,
   personalInfo.getPersonalInfo
 );
 router.post(
-  "update/personalInfo",
+  "/update",
   tokenValidation,
   personalInfo.updatePersonalInfo
 );

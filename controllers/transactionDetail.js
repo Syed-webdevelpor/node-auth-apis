@@ -1,6 +1,12 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 
+const fetchTransactionDetailtByUserID = async (id) => {
+  sql = "SELECT * FROM `transaction_details` WHERE `user_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+
 module.exports = {
 
   transactionDetail: async (req, res, next) => {
@@ -14,7 +20,7 @@ module.exports = {
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_info` (`id`, `account_id`, `user_id`,`amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?)",
+        "INSERT INTO `transaction_details` (`id`, `account_id`, `user_id`,`amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?)",
         [
           uuid,
           account_id,
@@ -72,5 +78,23 @@ module.exports = {
       next(err);
     }
   }, 
+
+  getTransactionDetailByUserId: async (req, res, next) => {
+    try {
+      const trading_accounts = await fetchTransactionDetailtByUserID(req.params.id);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "Trading account not found",
+        });
+      }
+      res.json({
+        status: 200,
+        trading_accounts: trading_accounts[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
     
 };

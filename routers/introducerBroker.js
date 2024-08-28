@@ -1,0 +1,38 @@
+const express = require("express");
+const {
+  tokenValidation,
+  validate,
+} = require("../middlewares/authentication.js");
+const introducerBroker = require("../controllers/introducerBroker.js");
+const user = require("../controllers/user.js");
+const router = express.Router();
+
+router.post(
+  "/add",
+  [
+    body("email", "Invalid email address.")
+      .trim()
+      .isEmail()
+      .custom(async (email) => {
+        const isExist = await fetchUserByEmailOrID(email);
+        if (isExist.length)
+          throw new Error("A user already exists with this e-mail address");
+        return true;
+      }),
+    body("password")
+      .trim()
+      .isLength({ min: 4 })
+      .withMessage("Password must be at least 4 characters long"),
+  ],
+  validate,
+  introducerBroker.createIntroducingBroker,
+  user.signup
+);
+router.get("/:id/get", tokenValidation, introducerBroker.getIntroducingBroker);
+router.post(
+  "/update",
+  tokenValidation,
+  introducerBroker.updateIntroducingBroker
+);
+
+module.exports = router;

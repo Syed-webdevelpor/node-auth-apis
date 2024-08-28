@@ -1,11 +1,13 @@
 const express = require("express");
 const dbConnection = require("./dbConnection.js");
 const userRoutes = require("./routers/user.js");
+const introducerBrokerRoutes = require("./routers/introducerBroker.js");
 const personalInfo = require("./routers/personalInfo.js");
 const financialInfoRoutes = require("./routers/financialInfo.js");
 const accountInfoRoutes = require("./routers/accountInfo.js");
-const accountRoutes = require("./routers/account.js");
+const tradingAccountRoutes = require("./routers/tradingAccount.js");
 const transactionDetailRoutes = require("./routers/transactionDetail.js");
+const accountFinancialRoutes = require("./routers/accountFinancial.js");
 const referFriendRoutes = require("./routers/referFriend.js");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,12 +18,14 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-app.use("/api", userRoutes);
-app.use("/api", personalInfo);
-app.use("/api", financialInfoRoutes);
-app.use("/api", accountInfoRoutes);
-app.use("/api", accountRoutes);
-app.use("/api", transactionDetailRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/introducerBroker", introducerBrokerRoutes);
+app.use("/api/personalInfo", personalInfo);
+app.use("/api/financialInfo", financialInfoRoutes);
+app.use("/api/accountInfo", accountInfoRoutes);
+app.use("/api/tradingAccount", tradingAccountRoutes);
+app.use("/api/transactionDetail", transactionDetailRoutes);
+app.use("/api/accountFinancial", accountFinancialRoutes);
 app.use("/api", referFriendRoutes);
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;

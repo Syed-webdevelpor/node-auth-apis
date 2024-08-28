@@ -15,6 +15,7 @@ CREATE TABLE `users` (
   `personal_info_id` VARCHAR(36) DEFAULT NULL,
   `financial_info_id` VARCHAR(36) DEFAULT NULL,
   `account_info_id` VARCHAR(36) DEFAULT NULL,
+  `affiliation_type` ENUM('Direct', 'Introduced', 'Affiliate') NOT NULL,
   `referral_code` VARCHAR(8) NOT NULL UNIQUE, -- Column for the unique referral code
   `subusers` TEXT DEFAULT NULL, 
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
