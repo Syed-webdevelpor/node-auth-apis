@@ -18,17 +18,16 @@ module.exports = {
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `introducing_brokers` (`id`, `ib_name`, `email`, `phone_number`) VALUES (?, ?, ?, ?)",
+        "INSERT INTO `introducing_brokers` (`ib_id`, `ib_name`, `email`, `phone_number`) VALUES (?, ?, ?, ?)",
         [
           uuid,
           ib_name,
           email,
           phone_number,
-          password,
         ]
       );
 if (result) {
-next(uuid);
+next();
 }
     } catch (err) {
       next(err);

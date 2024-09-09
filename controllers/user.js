@@ -24,7 +24,6 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
 module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
-    const transaction = await DB.beginTransaction();
     try {
       const { id, email, password, referCode } = req.body;
   
@@ -87,9 +86,6 @@ module.exports = {
         }
       }
   
-      // Commit transaction
-      await transaction.commit();
-  
       // Generate access token
       const access_token = generateToken({ id: id });
       res.status(201).json({
@@ -101,7 +97,6 @@ module.exports = {
         referred_by: referCode ? referringUser.id : null,
       });
     } catch (err) {
-      await transaction.rollback();
       next(err);
     }
   },
