@@ -38,7 +38,7 @@ router.post(
       .trim()
       .isEmail()
       .custom(async (email, { req }) => {
-        const isExist = await fetchUserByEmailOrID(email);
+        const isExist = await fetchUserByEmailOrID(email,true);
         if (isExist.length === 0)
           throw new Error("Your email is not registered.");
         req.body.user = isExist[0];
