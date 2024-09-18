@@ -6,9 +6,9 @@ const router = express.Router();
 router.post("/add", transactionDetail.transactionDetail);
 router.get(
     "/:userId/get",
-    tokenValidation,
+    tokenValidation(),
     transactionDetail.getTransactionDetailByUserId
   );
-router.post("/update",tokenValidation, transactionDetail.updateTransactionDetail);
+router.post("/update",tokenValidation(), transactionDetail.updateTransactionDetail);
 
 module.exports = router;

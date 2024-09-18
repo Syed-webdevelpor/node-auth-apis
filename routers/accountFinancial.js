@@ -4,7 +4,7 @@ const accountFinancial = require("../controllers/accountFinancial.js");
 const router = express.Router();
 
 router.post("/add", accountFinancial.createAccountFinancial);
-router.get("/:id/get", tokenValidation, accountFinancial.getAccountFinancial);
-router.post("/update",tokenValidation, accountFinancial.updateAccountFinancial);
+router.get("/:id/get", tokenValidation(), accountFinancial.getAccountFinancial);
+router.post("/update",tokenValidation(), accountFinancial.updateAccountFinancial);
 
 module.exports = router;

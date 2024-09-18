@@ -6,9 +6,9 @@ const router = express.Router();
 router.post("/add", tradingAccount.createAccount);
 router.get(
     "/:id/get",
-    tokenValidation,
+    tokenValidation(),
     tradingAccount.getTradingAccountById
   );
-router.post("/update",tokenValidation, tradingAccount.updateAccount);
+router.post("/update",tokenValidation(), tradingAccount.updateAccount);
 
 module.exports = router;

@@ -6,12 +6,12 @@ const router = express.Router();
 router.post("/add", personalInfo.createPersonalInfo);
 router.get(
   "/:id/get",
-  tokenValidation,
+  tokenValidation(),
   personalInfo.getPersonalInfo
 );
 router.post(
   "/update",
-  tokenValidation,
+  tokenValidation(),
   personalInfo.updatePersonalInfo
 );
 

@@ -30,10 +30,10 @@ router.post(
   introducerBroker.createIntroducingBroker,
   user.signup
 );
-router.get("/:id/get", tokenValidation, introducerBroker.getIntroducingBroker);
+router.get("/:id/get", tokenValidation(), introducerBroker.getIntroducingBroker);
 router.post(
   "/update",
-  tokenValidation,
+  tokenValidation(),
   introducerBroker.updateIntroducingBroker
 );
 
