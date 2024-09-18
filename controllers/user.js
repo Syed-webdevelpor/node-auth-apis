@@ -218,4 +218,38 @@ module.exports = {
       next(err);
     }
   },
+  logout: async (req, res, next) => {
+    try {
+      const refreshToken = req.headers.refresh_token;
+  
+      // Validate and decode the refresh token
+      const data = verifyToken(refreshToken, false);
+      if (data && data.status) return res.status(data.status).json(data);
+  
+      // Hash the refresh token for comparison in the database
+      const md5Refresh = createHash("md5").update(refreshToken).digest("hex");
+  
+      // Delete the refresh token from the database
+      const [result] = await DB.execute(
+        "DELETE FROM `refresh_tokens` WHERE `token` = ?",
+        [md5Refresh]
+      );
+  
+      if (!result.affectedRows) {
+        return res.status(400).json({
+          status: 400,
+          message: "Failed to log out. Token not found or already invalid.",
+        });
+      }
+  
+      // Successfully logged out
+      res.json({
+        status: 200,
+        message: "Successfully logged out.",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  
 };

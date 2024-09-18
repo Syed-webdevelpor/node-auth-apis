@@ -54,5 +54,6 @@ router.post(
 router.get("/profile", tokenValidation(), validate, user.getUser);
 router.get("/:userId/getProfile", tokenValidation(), user.getProfile);
 router.get("/refresh", tokenValidation(true), validate, user.refreshToken);
+router.post("/logout", user.logout);
 
 module.exports = router;
