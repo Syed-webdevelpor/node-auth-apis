@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const DB = require("../dbConnection.js");
+const { verifyToken } = require("../tokenHandler.js");
 
 const fetchPersonalInfoByID = async (id) => {
   sql = "SELECT * FROM `personal_info` WHERE `userId`=?";
