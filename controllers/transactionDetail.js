@@ -42,6 +42,8 @@ module.exports = {
 
   updateTransactionDetail: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
         id,
         account_id,

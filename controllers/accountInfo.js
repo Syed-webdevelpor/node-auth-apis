@@ -45,6 +45,8 @@ module.exports = {
 
   getAccountInfo: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const user = await fetchaccountInfoByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({
@@ -63,8 +65,10 @@ module.exports = {
 
   updateAccountInfo: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
-        id,
+        userId,
         trading_experience,
         platform,
         base_currency,
@@ -72,13 +76,13 @@ module.exports = {
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `account_info` SET `trading_experience` = ?, `platform` = ?, `base_currency` = ?, `leverage` = ? WHERE `id` = ?",
+        "UPDATE `account_info` SET `trading_experience` = ?, `platform` = ?, `base_currency` = ?, `leverage` = ? WHERE `userId` = ?",
         [
           trading_experience,
           platform,
           base_currency,
           leverage,
-          id
+          userId
         ]
       );
   

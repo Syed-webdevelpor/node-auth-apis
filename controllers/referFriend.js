@@ -42,6 +42,8 @@ module.exports = {
 
   getReferFriend: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const user = await fetchReferFriendByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({

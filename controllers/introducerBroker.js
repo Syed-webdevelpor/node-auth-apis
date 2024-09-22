@@ -36,6 +36,8 @@ next();
 
   getIntroducingBroker: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const ib = await fetchIntroducingBrokerById(req.params.id);
       if (ib.length !== 1) {
         return res.status(404).json({
@@ -54,6 +56,8 @@ next();
 
   updateIntroducingBroker: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
         id,
         ib_name,

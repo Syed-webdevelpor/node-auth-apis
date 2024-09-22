@@ -43,6 +43,8 @@ module.exports = {
 
   getAccountFinancial: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const accountFinancial = await fetchaccountFinancialByID(req.params.id);
       if (accountFinancial.length !== 1) {
         return res.status(404).json({
@@ -61,8 +63,10 @@ module.exports = {
 
   updateAccountFinancial: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
-        id,
+        userId,
         equity,
         credit,
         withdrawal_amount,
@@ -70,13 +74,13 @@ module.exports = {
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `account_financials` SET `equity` = ?, `credit` = ?, `withdrawal_amount` = ?, `leverage` = ? WHERE `id` = ?",
+        "UPDATE `account_financials` SET `equity` = ?, `credit` = ?, `withdrawal_amount` = ?, `leverage` = ? WHERE `userId` = ?",
         [
           equity,
           credit,
           withdrawal_amount,
           leverage,
-          id
+          userId
         ]
       );
   

@@ -57,6 +57,8 @@ module.exports = {
 
   getPersonalInfo: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const user = await fetchPersonalInfoByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({
@@ -75,8 +77,10 @@ module.exports = {
 
   updatePersonalInfo: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
-        id,
+        userId,
         first_name,
         last_name,
         phone_no,
@@ -90,7 +94,7 @@ module.exports = {
       } = req.body;
 
       const [result] = await DB.execute(
-        "UPDATE `personal_info` SET `first_name` = ?, `last_name` = ?, `phone_no` = ?, `gender` = ?, `dob` = ?, `Nationality` = ?, `street` = ?, `Address` = ?, `State` = ?, `Country` = ? WHERE `id` = ?",
+        "UPDATE `personal_info` SET `first_name` = ?, `last_name` = ?, `phone_no` = ?, `gender` = ?, `dob` = ?, `Nationality` = ?, `street` = ?, `Address` = ?, `State` = ?, `Country` = ? WHERE `userId` = ?",
         [
           first_name,
           last_name,
@@ -102,7 +106,7 @@ module.exports = {
           Address,
           State,
           Country,
-          id,
+          userId,
         ]
       );
 

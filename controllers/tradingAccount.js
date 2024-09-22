@@ -43,6 +43,8 @@ module.exports = {
 
   updateAccount: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
         id,
         user_id,
@@ -82,6 +84,8 @@ module.exports = {
   
   getTradingAccountById: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const trading_accounts = await fetchTradingAccountByID(req.params.id);
       if (trading_accounts.length !== 1) {
         return res.status(404).json({

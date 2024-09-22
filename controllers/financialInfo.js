@@ -57,6 +57,8 @@ module.exports = {
 
   getFinancialInfo: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const user = await fetchFinancialInfoByID(req.params.id);
       if (user.length !== 1) {
         return res.status(404).json({
@@ -75,8 +77,10 @@ module.exports = {
 
   updateFinancialInfo: async (req, res, next) => {
     try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
       const {
-        id,
+        userId,
         TIN,
         industry,
         employment_status,
@@ -88,7 +92,7 @@ module.exports = {
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `financial_info` SET `TIN` = ?, `industry` = ?, `employment_status` = ?, `annual_income` = ?, `value_of_savings` = ?, `total_net_assets` = ?, `source_of_wealth` = ?, `expected_initial_amount_of_depsoit` = ? WHERE `id` = ?",
+        "UPDATE `financial_info` SET `TIN` = ?, `industry` = ?, `employment_status` = ?, `annual_income` = ?, `value_of_savings` = ?, `total_net_assets` = ?, `source_of_wealth` = ?, `expected_initial_amount_of_depsoit` = ? WHERE `userId` = ?",
         [
           TIN,
           industry,
@@ -98,7 +102,7 @@ module.exports = {
           total_net_assets,
           source_of_wealth,
           expected_initial_amount_of_depsoit,
-          id
+          userId
         ]
       );
   
