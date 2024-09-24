@@ -1,6 +1,9 @@
 const express = require("express");
+const passport = require('passport');
+const session = require('express-session');
 const dbConnection = require("./dbConnection.js");
 const userRoutes = require("./routers/user.js");
+const authRoutes = require("./routers/auth.js");
 const introducerBrokerRoutes = require("./routers/introducerBroker.js");
 const personalInfo = require("./routers/personalInfo.js");
 const financialInfoRoutes = require("./routers/financialInfo.js");
@@ -14,11 +17,21 @@ const port = process.env.PORT || 3000;
 
 // Middleware to parse JSON requests
 app.use(express.json());
+// Initialize session management middleware
+app.use(session({
+  secret: 'your-secret-key', 
+  resave: false, 
+  saveUninitialized: true
+}));
 
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 app.use("/api/user", userRoutes);
+app.use("/auth", authRoutes);
 app.use("/api/introducerBroker", introducerBrokerRoutes);
 app.use("/api/personalInfo", personalInfo);
 app.use("/api/financialInfo", financialInfoRoutes);
