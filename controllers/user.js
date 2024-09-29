@@ -25,7 +25,7 @@ module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
     try {
-      const { id, email, password, referCode } = req.body;
+      const { id, email, password, referCode, username, account_type, phoneNumber } = req.body;
   
       // Validate input
       if (!email || !password || !id) {
@@ -66,8 +66,8 @@ module.exports = {
   
       // Insert new user
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`) VALUES (?, ?, ?, ?, ?)",
-        [id, email, hashPassword, referralCode, affiliationType]
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `phoneNumber`) VALUES (?, ?, ?, ?, ?)",
+        [id, email, hashPassword, referralCode, affiliationType, username, account_type, phoneNumber]
       );
   
       if (referCode) {
@@ -88,11 +88,24 @@ module.exports = {
   
       // Generate access token
       const access_token = generateToken({ id: id });
+      const refresh_token = generateToken({ id: user.id }, false);
+
+      const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
+
+      const [result1] = await DB.execute(
+        "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
+        [user.id, md5Refresh]
+      );
+
+      if (!result1.affectedRows) {
+        throw new Error("Failed to whitelist the refresh token.");
+      }
       res.status(201).json({
         status: 201,
         message: "You have been successfully registered.",
         user_id: id,
         access_token,
+        refresh_token,
         referral_code: referralCode,
         referred_by: referCode ? referringUser.id : null,
       });
