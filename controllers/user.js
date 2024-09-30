@@ -25,7 +25,7 @@ module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
     try {
-      const { id, email, password, referCode, username, account_type, phoneNumber } = req.body;
+      const { id, email, password, referCode, username, account_type, phoneNumber,role } = req.body;
   
       // Validate input
       if (!email || !password || !id) {
@@ -66,8 +66,8 @@ module.exports = {
   
       // Insert new user
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `phoneNumber`) VALUES (?, ?, ?, ?, ?)",
-        [id, email, hashPassword, referralCode, affiliationType, username, account_type, phoneNumber]
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `phoneNumber`,`role`) VALUES (?, ?, ?, ?, ?,?,?,?,?)",
+        [id, email, hashPassword, referralCode, affiliationType, username, account_type, phoneNumber,role]
       );
   
       if (referCode) {
@@ -88,13 +88,13 @@ module.exports = {
   
       // Generate access token
       const access_token = generateToken({ id: id });
-      const refresh_token = generateToken({ id: user.id }, false);
+      const refresh_token = generateToken({ id: id }, false);
 
       const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
 
       const [result1] = await DB.execute(
         "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
-        [user.id, md5Refresh]
+        [id, md5Refresh]
       );
 
       if (!result1.affectedRows) {
