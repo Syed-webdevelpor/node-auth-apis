@@ -14,7 +14,6 @@ module.exports = {
       const {
         first_name,
         last_name,
-        phone_no,
         gender,
         dob,
         Nationality,
@@ -26,12 +25,11 @@ module.exports = {
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `personal_info` (`id`,`first_name`, `last_name`, `phone_no`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`,`Country`, `userId`) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `personal_info` (`id`,`first_name`, `last_name`, `gender`, `dob`, `Nationality`, `street`, `Address`, `State`,`Country`, `userId`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           first_name,
           last_name,
-          phone_no,
           gender,
           dob,
           Nationality,

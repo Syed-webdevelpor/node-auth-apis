@@ -12,9 +12,9 @@ module.exports = {
   createIntroducingBroker: async (req, res, next) => {
     try {
       const {
-        ib_name,
+        username,
         email,
-        phone_number,
+        phoneNumber,
         password,
       } = req.body;
       const uuid = uuidv4();
@@ -22,9 +22,9 @@ module.exports = {
         "INSERT INTO `introducing_brokers` (`ib_id`, `ib_name`, `email`, `phone_number`) VALUES (?, ?, ?, ?)",
         [
           uuid,
-          ib_name,
+          username,
           email,
-          phone_number,
+          phoneNumber,
         ]
       );
 if (result) {
