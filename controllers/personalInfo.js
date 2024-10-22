@@ -82,7 +82,6 @@ module.exports = {
         userId,
         first_name,
         last_name,
-        phone_no,
         gender,
         dob,
         Nationality,
@@ -93,11 +92,10 @@ module.exports = {
       } = req.body;
 
       const [result] = await DB.execute(
-        "UPDATE `personal_info` SET `first_name` = ?, `last_name` = ?, `phone_no` = ?, `gender` = ?, `dob` = ?, `Nationality` = ?, `street` = ?, `Address` = ?, `State` = ?, `Country` = ? WHERE `userId` = ?",
+        "UPDATE `personal_info` SET `first_name` = ?, `last_name` = ?,  `gender` = ?, `dob` = ?, `Nationality` = ?, `street` = ?, `Address` = ?, `State` = ?, `Country` = ? WHERE `userId` = ?",
         [
           first_name,
           last_name,
-          phone_no,
           gender,
           dob,
           Nationality,

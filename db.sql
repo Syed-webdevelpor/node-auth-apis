@@ -31,7 +31,6 @@ CREATE TABLE `personal_info` (
   `userId` varchar(36) NOT NULL,
   `first_name` varchar(30) NOT NULL,
   `last_name` varchar(30) NOT NULL,
-  `phone_no` varchar(30) NOT NULL,
   `gender` varchar(10) NOT NULL,
   `dob` varchar(30) NOT NULL,
   `Nationality` varchar(40) NOT NULL,
