@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/add",tokenValidation(),validate, demoAccount.addDemoAccount);
 router.get(
-    "/:userId/get",
+    "/:id/get",
     tokenValidation(),
     validate,
     demoAccount.getDemoByID

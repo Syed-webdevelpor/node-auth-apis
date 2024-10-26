@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/add",tokenValidation(),validate, wallet.wallet);
 router.get(
-    "/:userId/get",
+    "/:id/get",
     tokenValidation(),
     validate,
     wallet.getWalletByID
