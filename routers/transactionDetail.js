@@ -1,14 +1,15 @@
 const express = require("express");
-const { tokenValidation } = require("../middlewares/authentication.js");
+const { tokenValidation,validate } = require("../middlewares/authentication.js");
 const transactionDetail = require("../controllers/transactionDetail.js");
 const router = express.Router();
 
-router.post("/add", transactionDetail.transactionDetail);
+router.post("/add", tokenValidation(), validate,transactionDetail.transactionDetail);
 router.get(
     "/:userId/get",
     tokenValidation(),
+    validate,
     transactionDetail.getTransactionDetailByUserId
   );
-router.post("/update",tokenValidation(), transactionDetail.updateTransactionDetail);
+router.post("/update",tokenValidation(), validate,transactionDetail.updateTransactionDetail);
 
 module.exports = router;

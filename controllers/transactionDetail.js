@@ -14,18 +14,24 @@ module.exports = {
     try {
       const {
         user_id,
-        account_id,
         amount,
         transaction_type,
         status,
+        from_type,
+        from_id,
+        to_type,
+        to_id, 
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `transaction_details` (`id`, `account_id`, `user_id`,`amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?)",
+        "INSERT INTO `transaction_details` (`id`, `user_id`,`from_type`,`from_id`,`to_type`,`to_id`,amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?,?,?,?)",
         [
           uuid,
-          account_id,
           user_id,
+          from_type,
+          from_id,
+          to_type,
+          to_id,
           amount,
           transaction_type,
           status,
@@ -47,18 +53,24 @@ module.exports = {
       if (data && data.status) return res.status(data.status).json(data);
       const {
         id,
-        account_id,
         user_id,
+        from_type,
+        from_id,
+        to_type,
+        to_id,
         amount,
         transaction_type,
         status,
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `transaction_details` SET `account_id` = ?, `user_id` = ?, `amount` = ?, `transaction_type` = ?, `status` = ? WHERE `id` = ?",
+        "UPDATE `transaction_details` SET `user_id` = ?, `from_type` = ?, `from_id` = ?, `to_type` = ?, `to_id` = ?, `amount` = ?, `transaction_type` = ?, `status` = ? WHERE `id` = ?",
         [
-          account_id,
           user_id,
+          from_type,
+          from_id,
+          to_type,
+          to_id,
           amount,
           transaction_type,
           status,
@@ -85,7 +97,7 @@ module.exports = {
   getTransactionDetailByUserId: async (req, res, next) => {
     try {
       const trading_accounts = await fetchTransactionDetailtByUserID(req.params.id);
-      if (user.length !== 1) {
+      if (trading_accounts.length !== 1) {
         return res.status(404).json({
           status: 404,
           message: "Trading account not found",

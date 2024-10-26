@@ -1,17 +1,24 @@
 const express = require("express");
-const { tokenValidation } = require("../middlewares/authentication.js");
+const { tokenValidation, validate } = require("../middlewares/authentication.js");
 const personalInfo = require("../controllers/personalInfo.js");
 const router = express.Router();
 
-router.post("/add", personalInfo.createPersonalInfo);
+router.post(
+  "/add",
+  tokenValidation(),
+  validate,
+  personalInfo.createPersonalInfo
+);
 router.get(
   "/:id/get",
   tokenValidation(),
+  validate,
   personalInfo.getPersonalInfo
 );
 router.post(
   "/update",
   tokenValidation(),
+  validate,
   personalInfo.updatePersonalInfo
 );
 
