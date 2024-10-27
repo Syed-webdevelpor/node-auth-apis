@@ -2,8 +2,8 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
-const fetchaccountFinancialByID = async (id) => {
-  sql = "SELECT * FROM `account_financials` WHERE `account_id`=?";
+const fetchaccountFinancialByUserID = async (id) => {
+  sql = "SELECT * FROM `account_financials` WHERE `userId`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
@@ -46,7 +46,7 @@ module.exports = {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
-      const accountFinancial = await fetchaccountFinancialByID(req.params.id);
+      const accountFinancial = await fetchaccountFinancialByUserID(req.params.id);
       if (accountFinancial.length !== 1) {
         return res.status(404).json({
           status: 404,

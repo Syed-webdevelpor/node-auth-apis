@@ -13,7 +13,7 @@ router.post(
   accountFinancial.createAccountFinancial
 );
 router.get(
-  "/:id/get",
+  "/:userId/get",
   tokenValidation(),
   validate,
   accountFinancial.getAccountFinancial
