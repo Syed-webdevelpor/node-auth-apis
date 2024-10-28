@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
 const fetchaccountFinancialByUserID = async (id) => {
-  sql = "SELECT * FROM `account_financials` WHERE `userId`=?";
+  sql = "SELECT * FROM `account_financials` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
