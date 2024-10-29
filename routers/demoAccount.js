@@ -3,13 +3,11 @@ const { tokenValidation,validate } = require("../middlewares/authentication.js")
 const demoAccount = require("../controllers/demoAccount.js");
 const router = express.Router();
 
-router.post("/add",tokenValidation(),validate, demoAccount.addDemoAccount);
+router.post("/add", demoAccount.addDemoAccount);
 router.get(
     "/:id/get",
-    tokenValidation(),
-    validate,
     demoAccount.getDemoByID
   );
-router.post("/update",tokenValidation(),validate, demoAccount.updateDemoAccount);
+router.post("/update", demoAccount.updateDemoAccount);
 
 module.exports = router;
