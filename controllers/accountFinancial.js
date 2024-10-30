@@ -34,7 +34,7 @@ module.exports = {
       );
       res.status(201).json({
         status: 201,
-        message: "Your Accounts Info have been created",
+        message: "Your Account financial has been created",
         accountsFinancial_id: uuid,
       });
     } catch (err) {
@@ -46,7 +46,7 @@ module.exports = {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
-      const accountFinancial = await fetchaccountFinancialByUserID(req.params.id);
+      const accountFinancial = await fetchaccountFinancialByUserID(req.params.userId);
       if (accountFinancial.length !== 1) {
         return res.status(404).json({
           status: 404,
