@@ -81,7 +81,7 @@ module.exports = {
   getRecentActivityByUserID: async (req, res, next) => {
     try {
       const recent_activities = await fetchRecentActivityByUserID(req.params.userId);
-      if (recent_activities.length !== 1) {
+      if (recent_activities.length == 0) {
         return res.status(404).json({
           status: 404,
           message: "Recent Activity not found",
@@ -89,7 +89,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        trading_accounts: recent_activities[0],
+        recent_activity: recent_activities,
       });
     } catch (err) {
       next(err);

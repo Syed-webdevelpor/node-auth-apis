@@ -96,8 +96,8 @@ module.exports = {
 
   getTransactionDetailByUserId: async (req, res, next) => {
     try {
-      const trading_accounts = await fetchTransactionDetailtByUserID(req.params.id);
-      if (trading_accounts.length !== 1) {
+      const trading_accounts = await fetchTransactionDetailtByUserID(req.params.userId);
+      if (trading_accounts.length == 0) {
         return res.status(404).json({
           status: 404,
           message: "Trading account not found",
@@ -105,7 +105,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        trading_accounts: trading_accounts[0],
+        transactionDetail: trading_accounts,
       });
     } catch (err) {
       next(err);

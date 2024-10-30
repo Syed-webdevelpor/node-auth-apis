@@ -13,6 +13,12 @@ router.get(
   validate,
   tradingAccount.getTradingAccountById
 );
+router.get(
+  "/:userId/get",
+  tokenValidation(),
+  validate,
+  tradingAccount.getTradingAccountByUserId
+);
 router.post(
   "/update",
   tokenValidation(),

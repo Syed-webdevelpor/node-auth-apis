@@ -8,6 +8,12 @@ const fetchTradingAccountByID = async (id) => {
   return row;
 };
 
+const fetchTradingAccountByUserID = async (id) => {
+  sql = "SELECT * FROM `trading_accounts` WHERE `user_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+
 module.exports = {
 
   createAccount: async (req, res, next) => {
@@ -97,6 +103,26 @@ module.exports = {
       res.json({
         status: 200,
         trading_accounts: trading_accounts[0],
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getTradingAccountByUserId: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+      const trading_accounts = await fetchTradingAccountByUserID(req.params.userId);
+      if (trading_accounts.length == 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Trading accounts not found",
+        });
+      }
+      res.json({
+        status: 200,
+        trading_accounts: trading_accounts,
       });
     } catch (err) {
       next(err);

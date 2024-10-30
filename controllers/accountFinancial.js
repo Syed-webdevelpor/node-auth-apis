@@ -53,7 +53,7 @@ module.exports = {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
       const accountFinancial = await fetchaccountFinancialByUserID(req.params.userId);
-      if (accountFinancial.length !== 1) {
+      if (accountFinancial.length == 0) {
         return res.status(404).json({
           status: 404,
           message: "account Financial not found",
@@ -61,7 +61,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        accountFinancial: accountFinancial[0],
+        accountFinancial: accountFinancial,
       });
     } catch (err) {
       next(err);
