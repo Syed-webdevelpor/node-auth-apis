@@ -15,18 +15,24 @@ module.exports = {
         account_id,
         equity,
         credit,
+        balance,
+        margin,
+        platforms,
         withdrawal_amount,
         leverage,
         userId
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_financials` (`id`, `account_id`, `equity`, `credit`,`withdrawal_amount`,`leverage`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `account_financials` (`id`, `account_id`, `equity`, `credit`,`balance`,`margin`,`platforms`,`withdrawal_amount`,`leverage`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           account_id,
           equity,
           credit,
+          balance,
+          margin,
+          platforms,
           withdrawal_amount,
           leverage,
           userId
