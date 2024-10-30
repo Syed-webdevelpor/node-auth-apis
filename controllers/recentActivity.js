@@ -80,7 +80,7 @@ module.exports = {
 
   getRecentActivityByUserID: async (req, res, next) => {
     try {
-      const recent_activities = await fetchRecentActivityByUserID(req.params.id);
+      const recent_activities = await fetchRecentActivityByUserID(req.params.userId);
       if (recent_activities.length !== 1) {
         return res.status(404).json({
           status: 404,
