@@ -38,7 +38,7 @@ module.exports = {
       res.status(201).json({
         status: 201,
         message: "Your Demo Account has been created",
-        transaction_id: uuid,
+        demo_account_id: uuid,
       });
     } catch (err) {
       next(err);
@@ -96,12 +96,12 @@ module.exports = {
       if (recent_activities.length !== 1) {
         return res.status(404).json({
           status: 404,
-          message: "Recent Activity not found",
+          message: "demo account not found",
         });
       }
       res.json({
         status: 200,
-        trading_accounts: recent_activities[0],
+        demo_account: recent_activities[0],
       });
     } catch (err) {
       next(err);
