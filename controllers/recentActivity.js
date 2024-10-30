@@ -32,7 +32,7 @@ module.exports = {
       res.status(201).json({
         status: 201,
         message: "Your Recent Activity has been created",
-        transaction_id: uuid,
+        recent_activity_id: uuid,
       });
     } catch (err) {
       next(err);
