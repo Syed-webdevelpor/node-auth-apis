@@ -23,7 +23,7 @@ module.exports = {
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `demo_accounts` (`id`,`firstName`,`lastName`,`email`, `country`,`phoneNumber`,`experience`,`expectedInvestment`,) VALUES (?,?,?, ?,?,?,?,?)",
+        "INSERT INTO `demo_accounts` (`id`,`firstName`,`lastName`,`email`, `country`,`phoneNumber`,`experience`,`expectedInvestment`) VALUES (?,?,?,?,?,?,?,?)",
         [
           uuid,
           firstName,
