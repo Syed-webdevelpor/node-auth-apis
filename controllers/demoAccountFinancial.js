@@ -18,13 +18,12 @@ module.exports = {
         balance,
         margin,
         platforms,
-        deposit,
         currency,
         userId
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_financials` (`id`, `account_id`, `equity`, `balance`,`margin`,`platforms`,`leverage`, `deposit`, `currency`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `demo_account_financials` (`id`, `account_id`, `equity`, `balance`,`margin`,`platforms`,`leverage`, `currency`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           account_id,
@@ -33,7 +32,6 @@ module.exports = {
           margin,
           platforms,
           leverage,
-          deposit,
           currency,
           userId
         ]
@@ -79,19 +77,17 @@ module.exports = {
         balance,
         margin,
         platforms,
-        deposit,
         currency,
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `demo_account_financials` SET `equity` = ?, `leverage` = ?, `balance` = ?, `margin` = ?, `platforms` = ?, `deposit` = ? `currency` = ? WHERE `userId` = ?",
+        "UPDATE `demo_account_financials` SET `equity` = ?, `leverage` = ?, `balance` = ?, `margin` = ?, `platforms` = ?, `currency` = ? WHERE `userId` = ?",
         [
         equity,
         leverage, 
         balance,
         margin,
         platforms,
-        deposit,
         currency,
         userId
         ]
