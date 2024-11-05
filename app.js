@@ -15,6 +15,7 @@ const walletRoutes = require("./routers/wallet.js");
 const recentActivityRoutes = require("./routers/recentActivity.js");
 const referFriendRoutes = require("./routers/referFriend.js");
 const demoAccountRoutes = require("./routers/demoAccount.js");
+const demoAccountFinancialRoutes = require("./routers/demoAccountFinancial.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -45,6 +46,7 @@ app.use("/api/accountFinancial", accountFinancialRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/recentActivity", recentActivityRoutes);
 app.use("/api/demoAccount", demoAccountRoutes);
+app.use("/api/demoAccountFinancial", demoAccountFinancialRoutes);
 app.use("/api", referFriendRoutes);
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;

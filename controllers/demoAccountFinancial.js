@@ -2,40 +2,36 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
-const fetchaccountFinancialByUserID = async (id) => {
-  sql = "SELECT * FROM `account_financials` WHERE `user_id`=?";
+const fetchDemoAccountFinancialByUserID = async (id) => {
+  sql = "SELECT * FROM `demo_account_financials` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
 module.exports = {
 
-  createAccountFinancial: async (req, res, next) => {
+  createDemoAccountFinancial: async (req, res, next) => {
     try {
       const {
         account_id,
+        leverage, 
         equity,
-        credit,
         balance,
         margin,
         platforms,
-        withdrawal_amount,
-        leverage,
         deposit,
         currency,
         userId
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_financials` (`id`, `account_id`, `equity`, `credit`,`balance`,`margin`,`platforms`,`withdrawal_amount`,`leverage`,`deposit`,`currency`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `account_financials` (`id`, `account_id`, `equity`, `balance`,`margin`,`platforms`,`leverage`, `deposit`, `currency`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           account_id,
           equity,
-          credit,
           balance,
           margin,
           platforms,
-          withdrawal_amount,
           leverage,
           deposit,
           currency,
@@ -44,23 +40,23 @@ module.exports = {
       );
       res.status(201).json({
         status: 201,
-        message: "Your Account financial has been created",
-        accountsFinancial_id: uuid,
+        message: "Your Demo Account financial has been created",
+        DemoAccountsFinancial_id: uuid,
       });
     } catch (err) {
       next(err);
     }
   },
 
-  getAccountFinancial: async (req, res, next) => {
+  getDemoAccountFinancial: async (req, res, next) => {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
-      const accountFinancial = await fetchaccountFinancialByUserID(req.params.userId);
+      const accountFinancial = await fetchDemoAccountFinancialByUserID(req.params.userId);
       if (accountFinancial.length == 0) {
         return res.status(404).json({
           status: 404,
-          message: "account Financial not found",
+          message: "demo account Financial not found",
         });
       }
       res.json({
@@ -72,43 +68,45 @@ module.exports = {
     }
   },
 
-  updateAccountFinancial: async (req, res, next) => {
+  updateDemoAccountFinancial: async (req, res, next) => {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
       const {
         userId,
+        leverage, 
         equity,
-        credit,
-        withdrawal_amount,
-        leverage,
+        balance,
+        margin,
+        platforms,
         deposit,
-        currency
+        currency,
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `account_financials` SET `equity` = ?, `credit` = ?, `withdrawal_amount` = ?, `leverage` = ?, `deposit` = ?, `currency` = ? WHERE `userId` = ?",
+        "UPDATE `demo_account_financials` SET `equity` = ?, `leverage` = ?, `balance` = ?, `margin` = ?, `platforms` = ?, `deposit` = ? `currency` = ? WHERE `userId` = ?",
         [
-          equity,
-          credit,
-          withdrawal_amount,
-          leverage,
-          deposit,
-          currency,
-          userId
+        equity,
+        leverage, 
+        balance,
+        margin,
+        platforms,
+        deposit,
+        currency,
+        userId
         ]
       );
   
       if (result.affectedRows === 0) {
         return res.status(404).json({
           status: 404,
-          message: "Account Financial not found",
+          message: "Demo Account Financial not found",
         });
       }
   
       res.status(200).json({
         status: 200,
-        message: "Account Financial updated successfully",
+        message: "Demo Account Financial updated successfully",
       });
     } catch (err) {
       next(err);
