@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.post("/add",tokenValidation(),validate, wallet.wallet);
 router.get(
-    "/:id/get",
+    "/:userId/get",
     tokenValidation(),
     validate,
-    wallet.getWalletByID
+    wallet.getWalletByUserID
   );
 router.post("/update",tokenValidation(),validate, wallet.updateWallet);
 

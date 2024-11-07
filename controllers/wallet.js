@@ -2,8 +2,8 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
-const fetchWalletByID = async (id) => {
-  sql = "SELECT * FROM `wallets` WHERE `id`=?";
+const fetchWalletByUserID = async (id) => {
+  sql = "SELECT * FROM `wallets` WHERE `userId`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
@@ -16,10 +16,11 @@ module.exports = {
         wallet_number,
         currency,
         balance,
+        userId,
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `wallets` (`id`,`wallet_number`,`currency`, `balance`) VALUES (?,?,?, ?)",
+        "INSERT INTO `wallets` (`id`,`wallet_number`,`currency`, `balance`, `userId`) VALUES (?,?,?, ?,?)",
         [
           uuid,
           wallet_number,
@@ -46,14 +47,16 @@ module.exports = {
         wallet_number,
         currency,
         balance,
+        userId,
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `wallets` SET `wallet_number` = ?, `currency` = ?, `balance` = ? WHERE `id` = ?",
+        "UPDATE `wallets` SET `wallet_number` = ?, `currency` = ?, `balance` = ?, `userId` = ? WHERE `id` = ?",
         [
             wallet_number,
             currency,
             balance,
+            userId,
           id
         ]
       );
@@ -74,9 +77,9 @@ module.exports = {
     }
   }, 
 
-  getWalletByID: async (req, res, next) => {
+  getWalletByUserID: async (req, res, next) => {
     try {
-      const wallets = await fetchWalletByID(req.params.id);
+      const wallets = await fetchWalletByUserID(req.params.userId);
       if (wallets.length !== 1) {
         return res.status(404).json({
           status: 404,
