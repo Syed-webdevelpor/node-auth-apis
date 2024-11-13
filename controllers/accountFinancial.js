@@ -82,12 +82,13 @@ module.exports = {
         credit,
         withdrawal_amount,
         leverage,
+        platforms,
         deposit,
         currency
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `account_financials` SET `equity` = ?, `credit` = ?, `withdrawal_amount` = ?, `leverage` = ?, `deposit` = ?, `currency` = ? WHERE `userId` = ?",
+        "UPDATE `account_financials` SET `equity` = ?, `credit` = ?, `withdrawal_amount` = ?, `leverage` = ?, `deposit` = ?, `currency` = ?, `platforms` = ? WHERE `userId` = ?",
         [
           equity,
           credit,
@@ -95,6 +96,7 @@ module.exports = {
           leverage,
           deposit,
           currency,
+          platforms,
           userId
         ]
       );

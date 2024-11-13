@@ -14,19 +14,21 @@ module.exports = {
       const {
         trading_experience,
         account_type,
+        platforms,
         base_currency,
         leverage,
         userId
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `account_info` (`id`, `trading_experience`,`account_type`,`base_currency`,`leverage`, `userId`) VALUES (?,?,?,?, ?, ?)",
+        "INSERT INTO `account_info` (`id`, `trading_experience`,`account_type`,`base_currency`,`leverage`, `platforms`, `userId`) VALUES (?,?,?,?, ?, ?,?)",
         [
           uuid,
           trading_experience,
           account_type,
           base_currency,
           leverage,
+          platforms,
           userId
         ]
       );
@@ -73,16 +75,18 @@ module.exports = {
         trading_experience,
         account_type,
         base_currency,
+        platforms,
         leverage,
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `account_info` SET `trading_experience` = ?, `account_type` = ?, `base_currency` = ?, `leverage` = ? WHERE `userId` = ?",
+        "UPDATE `account_info` SET `trading_experience` = ?, `account_type` = ?, `base_currency` = ?, `leverage` = ?, `platforms`= ? WHERE `userId` = ?",
         [
           trading_experience,
           account_type,
           base_currency,
           leverage,
+          platforms,
           userId
         ]
       );
