@@ -142,6 +142,7 @@ module.exports = {
         status: 200,
         access_token,
         refresh_token,
+        userId:user.id
       });
     } catch (err) {
       next(err);
