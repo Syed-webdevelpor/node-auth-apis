@@ -260,7 +260,6 @@ module.exports = {
       res.json({
         status: 200,
         message: "Successfully logged out.",
-        refresh_token:result[0]
       });
     } catch (err) {
       next(err);
