@@ -40,7 +40,7 @@ module.exports = {
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",
-        account_id: account_id,
+        account_id: uuid,
       });
     } catch (err) {
       next(err);
