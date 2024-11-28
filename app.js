@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require('passport');
 const session = require('express-session');
+const cors = require('cors');
 const dbConnection = require("./dbConnection.js");
 const userRoutes = require("./routers/user.js");
 const authRoutes = require("./routers/auth.js");
@@ -26,6 +27,11 @@ app.use(session({
   secret: 'your-secret-key', 
   resave: false, 
   saveUninitialized: true
+}));
+
+app.use(cors({
+  origin: 'https://server.investain.com/, http://localhost:3000/',
+  allowedHeaders: ['Content-Type', 'Authorization', 'refresh_token']
 }));
 
 // Initialize Passport
