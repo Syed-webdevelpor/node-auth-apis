@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
 const fetchTradingAccountByID = async (id) => {
-  sql = "SELECT * FROM `trading_accounts` WHERE `account_id`=?";
+  sql = "SELECT * FROM `trading_accounts` WHERE `id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
@@ -20,7 +20,6 @@ module.exports = {
     try {
       const {
         user_id,
-        account_id,
         account_type,
         account_number,
         account_status,
@@ -30,7 +29,7 @@ module.exports = {
       const [result] = await DB.execute(
         "INSERT INTO `trading_accounts` (`id`, `user_id`, `account_type`,`account_number`,`account_status`, `account_mode`) VALUES (?,?,?, ?,?,?)",
         [
-          account_id,
+          uuid,
           user_id,
           account_type,
           account_number,
