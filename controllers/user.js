@@ -234,9 +234,10 @@ module.exports = {
   },
   logout: async (req, res, next) => {
     try {
+      const refreshToken = req.headers.refresh_token;
   
       // Validate and decode the refresh token
-      const data = verifyToken(req.headers.refresh_token, false);
+      const data = verifyToken(refreshToken, false);
       if (data && data.status) return res.status(data.status).json(data);
   
       // Hash the refresh token for comparison in the database
