@@ -234,7 +234,7 @@ module.exports = {
   },
   logout: async (req, res, next) => {
     try {
-      console.log( req.headers['refresh_token']);
+      console.log( req.headers );
       
       const refreshToken = req.headers['refresh_token'];
   
