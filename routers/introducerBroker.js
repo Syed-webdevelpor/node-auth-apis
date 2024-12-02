@@ -37,6 +37,12 @@ router.get(
   validate,
   introducerBroker.getIntroducingBroker
 );
+router.get(
+  "/getAll",
+  tokenValidation(),
+  validate,
+  introducerBroker.getAllintroducingBroker
+);
 router.post(
   "/update",
   tokenValidation(),

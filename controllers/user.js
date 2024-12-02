@@ -21,6 +21,21 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   );
   return rows;
 };
+
+const fetchAllUsers = async () => {
+  const [rows] = await DB.execute(
+    `SELECT 
+         users.id, users.email,users.password, users.referral_code,users.username, users.subusers, users.created_at, users.updated_at,
+         personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
+         financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
+         account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
+       FROM users
+       LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+       LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
+       LEFT JOIN account_info ON users.account_info_id = account_info.id`,
+  );
+  return rows;
+};
 module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
@@ -170,6 +185,27 @@ module.exports = {
     }
   },
 
+  getAllUsers: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+
+      const user = await fetchAllUsers();
+      if (user.length == 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   refreshToken: async (req, res, next) => {
     try {
       const refreshToken = req.headers.refresh_token;
@@ -265,5 +301,51 @@ module.exports = {
       next(err);
     }
   },
+
+  updateUser: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+  
+      const { id, ...updateFields } = req.body;
+  
+      if (!id || Object.keys(updateFields).length === 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "User ID and at least one field to update are required",
+        });
+      }
+  
+      // Prepare dynamic SQL query
+      const updates = [];
+      const values = [];
+  
+      Object.entries(updateFields).forEach(([key, value]) => {
+        updates.push(`\`${key}\` = ?`);
+        values.push(value);
+      });
+  
+      values.push(id); // Add the `id` as the last value for the WHERE clause
+  
+      const query = `UPDATE \`users\` SET ${updates.join(", ")} WHERE \`id\` = ?`;
+  
+      const [result] = await DB.execute(query, values);
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: "User updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  
   
 };

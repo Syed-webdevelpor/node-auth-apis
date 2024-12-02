@@ -13,22 +13,22 @@ module.exports = {
   createReferFriend: async (req, res, next) => {
     try {
       const {
-        refer_link,
         total_invited_friends,
         rewarded_friends,
         total_earning,
-        rewards_in_progress
+        rewards_in_progress,
+        userId,
       } = req.body;
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `refer_friends` (`id`, `refer_link`, `total_invited_friends`,`rewarded_friends`,`total_earning`, `rewards_in_progress`) VALUES (?,?,?, ?,?,?)",
+        "INSERT INTO `refer_friends` (`id`, `total_invited_friends`,`rewarded_friends`,`total_earning`, `rewards_in_progress`,`userId`) VALUES (?,?,?, ?,?,?)",
         [
           uuid,
-          refer_link,
           total_invited_friends,
           rewarded_friends,
           total_earning,
-          rewards_in_progress
+          rewards_in_progress,
+          userId,
         ]
       );
       res.status(201).json({
