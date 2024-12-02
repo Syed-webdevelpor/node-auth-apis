@@ -70,13 +70,14 @@ module.exports = {
         [row] = await DB.execute("SELECT * FROM `introducing_brokers` WHERE `referral_code`=?", [referCode]);
         if (row) {
           affiliationType = "Introduced";
-        }
+        }else{
   
         // Check if referCode belongs to another user
         [referringUser] = await DB.execute("SELECT * FROM `users` WHERE `referral_code`=?", [referCode]);
         if (referringUser) {
           affiliationType = "Affiliate";
         }
+      }
       }
   
       // Insert new user
@@ -97,7 +98,7 @@ module.exports = {
         if (row) {
           let subusers = row.subusers ? JSON.parse(row.subusers) : [];
           subusers.push(id);
-          await DB.execute("UPDATE `introducing_brokers` SET `subusers` = ? WHERE `id` = ?", [JSON.stringify(subusers), row.id]);
+          await DB.execute("UPDATE `introducing_brokers` SET `subusers` = ? `refe WHERE `id` = ?", [JSON.stringify(subusers), row.id]);
         }
       }
   

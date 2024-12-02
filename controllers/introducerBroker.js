@@ -1,6 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
+const crypto = require("crypto");
 
 const fetchIntroducingBrokerById = async (id) => {
   const sql = "SELECT * FROM `introducing_brokers` WHERE `id`=?";
@@ -43,14 +44,17 @@ module.exports = {
         phoneNumber,
         password,
       } = req.body;
+      // Generate referral code
+        const referralCode = crypto.randomBytes(4).toString("hex");
       const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `introducing_brokers` (`ib_id`, `ib_name`, `email`, `phone_number`) VALUES (?, ?, ?, ?)",
+        "INSERT INTO `introducing_brokers` (`ib_id`, `ib_name`, `email`, `phone_number`, `referral_code`) VALUES (?, ?, ?, ?, ?)",
         [
           uuid,
           username,
           email,
           phoneNumber,
+          referralCode
         ]
       );
 if (result) {
