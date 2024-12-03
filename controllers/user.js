@@ -68,7 +68,7 @@ module.exports = {
       if (referCode) {
         // Check if referCode belongs to an introducing broker
         [row] = await DB.execute("SELECT * FROM `introducing_brokers` WHERE `referral_code`=?", [referCode]);
-        if (row) {
+        if (row.length !== 0) {
           affiliationType = "Introduced";
         }else{
   
@@ -91,14 +91,14 @@ module.exports = {
         if (referringUser) {
           let subusers = referringUser.subusers ? JSON.parse(referringUser.subusers) : [];
           subusers.push(id);
-          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [JSON.stringify(subusers), referringUser.id]);
+          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [JSON.stringify(subusers), referringUser[0].id]);
         }
   
         // Update subusers for introducing broker
-        if (row) {
+        if (row.length !== 0) {
           let subusers = row.subusers ? JSON.parse(row.subusers) : [];
           subusers.push(id);
-          await DB.execute("UPDATE `introducing_brokers` SET `subusers` = ? `refe WHERE `id` = ?", [JSON.stringify(subusers), row.id]);
+          await DB.execute("UPDATE `introducing_brokers` SET `subusers` = ?  WHERE `ib_id` = ?", [JSON.stringify(subusers), row[0].ib_id]);
         }
       }
   
@@ -123,7 +123,6 @@ module.exports = {
         access_token,
         refresh_token,
         referral_code: referralCode,
-        referred_by: referCode ? referringUser.id : null,
       });
     } catch (err) {
       next(err);

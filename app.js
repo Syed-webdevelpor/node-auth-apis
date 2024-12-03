@@ -30,7 +30,7 @@ app.use(session({
 }));
 
 app.use(cors({
-  origin: 'https://server.investain.com/, http://localhost:3000/',
+  origin: 'https://server.investain.com/, http://localhost:3000/, http://localhost:5173/',
   allowedHeaders: ['Content-Type', 'Authorization', 'refresh_token']
 }));
 
