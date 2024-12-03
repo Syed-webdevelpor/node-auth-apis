@@ -29,10 +29,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-app.use(cors({
-  origin: 'https://server.investain.com/, http://localhost:3000/, http://localhost:5173/',
-  allowedHeaders: ['Content-Type', 'Authorization', 'refresh_token']
-}));
+app.use(cors());
 
 // Initialize Passport
 app.use(passport.initialize());
