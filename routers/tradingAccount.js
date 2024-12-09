@@ -8,10 +8,10 @@ const router = express.Router();
 
 router.post("/add", tokenValidation(), validate, tradingAccount.createAccount);
 router.get(
-  "/:id/getById",
+  "/getAll",
   tokenValidation(),
   validate,
-  tradingAccount.getTradingAccountById
+  tradingAccount.getAllTradingAccount
 );
 router.get(
   "/:userId/get",

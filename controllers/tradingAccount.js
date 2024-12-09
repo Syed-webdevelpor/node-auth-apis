@@ -2,9 +2,9 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
-const fetchTradingAccountByID = async (id) => {
-  sql = "SELECT * FROM `trading_accounts` WHERE `id`=?";
-  const [row] = await DB.execute(sql, [id]);
+const fetchAllTradingAccount = async () => {
+  sql = "SELECT * FROM `trading_accounts`";
+  const [row] = await DB.execute(sql);
   return row;
 };
 
@@ -88,20 +88,20 @@ module.exports = {
     }
   },   
   
-  getTradingAccountById: async (req, res, next) => {
+  getAllTradingAccount: async (req, res, next) => {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
-      const trading_accounts = await fetchTradingAccountByID(req.params.id);
-      if (trading_accounts.length !== 1) {
+      const trading_accounts = await fetchAllTradingAccount();
+      if (trading_accounts.length === 0) {
         return res.status(404).json({
           status: 404,
-          message: "Trading account not found",
+          message: "Trading accounts not found",
         });
       }
       res.json({
         status: 200,
-        trading_accounts: trading_accounts[0],
+        trading_accounts: trading_accounts,
       });
     } catch (err) {
       next(err);

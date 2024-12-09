@@ -2,6 +2,12 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
+const fetchAllaccountFinancial= async () => {
+  sql = "SELECT * FROM `account_financials`";
+  const [row] = await DB.execute(sql);
+  return row;
+};
+
 const fetchaccountFinancialByUserID = async (id) => {
   sql = "SELECT * FROM `account_financials` WHERE `userId`=?";
   const [row] = await DB.execute(sql, [id]);
@@ -46,6 +52,26 @@ module.exports = {
         status: 201,
         message: "Your Account financial has been created",
         accountsFinancial_id: uuid,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getAllAccountFinancial: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+      const accountFinancial = await fetchAllaccountFinancial();
+      if (accountFinancial.length == 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "account Financials not found",
+        });
+      }
+      res.json({
+        status: 200,
+        accountFinancial: accountFinancial,
       });
     } catch (err) {
       next(err);

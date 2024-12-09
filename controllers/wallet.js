@@ -26,6 +26,7 @@ module.exports = {
           wallet_number,
           currency,
           balance,
+          userId
         ]
       );
       res.status(201).json({

@@ -18,6 +18,14 @@ router.get(
   validate,
   accountFinancial.getAccountFinancial
 );
+
+router.get(
+  "/getAll",
+  tokenValidation(),
+  validate,
+  accountFinancial.getAllAccountFinancial
+);
+
 router.post(
   "/update",
   tokenValidation(),

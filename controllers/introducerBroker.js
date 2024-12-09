@@ -4,7 +4,7 @@ const { verifyToken } = require("../tokenHandler.js");
 const crypto = require("crypto");
 
 const fetchIntroducingBrokerById = async (id) => {
-  const sql = "SELECT * FROM `introducing_brokers` WHERE `id`=?";
+  const sql = "SELECT * FROM `introducing_brokers` WHERE `ib_id`=?";
   const [rows] = await DB.execute(sql, [id]);
 
   if (rows.length === 0) {
@@ -70,7 +70,7 @@ next();
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
       const ib = await fetchIntroducingBrokerById(req.params.id);
-      if (ib.length !== 1) {
+      if (!ib) {
         return res.status(404).json({
           status: 404,
           message: "Introducing Broker not found",
@@ -78,7 +78,7 @@ next();
       }
       res.json({
         status: 200,
-        introducingBroker: ib[0],
+        introducingBroker: ib,
       });
     } catch (err) {
       next(err);
