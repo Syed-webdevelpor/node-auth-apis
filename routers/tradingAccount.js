@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post("/add", tokenValidation(), validate, tradingAccount.createAccount);
 router.get(
-  "/:id/get",
+  "/:id/getById",
   tokenValidation(),
   validate,
   tradingAccount.getTradingAccountById
