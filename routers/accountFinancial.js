@@ -20,6 +20,13 @@ router.get(
 );
 
 router.get(
+  "/:accountId/getByAccountId",
+  tokenValidation(),
+  validate,
+  accountFinancial.getAccountFinancialByAccountId
+);
+
+router.get(
   "/getAll",
   tokenValidation(),
   validate,

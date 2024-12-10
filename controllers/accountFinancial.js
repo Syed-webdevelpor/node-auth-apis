@@ -13,6 +13,12 @@ const fetchaccountFinancialByUserID = async (id) => {
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
+
+const fetchaccountFinancialByAccountId = async (id) => {
+  sql = "SELECT * FROM `account_financials` WHERE `account_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
 module.exports = {
 
   createAccountFinancial: async (req, res, next) => {
@@ -92,6 +98,26 @@ module.exports = {
       res.json({
         status: 200,
         accountFinancial: accountFinancial,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getAccountFinancialByAccountId: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+      const accountFinancial = await fetchaccountFinancialByAccountId(req.params.accountId);
+      if (accountFinancial.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "account Financial not found",
+        });
+      }
+      res.json({
+        status: 200,
+        accountFinancial: accountFinancial[0],
       });
     } catch (err) {
       next(err);
