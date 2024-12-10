@@ -89,7 +89,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        trading_accounts: wallets,
+        wallets: wallets,
       });
     } catch (err) {
       next(err);
