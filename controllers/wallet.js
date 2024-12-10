@@ -81,7 +81,7 @@ module.exports = {
   getWalletByUserID: async (req, res, next) => {
     try {
       const wallets = await fetchWalletByUserID(req.params.userId);
-      if (wallets.length !== 1) {
+      if (wallets.length === 0) {
         return res.status(404).json({
           status: 404,
           message: "Wallets not found",
@@ -89,7 +89,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        trading_accounts: wallets[0],
+        trading_accounts: wallets,
       });
     } catch (err) {
       next(err);
