@@ -10,6 +10,13 @@ router.get(
     validate,
     transactionDetail.getTransactionDetailByUserId
   );
+
+  router.get(
+    "/getAll",
+    tokenValidation(),
+    validate,
+    transactionDetail.getAllTransactionDetails
+  );
 router.post("/update",tokenValidation(), validate,transactionDetail.updateTransactionDetail);
 
 module.exports = router;

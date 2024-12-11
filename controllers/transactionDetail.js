@@ -2,9 +2,15 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
-const fetchTransactionDetailtByUserID = async (id) => {
+const fetchTransactionDetailByUserID = async (id) => {
   sql = "SELECT * FROM `transaction_details` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+
+const fetchAllTransactionDetails = async () => {
+  sql = "SELECT * FROM `transaction_details`";
+  const [row] = await DB.execute(sql);
   return row;
 };
 
@@ -96,7 +102,25 @@ module.exports = {
 
   getTransactionDetailByUserId: async (req, res, next) => {
     try {
-      const transaction_details = await fetchTransactionDetailtByUserID(req.params.userId);
+      const transaction_details = await fetchTransactionDetailByUserID(req.params.userId);
+      if (transaction_details.length == 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "transaction details not not found",
+        });
+      }
+      res.json({
+        status: 200,
+        transactionDetail: transaction_details,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getAllTransactionDetails: async (req, res, next) => {
+    try {
+      const transaction_details = await fetchAllTransactionDetails();
       if (transaction_details.length == 0) {
         return res.status(404).json({
           status: 404,
