@@ -26,8 +26,6 @@ router.post(
       .isLength({ min: 4 })
       .withMessage("Password must be at least 4 characters long"),
   ],
-  tokenValidation(),
-  validate,
   introducerBroker.createIntroducingBroker,
   user.signup
 );
