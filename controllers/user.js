@@ -307,8 +307,8 @@ module.exports = {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
-  
-      const { id, ...updateFields } = req.body;
+  const id = req.params.id;
+      const { ...updateFields } = req.body;
   
       if (!id || Object.keys(updateFields).length === 0) {
         return res.status(400).json({
