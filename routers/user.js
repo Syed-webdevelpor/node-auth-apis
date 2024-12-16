@@ -54,7 +54,7 @@ router.post(
 router.get("/profile", tokenValidation(), validate, user.getUser);
 router.get("/getAll", tokenValidation(), validate, user.getAllUsers);
 router.get("/:userId/getProfile", tokenValidation(), validate, user.getProfile);
-router.get("/:id/update", tokenValidation(), validate, user.updateUser);
+router.post("/:id/update", tokenValidation(), validate, user.updateUser);
 router.get("/refresh", tokenValidation(true), validate, user.refreshToken);
 router.post("/logout", tokenValidation(true), validate, user.logout);
 
