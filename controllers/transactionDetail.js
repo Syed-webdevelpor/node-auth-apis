@@ -2,10 +2,15 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 
-const fetchTransactionDetailByUserID = async (id) => {
-  sql = "SELECT * FROM `transaction_details` WHERE `user_id`=?";
-  const [row] = await DB.execute(sql, [id]);
-  return row;
+const fetchTradingAccountByUserID = async (id) => {
+  const sql = `
+    SELECT * 
+    FROM \`trading_accounts\` 
+    WHERE \`user_id\` = ? 
+    AND \`account_status\` IN ('Active', 'Suspended')
+  `;
+  const [rows] = await DB.execute(sql, [id]);
+  return rows; // Assuming rows will contain all matching records
 };
 
 const fetchAllTransactionDetails = async () => {
