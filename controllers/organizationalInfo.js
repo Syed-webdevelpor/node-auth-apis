@@ -60,7 +60,7 @@ module.exports = {
       
           // Insert the new organizational info
           const [result] = await DB.execute(
-            `INSERT INTO organization_info (
+            `INSERT INTO organizational_info (
               id,
               company_name,
               register_number,
@@ -335,7 +335,7 @@ module.exports = {
   
       // Execute the update query
       const [result] = await DB.execute(
-        `UPDATE organization_info SET ${updates.join(", ")} WHERE id = ?`,
+        `UPDATE organizational_info SET ${updates.join(", ")} WHERE id = ?`,
         params
       );
   
