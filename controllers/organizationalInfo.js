@@ -83,8 +83,9 @@ module.exports = {
               bank_last_name,
               mobile_number,
               job_title,
-              relationship_with_corporate
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              relationship_with_corporate,
+              user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               uuid,
               company_name,
@@ -122,6 +123,7 @@ module.exports = {
               mobile_number,
               job_title,
               relationship_with_corporate,
+              userId
             ]
           );
       
