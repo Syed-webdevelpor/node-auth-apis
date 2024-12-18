@@ -101,7 +101,7 @@ module.exports = {
 
       // Insert new user
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)",
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)",
         [
           id,
           email,
