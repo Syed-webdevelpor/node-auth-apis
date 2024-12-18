@@ -40,7 +40,7 @@ module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
     try {
-      const { id, email, password, referCode, username, account_type, phoneNumber,role, is_approved, is_verified } = req.body;
+      const { id, email, password, referCode, username, account_type, account_nature, phoneNumber,role, is_approved, is_verified } = req.body;
   
       // Validate input
       if (!email || !password || !id) {
@@ -82,8 +82,8 @@ module.exports = {
   
       // Insert new user
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `phoneNumber`,`role`, `is_approved`, `is_verified`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)",
-        [id, email, hashPassword, referralCode, affiliationType, username, account_type, phoneNumber,role,is_approved, is_verified]
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)",
+        [id, email, hashPassword, referralCode, affiliationType, username, account_type,account_nature, phoneNumber,role,is_approved, is_verified]
       );
   
       if (referCode) {

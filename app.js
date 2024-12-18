@@ -17,6 +17,7 @@ const recentActivityRoutes = require("./routers/recentActivity.js");
 const referFriendRoutes = require("./routers/referFriend.js");
 const demoAccountRoutes = require("./routers/demoAccount.js");
 const demoAccountFinancialRoutes = require("./routers/demoAccountFinancial.js");
+const organizationalInfo = require("./routers/organizationalInfo.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -41,6 +42,7 @@ app.use("/api/user", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/api/introducerBroker", introducerBrokerRoutes);
 app.use("/api/personalInfo", personalInfo);
+app.use("/api/organizationalInfo", organizationalInfo);
 app.use("/api/financialInfo", financialInfoRoutes);
 app.use("/api/accountInfo", accountInfoRoutes);
 app.use("/api/tradingAccount", tradingAccountRoutes);
