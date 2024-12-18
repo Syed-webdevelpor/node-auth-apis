@@ -14,6 +14,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+       LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
        WHERE users.${column} = ?`,
@@ -31,8 +32,9 @@ const fetchAllUsers = async () => {
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+            LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
-       LEFT JOIN account_info ON users.account_info_id = account_info.id`,
+       LEFT JOIN account_info ON users.account_info_id = account_info.id`
   );
   return rows;
 };
@@ -40,68 +42,106 @@ module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
     try {
-      const { id, email, password, referCode, username, account_type, account_nature, phoneNumber,role, is_approved, is_verified } = req.body;
-  
+      const {
+        id,
+        email,
+        password,
+        referCode,
+        username,
+        account_type,
+        account_nature,
+        phoneNumber,
+        role,
+        is_approved,
+        is_verified,
+      } = req.body;
+
       // Validate input
       if (!email || !password || !id) {
         return res.status(400).json("Missing required fields");
       }
-  
+
       // Hash password
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
-  
+
       // Generate referral code
       const referralCode = crypto.randomBytes(4).toString("hex");
-  
+
       // Check if user with the given email already exists
       const user = await fetchUserByEmailOrID(email, true);
       if (user.length > 0) {
         return res.status(403).json("Email already exists");
       }
-  
+
       // Determine affiliation type
       let affiliationType = "Direct";
       let referringUser = null;
       let row = null;
-  
+
       if (referCode) {
         // Check if referCode belongs to an introducing broker
-        [row] = await DB.execute("SELECT * FROM `introducing_brokers` WHERE `referral_code`=?", [referCode]);
+        [row] = await DB.execute(
+          "SELECT * FROM `introducing_brokers` WHERE `referral_code`=?",
+          [referCode]
+        );
         if (row.length !== 0) {
           affiliationType = "Introduced";
-        }else{
-  
-        // Check if referCode belongs to another user
-        [referringUser] = await DB.execute("SELECT * FROM `users` WHERE `referral_code`=?", [referCode]);
-        if (referringUser) {
-          affiliationType = "Affiliate";
+        } else {
+          // Check if referCode belongs to another user
+          [referringUser] = await DB.execute(
+            "SELECT * FROM `users` WHERE `referral_code`=?",
+            [referCode]
+          );
+          if (referringUser) {
+            affiliationType = "Affiliate";
+          }
         }
       }
-      }
-  
+
       // Insert new user
       const [result] = await DB.execute(
         "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)",
-        [id, email, hashPassword, referralCode, affiliationType, username, account_type,account_nature, phoneNumber,role,is_approved, is_verified]
+        [
+          id,
+          email,
+          hashPassword,
+          referralCode,
+          affiliationType,
+          username,
+          account_type,
+          account_nature,
+          phoneNumber,
+          role,
+          is_approved,
+          is_verified,
+        ]
       );
-  
+
       if (referCode) {
         // Update subusers for referring user
         if (referringUser) {
-          let subusers = referringUser.subusers ? JSON.parse(referringUser.subusers) : [];
+          let subusers = referringUser.subusers
+            ? JSON.parse(referringUser.subusers)
+            : [];
           subusers.push(id);
-          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [JSON.stringify(subusers), referringUser[0].id]);
+          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [
+            JSON.stringify(subusers),
+            referringUser[0].id,
+          ]);
         }
-  
+
         // Update subusers for introducing broker
         if (row.length !== 0) {
           let subusers = row.subusers ? JSON.parse(row.subusers) : [];
           subusers.push(id);
-          await DB.execute("UPDATE `introducing_brokers` SET `subusers` = ?  WHERE `ib_id` = ?", [JSON.stringify(subusers), row[0].ib_id]);
+          await DB.execute(
+            "UPDATE `introducing_brokers` SET `subusers` = ?  WHERE `ib_id` = ?",
+            [JSON.stringify(subusers), row[0].ib_id]
+          );
         }
       }
-  
+
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
@@ -157,8 +197,8 @@ module.exports = {
         status: 200,
         access_token,
         refresh_token,
-        userId:user.id,
-        role:user.role
+        userId: user.id,
+        role: user.role,
       });
     } catch (err) {
       next(err);
@@ -272,27 +312,27 @@ module.exports = {
   logout: async (req, res, next) => {
     try {
       const refreshToken = req.headers.refresh_token;
-  
+
       // Validate and decode the refresh token
       const data = verifyToken(refreshToken, false);
       if (data && data.status) return res.status(data.status).json(data);
-  
+
       // Hash the refresh token for comparison in the database
       const md5Refresh = createHash("md5").update(refreshToken).digest("hex");
-  
+
       // Delete the refresh token from the database
       const [result] = await DB.execute(
         "DELETE FROM `refresh_tokens` WHERE `token` = ?",
         [md5Refresh]
       );
-  
+
       if (!result.affectedRows) {
         return res.status(400).json({
           status: 400,
           message: "Failed to log out. Token not found or already invalid.",
         });
       }
-  
+
       // Successfully logged out
       res.json({
         status: 200,
@@ -307,38 +347,40 @@ module.exports = {
     try {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
-  const id = req.params.id;
+      const id = req.params.id;
       const { ...updateFields } = req.body;
-  
+
       if (!id || Object.keys(updateFields).length === 0) {
         return res.status(400).json({
           status: 400,
           message: "User ID and at least one field to update are required",
         });
       }
-  
+
       // Prepare dynamic SQL query
       const updates = [];
       const values = [];
-  
+
       Object.entries(updateFields).forEach(([key, value]) => {
         updates.push(`\`${key}\` = ?`);
         values.push(value);
       });
-  
+
       values.push(id); // Add the `id` as the last value for the WHERE clause
-  
-      const query = `UPDATE \`users\` SET ${updates.join(", ")} WHERE \`id\` = ?`;
-  
+
+      const query = `UPDATE \`users\` SET ${updates.join(
+        ", "
+      )} WHERE \`id\` = ?`;
+
       const [result] = await DB.execute(query, values);
-  
+
       if (result.affectedRows === 0) {
         return res.status(404).json({
           status: 404,
           message: "User not found",
         });
       }
-  
+
       res.status(200).json({
         status: 200,
         message: "User updated successfully",
@@ -347,6 +389,4 @@ module.exports = {
       next(err);
     }
   },
-  
-  
 };
