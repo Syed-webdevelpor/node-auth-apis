@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const { createHash } = crypto;
+const sendVerificationEmail = require('../middlewares/sesMail.js')
 
 const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";
@@ -98,10 +99,12 @@ module.exports = {
           }
         }
       }
-
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
       // Insert new user
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)",
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`, `verification_link`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           id,
           email,
@@ -115,6 +118,7 @@ module.exports = {
           role,
           is_approved,
           is_verified,
+          verificationLink
         ]
       );
 
@@ -141,7 +145,7 @@ module.exports = {
           );
         }
       }
-
+      await sendVerificationEmail(email,verificationLink);
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
@@ -158,7 +162,7 @@ module.exports = {
       }
       res.status(201).json({
         status: 201,
-        message: "You have been successfully registered.",
+        message: "You have been successfully registered. Please verify your email.",
         user_id: id,
         access_token,
         refresh_token,
@@ -387,6 +391,44 @@ module.exports = {
       });
     } catch (err) {
       next(err);
+    }
+  },
+
+   verifyEmail : async (req, res, next) => {
+    const { token } = req.query;
+  
+    try {
+      if (!token) {
+        return res
+          .status(400)
+          .send("Verification token is missing or invalid.");
+      }
+  
+      // Fetch the user with the matching token
+      const [user] = await DB.execute(
+        "SELECT * FROM `users` WHERE `verification_token` = ?",
+        [token]
+      );
+  
+      if (!user || user.length === 0) {
+        return res
+          .status(400)
+          .send("Invalid or expired verification token.");
+      }
+  
+      // Update user to set `is_verified` to true and clear the verification token
+      await DB.execute(
+        "UPDATE `users` SET `is_verified` = ?, `verification_token` = NULL WHERE `id` = ?",
+        [true, user[0].id]
+      );
+  
+      // Redirect to a success page
+      return res.redirect("https://portal.investain.com/live-account/step1");
+    } catch (error) {
+      console.error("Error during verification:", error);
+  
+      // Redirect to a failure page
+      res.redirect("https://portal.investain.com/login");
     }
   },
 };
