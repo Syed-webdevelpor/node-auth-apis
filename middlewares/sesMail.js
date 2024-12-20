@@ -17,8 +17,34 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
   const mailOptions = {
     from: 'investain.app@gmail.com', // Verified sender email
     to: recipientEmail, // Verified recipient email
-    subject: 'Verify Your Email Address',
-    html: `<p>Click <a href="${verificationLink}">here</a> to verify your email address.</p>`,
+    subject: 'Please Verify Your Email Address',
+    html: `<html>
+        <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
+          <table width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="center" style="background-color: #007bff; padding: 20px; color: white;">
+                <h2 style="margin: 0;">Investain</h2>
+                <p style="font-size: 18px;">Your email address verification</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
+                <h3 style="color: #333;">Verify Your Email Address</h3>
+                <p style="font-size: 16px;">Thank you for registering with Investain! Please click the button below to verify your email address and complete the registration process.</p>
+                <p>
+                  <a href="${verificationLink}" style="background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; font-size: 16px; border-radius: 4px; text-align: center;">Verify Email</a>
+                </p>
+                <p style="font-size: 14px; color: #666;">If you did not create an account, no further action is required.</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
+                <p style="font-size: 14px; color: #888;">&copy; 2024 Investain. All rights reserved.</p>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>`,
   };
 
   try {
