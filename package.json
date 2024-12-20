@@ -18,6 +18,7 @@
   "dependencies": {
     "@aws-sdk/client-ses": "^3.716.0",
     "@aws-sdk/credential-provider-node": "^3.716.0",
+    "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.4",
