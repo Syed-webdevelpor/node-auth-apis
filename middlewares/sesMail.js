@@ -4,7 +4,7 @@ const { defaultProvider } = require('@aws-sdk/credential-provider-node');
 // Set up Nodemailer transporter with SES
 const transporter = nodemailer.createTransport({
   SES: {
-    ses: new (require('@aws-sdk/client-ses')).SESClient({ region: 'us-east-1' }),
+    ses: new (require('@aws-sdk/client-ses')).SESClient({ region: 'eu-north-1' }),
     aws: { credentials: defaultProvider() },
   },
 });
