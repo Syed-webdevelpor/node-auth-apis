@@ -104,7 +104,7 @@ module.exports = {
     const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
       // Insert new user
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`, `verification_link`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`, `verification_token`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           id,
           email,
@@ -118,7 +118,7 @@ module.exports = {
           role,
           is_approved,
           is_verified,
-          verificationLink
+          verificationToken
         ]
       );
 
