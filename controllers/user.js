@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const { createHash } = crypto;
-const sendVerificationEmail = require('../middlewares/sesMail.js')
+const { sendVerificationEmail } = require('../middlewares/sesMail.js')
 
 const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";

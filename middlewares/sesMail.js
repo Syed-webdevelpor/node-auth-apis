@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send a verification email
-async function sendVerificationEmail(recipientEmail, verificationLink) {
+const sendVerificationEmail = async(recipientEmail, verificationLink) =>{
   const mailOptions = {
     from: 'investain.app@gmail.com', // Verified sender email
     to: recipientEmail, // Verified recipient email
@@ -28,4 +28,4 @@ async function sendVerificationEmail(recipientEmail, verificationLink) {
   }
 }
 
-module.exports = sendVerificationEmail();
+module.exports = { sendVerificationEmail };
