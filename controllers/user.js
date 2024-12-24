@@ -9,7 +9,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";
   const [rows] = await DB.execute(
     `SELECT 
-         users.id, users.email,users.password, users.referral_code,users.username,users.phoneNumber,users.role, users.account_nature, users.subusers, users.created_at, users.updated_at,
+         users.id, users.email,users.password, users.referral_code,users.username,users.phoneNumber,users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at,
          personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
@@ -17,6 +17,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
        LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
+       LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
        WHERE users.${column} = ?`,
     [data]
@@ -27,7 +28,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
 const fetchAllUsers = async () => {
   const [rows] = await DB.execute(
     `SELECT 
-         users.id, users.email,users.password, users.referral_code,users.username, users.phoneNumber,users.role,users.account_nature, users.subusers, users.created_at, users.updated_at,
+         users.id, users.email,users.password, users.referral_code,users.username, users.phoneNumber,users.role,users.account_nature,users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at,
          personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
@@ -35,6 +36,7 @@ const fetchAllUsers = async () => {
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
             LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
+       LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id`
   );
   return rows;
@@ -203,6 +205,7 @@ module.exports = {
         refresh_token,
         userId: user.id,
         role: user.role,
+        account_nature: user.account_nature
       });
     } catch (err) {
       next(err);
@@ -394,6 +397,60 @@ module.exports = {
     }
   },
 
+  resendVerificationLink: async (req, res, next) => {
+    try {
+      const { email } = req.body;
+  
+      // Validate email
+      if (!email) {
+        return res.status(400).json({ status: 400, message: "Email is required" });
+      }
+  
+      // Check if the user exists
+      const [user] = await DB.execute(
+        "SELECT id, is_verified FROM users WHERE email = ?",
+        [email]
+      );
+  
+      if (user.length === 0) {
+        return res.status(404).json({ status: 404, message: "User not found" });
+      }
+  
+      // Check if the user is already verified
+      if (user[0].is_verified) {
+        return res.status(400).json({
+          status: 400,
+          message: "User is already verified. No need to resend the verification link.",
+        });
+      }
+  
+      // Generate a new verification token
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+  
+      // Update the user's verification token in the database
+      const [result] = await DB.execute(
+        "UPDATE users SET verification_token = ? WHERE id = ?",
+        [verificationToken, user[0].id]
+      );
+  
+      if (!result.affectedRows) {
+        throw new Error("Failed to update verification token.");
+      }
+  
+      // Send the verification email
+      await sendVerificationEmail(email, verificationLink);
+  
+      res.status(200).json({
+        status: 200,
+        message: "Verification link resent successfully. Please check your email.",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+  
+
    verifyEmail : async (req, res, next) => {
     const { token } = req.query;
   
@@ -421,9 +478,13 @@ module.exports = {
         "UPDATE `users` SET `is_verified` = ?, `verification_token` = NULL WHERE `id` = ?",
         [true, user[0].id]
       );
-  
+      if(user[0].account_nature === 'Individual'){
+
+        return res.redirect("https://portal.investain.com/live-account/step1");
+      }else{
+        return res.redirect("https://portal.investain.com/live-account/organization/step1")
+      }
       // Redirect to a success page
-      return res.redirect("https://portal.investain.com/live-account/step1");
     } catch (error) {
       console.error("Error during verification:", error);
   
