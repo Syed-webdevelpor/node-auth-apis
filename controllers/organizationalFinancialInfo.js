@@ -41,7 +41,7 @@ module.exports = {
       );
       console.log(uuid);
       await DB.execute(
-        "UPDATE `users` SET `organizationalFinancial_info_id` = ? WHERE `id` = ?",
+        "UPDATE `users` SET `org_financial_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
       );
       res.status(201).json({
