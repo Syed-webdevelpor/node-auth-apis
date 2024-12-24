@@ -26,7 +26,7 @@ module.exports = {
       const uuid = uuidv4();
 
       const [result] = await DB.execute(
-        "INSERT INTO `orgFinancialInfo` (`id`, `annual_revenue`, `net_worth`, `other_assets`, `source_of_funds`, `is_shareholder`, `is_beneficial_owner`, `objective_of_investment`, `expected_initial_amount_of_depsoit`, `userId`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `orgFinancialInfo` (`id`, `annual_revenue`, `net_worth`, `other_assets`, `source_of_funds`, `is_shareholder`, `is_beneficial_owner`, `objective_of_investment`, `userId`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           annual_revenue,
