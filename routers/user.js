@@ -58,6 +58,6 @@ router.post("/:id/update", tokenValidation(), validate, user.updateUser);
 router.get("/refresh", tokenValidation(true), validate, user.refreshToken);
 router.post("/logout", tokenValidation(true), validate, user.logout);
 router.get("/verify", user.verifyEmail);
-router.post("/resend_email", user.resendVerificationLink);
+router.post("/resend_email",tokenValidation(), validate, user.resendVerificationLink);
 
 module.exports = router;
