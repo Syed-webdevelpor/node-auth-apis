@@ -478,12 +478,17 @@ module.exports = {
         "UPDATE `users` SET `is_verified` = ?, `verification_token` = NULL WHERE `id` = ?",
         [true, user[0].id]
       );
-      if(user[0].account_nature === 'Individual'){
-
-        return res.redirect("https://portal.investain.com/live-account/step1");
+      if(user[0].account_type === 'Introduced Broker'){
+          return res.redirect("https://partner.investain.com/live-account/step1");
       }else{
-        return res.redirect("https://portal.investain.com/live-account/organization/step1")
+        if(user[0].account_nature === 'Individual'){
+
+          return res.redirect("https://portal.investain.com/live-account/step1");
+        }else{
+          return res.redirect("https://portal.investain.com/live-account/organization/step1")
+        }
       }
+
       // Redirect to a success page
     } catch (error) {
       console.error("Error during verification:", error);
