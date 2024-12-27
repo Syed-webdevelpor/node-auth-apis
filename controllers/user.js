@@ -478,6 +478,7 @@ module.exports = {
         "UPDATE `users` SET `is_verified` = ?, `verification_token` = NULL WHERE `id` = ?",
         [true, user[0].id]
       );
+      console.log(user[0].account_type);
       if(user[0].account_type === 'Introduced Broker'){
           return res.redirect("https://partner.investain.com/live-account/step1");
       }else{
