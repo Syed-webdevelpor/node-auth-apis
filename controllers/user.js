@@ -205,7 +205,8 @@ module.exports = {
         refresh_token,
         userId: user.id,
         role: user.role,
-        account_nature: user.account_nature
+        account_nature: user.account_nature,
+        is_verified : user.is_verified
       });
     } catch (err) {
       next(err);
