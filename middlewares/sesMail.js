@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 // Function to send a verification email
 const sendVerificationEmail = async (recipientEmail, verificationLink) => {
   const mailOptions = {
-    from: 'investain.app@gmail.com', // Verified sender email
+    from: 'support@investain.com', // Verified sender email
     to: recipientEmail, // Verified recipient email
     subject: 'Please Verify Your Email Address',
     html: `<html>
