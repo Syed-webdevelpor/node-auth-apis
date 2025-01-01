@@ -39,15 +39,15 @@ module.exports = {
         ]
       );
       
-        const [rows] = await DB.execute(
-          `SELECT 
-               users.id, user.email,
-               personal_info.first_name,
-             FROM users
-             LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-             WHERE users.id = ?`,
-          [user_id]
-        );
+      const [rows] = await DB.execute(
+        `SELECT 
+             users.id, users.email,
+             personal_info.first_name
+         FROM users
+         LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+         WHERE users.id = ?`,
+        [user_id]
+      );
         sendTradingAccountEmail(rows[0].email,rows[0].first_name,account_type,account_number)
       res.status(201).json({
         status: 201,
