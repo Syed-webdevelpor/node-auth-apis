@@ -52,7 +52,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
     console.log('Verification email sent!', info);
     return { success: true, info };
   } catch (error) {
-    console.error('Error sending email', error);
+    console.error('Error sending email of verification user: ', error);
     return { success: false, error };
   }
 };
@@ -89,8 +89,53 @@ const sendTradingAccountEmail = async(customerEmail, customerName, accountType, 
       const info = await transporter.sendMail(mailOptions);
       console.log('Trading Account Email sent: ' + info.response);
   } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('Error sending email of trading account:', error);
   }
 }
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail };
+async function sendDemoAccountEmail(customerEmail, customerName, accountNumber) {
+  try {
+
+      // Email template
+      const mailOptions = {
+          from: 'support@investain.com', // Replace with your email
+          to: customerEmail,
+          subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
+          html: `
+              <p>Dear ${customerName},</p>
+
+              <p>Thank you for choosing <strong>INVESTAiN</strong> to explore the world of trading. Your demo account has been successfully created, allowing you to practice and refine your trading strategies risk-free.</p>
+
+              <p><strong>Account Details:</strong></p>
+              <ul>
+                  <li>Account Type: Demo</li>
+                  <li>Account Number: ${accountNumber}</li>
+              </ul>
+
+              <p>You can access your demo account using our platform via your registered credentials. This account comes preloaded with virtual funds, enabling you to test your trading strategies in a real-time market environment.</p>
+
+              <p><strong>How to Get Started:</strong></p>
+              <ul>
+                  <li>Log in to your account through our platform.</li>
+                  <li>Explore the tools, charts, and features available.</li>
+                  <li>Practice trading without any financial risk.</li>
+              </ul>
+
+              <p>If you have any questions or need assistance, our support team is here to help. Feel free to reach out to us at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
+
+              <p>We’re excited to support you as you gain confidence in your trading skills.</p>
+
+              <p>Best regards,</p>
+              <p>The INVESTAiN Team</p>
+          `,
+      };
+
+      // Send the email
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Demo Account Email sent: ' + info.response);
+  } catch (error) {
+      console.error('Error sending email of demo account:', error);
+  }
+}
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail };
