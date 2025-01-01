@@ -1,6 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
+const { sendTradingAccountEmail } = require('../middlewares/sesMail.js')
 
 const fetchAllTradingAccount = async () => {
   sql = "SELECT * FROM `trading_accounts`";
@@ -37,6 +38,17 @@ module.exports = {
           account_mode
         ]
       );
+      
+        const [rows] = await DB.execute(
+          `SELECT 
+               users.id, user.email,
+               personal_info.first_name,
+             FROM users
+             LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+             WHERE users.id = ?`,
+          [user_id]
+        );
+        sendTradingAccountEmail(rows[0].email,rows[0].first_name,account_type,account_number)
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",

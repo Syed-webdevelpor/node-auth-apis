@@ -57,4 +57,40 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
   }
 };
 
-module.exports = { sendVerificationEmail };
+// Function to send a trading account creation email
+const sendTradingAccountEmail = async(customerEmail, customerName, accountType, accountNumber)=> {
+  try {
+      // Email template
+      const mailOptions = {
+          from: 'support@investain.com', // Replace with your email
+          to: customerEmail,
+          subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
+          html: `
+              <p>Dear ${customerName},</p>
+
+              <p>We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created, and you are now ready to begin your trading journey with us.</p>
+
+              <p><strong>Account Details:</strong></p>
+              <ul>
+                  <li>Account Type: ${accountType}</li>
+                  <li>Account Number: ${accountNumber}</li>
+              </ul>
+
+              <p>Should you have any questions or require assistance, our support team is available 24/5 to help you. You can reach us at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
+
+              <p>We’re thrilled to have you on board and look forward to supporting your trading success.</p>
+
+              <p>Best regards,</p>
+              <p>The INVESTAiN Team</p>
+          `,
+      };
+
+      // Send the email
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Trading Account Email sent: ' + info.response);
+  } catch (error) {
+      console.error('Error sending email:', error);
+  }
+}
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail };
