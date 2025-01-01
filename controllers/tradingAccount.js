@@ -48,7 +48,7 @@ module.exports = {
          WHERE users.id = ?`,
         [user_id]
       );
-        sendTradingAccountEmail(rows[0].email,rows[0].first_name,account_type,account_number)
+        sendTradingAccountEmail(rows[0].email,rows[0].personal_info.first_name,account_type,account_number)
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",
