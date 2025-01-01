@@ -499,4 +499,69 @@ module.exports = {
       res.redirect("https://portal.investain.com/login");
     }
   },
+
+  forgetPassword : async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      // Check if user exists
+      const [user] = await DB.execute('SELECT * FROM users WHERE email = ?', [email]);
+      if (!user.length) return res.status(404).json({ message: 'User not found' });
+  
+      // Generate reset token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+      const resetExpires = new Date(Date.now() + 900000); // 1 hour from now
+  
+      // Update user with token and expiration
+      await DB.execute(
+        'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE email = ?',
+        [hashedToken, resetExpires, email]
+      );
+  const resetURL = "";
+      if(user[0].role == "Introduced Broker"){
+       resetURL = `https://partner.investain.com/forget-password`;
+      }else{
+         resetURL = `https://portal.investain.com/forget-password`;
+      }
+  
+
+     const info = forgetPasswordEmail(resetURL);
+  if(info){
+    res.status(200).json({ message: 'Reset email sent successfully!' });
+  }else{
+    res.status(500).json({ message: 'Error sending reset email', error });
+  }
+    } catch (error) {
+      res.status(500).json({ message: 'Error sending reset email', error });
+    }
+  },
+
+  resetPassword : async (req, res) => {
+    const { token, newPassword } = req.body;
+  
+    try {
+      // Hash the token and find the user
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      const [user] = await  DB.execute(
+        'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > ?',
+        [hashedToken, new Date()]
+      );
+  
+      if (!user.length) return res.status(400).json({ message: 'Invalid or expired token' });
+  
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+  
+      // Update user's password and clear reset fields
+      await DB.execute(
+        'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL WHERE id = ?',
+        [hashedPassword, user[0].id]
+      );
+  
+      res.status(200).json({ message: 'Password updated successfully!' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error resetting password', error });
+    }
+  },
 };

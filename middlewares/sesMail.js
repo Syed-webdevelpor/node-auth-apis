@@ -138,4 +138,33 @@ async function sendDemoAccountEmail(customerEmail, customerName, accountNumber) 
   }
 }
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail };
+async function forgetPasswordEmail(resetLink) {
+  try {
+    const mailOptions = {
+      from: 'support@investain.com',
+      to: email,
+      subject: 'Reset Your Password – INVESTAiN',
+      html: `
+          <p>Dear,</p>
+
+          <p>We received a request to reset your password for your account at <strong>INVESTAiN</strong>. If you made this request, please click the link below to reset your password:</p>
+
+          <p><a href="${resetLink}">Reset My Password</a></p>
+
+          <p>If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.</p>
+
+          <p>This link will expire in 15 minutes for your security.</p>
+
+          <p>Best regards,</p>
+          <p>The INVESTAiN Team</p>
+      `,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Forget Password Email sent: ' + info.response);
+    return info.response;
+} catch (error) {
+    console.error('Error sending email of Forget Password:', error);
+}
+}
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail };
