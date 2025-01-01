@@ -138,7 +138,7 @@ async function sendDemoAccountEmail(customerEmail, customerName, accountNumber) 
   }
 }
 
-async function forgetPasswordEmail(resetLink) {
+async function forgetPasswordEmail(email,resetLink) {
   try {
     const mailOptions = {
       from: 'support@investain.com',

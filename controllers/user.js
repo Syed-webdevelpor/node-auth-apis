@@ -526,7 +526,7 @@ module.exports = {
       }
   
 
-     const info = forgetPasswordEmail(resetURL);
+     const info = forgetPasswordEmail(email,resetURL);
   if(info){
     res.status(200).json({ message: 'Reset email sent successfully!' });
   }else{
