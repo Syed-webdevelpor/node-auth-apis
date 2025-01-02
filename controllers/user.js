@@ -528,12 +528,12 @@ module.exports = {
 
       const info = await forgetPasswordEmail(email, resetURL);
       if (info) {
-        res.status(200).json({ message: 'Reset email sent successfully!' });
+        res.status(200).json({ message: 'Reset password email sent successfully!' });
       } else {
-        res.status(500).json({ message: 'Error sending reset email', error });
+        res.status(500).json({ message: 'Error sending reset password email', error });
       }
     } catch (error) {
-      res.status(500).json({ message: 'Error sending reset email', error });
+      res.status(500).json({ message: 'Error sending reset password email', error });
     }
   },
 
