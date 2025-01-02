@@ -189,4 +189,55 @@ const forgetPasswordEmail = async (email, resetLink) => {
   }
 }
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail };
+async function sendTransactionNotificationEmail(customerEmail, customerName, transactionType, transactionAmount, transactionDate, accountNumber, transactionId, sourceWallet = '', destinationWallet = '') {
+  try {
+
+      // Determine transaction details message
+      let transactionDetails = '';
+      if (transactionType === 'Deposit') {
+          transactionDetails = 'Your deposit has been successfully processed, and the funds have been credited to your account. You can now use the available balance for trading.';
+      } else if (transactionType === 'Withdrawal') {
+          transactionDetails = 'Your withdrawal request has been successfully processed. Please check your bank/wallet account for the transferred amount.';
+      } else if (transactionType === 'Transfer') {
+          transactionDetails = `A transfer between your wallets has been successfully completed. The funds have been moved from ${sourceWallet} to ${destinationWallet}.`;
+      }
+
+      // Email template
+      const mailOptions = {
+          from: 'support@investain.com', // Replace with your email
+          to: customerEmail,
+          subject: `Transaction Notification – ${transactionType} for Your Account`,
+          html: `
+              <p>Dear ${customerName},</p>
+
+              <p>We are writing to inform you about a recent transaction made on your account. Below are the details of the ${transactionType.toLowerCase()} for your account:</p>
+
+              <p><strong>Transaction Details:</strong></p>
+              <ul>
+                  <li>Transaction Type: ${transactionType}</li>
+                  <li>Amount: ${transactionAmount}</li>
+                  <li>Date: ${transactionDate}</li>
+                  <li>Account Number: ${accountNumber}</li>
+                  <li>Transaction ID: ${transactionId}</li>
+              </ul>
+
+              <p>${transactionDetails}</p>
+
+              <p>If you have any questions regarding this transaction or need further assistance, please don’t hesitate to reach out to our support team at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
+
+              <p>We appreciate your trust in <strong>INVESTAiN</strong> and look forward to assisting you in your trading journey.</p>
+
+              <p>Best regards,</p>
+              <p>The INVESTAiN Team</p>
+          `,
+      };
+
+      // Send the email
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Transaction notification email sent: ' + info.response);
+  } catch (error) {
+      console.error('Error sending transaction notification email:', error);
+  }
+}
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail,sendTransactionNotificationEmail };

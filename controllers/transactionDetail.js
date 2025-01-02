@@ -1,13 +1,12 @@
 const DB = require("../dbConnection.js");
-const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
+const { sendTransactionNotificationEmail } = require('../middlewares/sesMail.js')
 
-const fetchTradingAccountByUserID = async (id) => {
+const fetchTransactionDetailByUserID = async (id) => {
   const sql = `
     SELECT * 
-    FROM \`trading_accounts\` 
+    FROM \`transaction_details\` 
     WHERE \`user_id\` = ? 
-    AND \`account_status\` IN ('Active', 'Suspended')
   `;
   const [rows] = await DB.execute(sql, [id]);
   return rows; // Assuming rows will contain all matching records
@@ -24,20 +23,20 @@ module.exports = {
   transactionDetail: async (req, res, next) => {
     try {
       const {
-        user_id,
+        transaction_id,
         amount,
         transaction_type,
         status,
         from_type,
         from_id,
         to_type,
-        to_id, 
+        to_id,
+        user_id 
       } = req.body;
-      const uuid = uuidv4();
       const [result] = await DB.execute(
-        "INSERT INTO `transaction_details` (`id`, `user_id`,`from_type`,`from_id`,`to_type`,`to_id`,amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?,?,?,?)",
+        "INSERT INTO `transaction_details` (`transaction_id`, `user_id`,`from_type`,`from_id`,`to_type`,`to_id`,amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?,?,?,?)",
         [
-          uuid,
+          transaction_id,
           user_id,
           from_type,
           from_id,
@@ -48,10 +47,31 @@ module.exports = {
           status,
         ]
       );
+      const [rows] = await DB.execute(
+        `SELECT 
+             users.id, users.email,
+             personal_info.first_name
+         FROM users
+         LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+         WHERE users.id = ?`,
+        [user_id]
+      );
+      let account_number = '';
+      if (transaction_type === 'Deposit') {
+        account_number = from_id;
+       await sendTransactionNotificationEmail(rows[0].email,rows[0].first_name,transaction_type,amount,result[0].created_at ,account_number,transaction_id)
+      } else if (transaction_type === 'Withdrawal') {
+        account_number = to_id;
+        await sendTransactionNotificationEmail(rows[0].email,rows[0].first_name,transaction_type,amount,result[0].created_at,account_number,transaction_id)
+      } else if (transaction_type === 'Transfer') {
+        account_number = `${from_id} to ${to_id}.`;
+        await sendTransactionNotificationEmail(rows[0].email,rows[0].first_name,transaction_type,amount,result[0].created_at,account_number,transaction_id,from_id,to_id)
+      }
+      
       res.status(201).json({
         status: 201,
         message: "Your transaction detail have been created",
-        transaction_id: uuid,
+        transaction_id: transaction_id,
       });
     } catch (err) {
       next(err);
@@ -63,7 +83,7 @@ module.exports = {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
       const {
-        id,
+        transaction_id,
         user_id,
         from_type,
         from_id,
@@ -75,7 +95,7 @@ module.exports = {
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `transaction_details` SET `user_id` = ?, `from_type` = ?, `from_id` = ?, `to_type` = ?, `to_id` = ?, `amount` = ?, `transaction_type` = ?, `status` = ? WHERE `id` = ?",
+        "UPDATE `transaction_details` SET `user_id` = ?, `from_type` = ?, `from_id` = ?, `to_type` = ?, `to_id` = ?, `amount` = ?, `transaction_type` = ?, `status` = ? WHERE `transaction_id` = ?",
         [
           user_id,
           from_type,
@@ -85,7 +105,7 @@ module.exports = {
           amount,
           transaction_type,
           status,
-          id
+          transaction_id
         ]
       );
   
