@@ -34,7 +34,7 @@ module.exports = {
         user_id 
       } = req.body;
       const [result] = await DB.execute(
-        "INSERT INTO `transaction_details` (`transaction_id`, `user_id`,`from_type`,`from_id`,`to_type`,`to_id`,amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?,?,?,?,?)",
+        "INSERT INTO `transaction_details` (`transaction_id`, `user_id`,`from_type`,`from_id`,`to_type`,`to_id`, `amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?,?,?,?,?)",
         [
           transaction_id,
           user_id,
