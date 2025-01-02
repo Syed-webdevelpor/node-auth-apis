@@ -93,7 +93,7 @@ const sendTradingAccountEmail = async(customerEmail, customerName, accountType, 
   }
 }
 
-async function sendDemoAccountEmail(customerEmail, customerName, accountNumber) {
+const sendDemoAccountEmail = async(customerEmail, customerName, accountNumber)=> {
   try {
 
       // Email template
@@ -138,7 +138,7 @@ async function sendDemoAccountEmail(customerEmail, customerName, accountNumber) 
   }
 }
 
-async function forgetPasswordEmail(email,resetLink) {
+const forgetPasswordEmail = async(email,resetLink) =>{
   try {
     const mailOptions = {
       from: 'support@investain.com',

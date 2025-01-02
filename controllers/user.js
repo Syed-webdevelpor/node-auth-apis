@@ -518,7 +518,7 @@ module.exports = {
         'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE email = ?',
         [hashedToken, resetExpires, email]
       );
-  const resetURL = "";
+  let resetURL = "";
       if(user[0].role == "Introduced Broker"){
        resetURL = `https://partner.investain.com/forget-password`;
       }else{
@@ -526,7 +526,7 @@ module.exports = {
       }
   
 
-     const info = forgetPasswordEmail(email,resetURL);
+     const info = await forgetPasswordEmail(email,resetURL);
   if(info){
     res.status(200).json({ message: 'Reset email sent successfully!' });
   }else{
