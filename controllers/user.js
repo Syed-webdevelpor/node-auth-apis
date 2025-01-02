@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const { createHash } = crypto;
-const { sendVerificationEmail,forgetPasswordEmail } = require('../middlewares/sesMail.js')
+const { sendVerificationEmail, forgetPasswordEmail } = require('../middlewares/sesMail.js')
 
 const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";
@@ -101,9 +101,9 @@ module.exports = {
           }
         }
       }
-    // Generate verification token
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      // Generate verification token
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
       // Insert new user
       const [result] = await DB.execute(
         "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`, `verification_token`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -147,7 +147,7 @@ module.exports = {
           );
         }
       }
-      await sendVerificationEmail(email,verificationLink);
+      await sendVerificationEmail(email, verificationLink);
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
@@ -206,7 +206,7 @@ module.exports = {
         userId: user.id,
         role: user.role,
         account_nature: user.account_nature,
-        is_verified : user.is_verified
+        is_verified: user.is_verified
       });
     } catch (err) {
       next(err);
@@ -401,22 +401,22 @@ module.exports = {
   resendVerificationLink: async (req, res, next) => {
     try {
       const { email } = req.body;
-  
+
       // Validate email
       if (!email) {
         return res.status(400).json({ status: 400, message: "Email is required" });
       }
-  
+
       // Check if the user exists
       const [user] = await DB.execute(
         "SELECT id, is_verified FROM users WHERE email = ?",
         [email]
       );
-  
+
       if (user.length === 0) {
         return res.status(404).json({ status: 404, message: "User not found" });
       }
-  
+
       // Check if the user is already verified
       if (user[0].is_verified) {
         return res.status(400).json({
@@ -424,24 +424,24 @@ module.exports = {
           message: "User is already verified. No need to resend the verification link.",
         });
       }
-  
+
       // Generate a new verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
       const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
-  
+
       // Update the user's verification token in the database
       const [result] = await DB.execute(
         "UPDATE users SET verification_token = ? WHERE id = ?",
         [verificationToken, user[0].id]
       );
-  
+
       if (!result.affectedRows) {
         throw new Error("Failed to update verification token.");
       }
-  
+
       // Send the verification email
       await sendVerificationEmail(email, verificationLink);
-  
+
       res.status(200).json({
         status: 200,
         message: "Verification link resent successfully. Please check your email.",
@@ -450,43 +450,43 @@ module.exports = {
       next(err);
     }
   },
-  
 
-   verifyEmail : async (req, res, next) => {
+
+  verifyEmail: async (req, res, next) => {
     const { token } = req.query;
-  
+
     try {
       if (!token) {
         return res
           .status(400)
           .send("Verification token is missing or invalid.");
       }
-  
+
       // Fetch the user with the matching token
       const [user] = await DB.execute(
         "SELECT * FROM `users` WHERE `verification_token` = ?",
         [token]
       );
-  
+
       if (!user || user.length === 0) {
         return res
           .status(400)
           .send("Invalid or expired verification token.");
       }
-  
+
       // Update user to set `is_verified` to true and clear the verification token
       await DB.execute(
         "UPDATE `users` SET `is_verified` = ?, `verification_token` = NULL WHERE `id` = ?",
         [true, user[0].id]
       );
       console.log(user[0].role);
-      if(user[0].role === 'Introduced Broker'){
-          return res.redirect("https://partner.investain.com/live-account/step1");
-      }else{
-        if(user[0].account_nature === 'Individual'){
+      if (user[0].role === 'Introduced Broker') {
+        return res.redirect("https://partner.investain.com/live-account/step1");
+      } else {
+        if (user[0].account_nature === 'Individual') {
 
           return res.redirect("https://portal.investain.com/live-account/step1");
-        }else{
+        } else {
           return res.redirect("https://portal.investain.com/live-account/organization/step1")
         }
       }
@@ -494,71 +494,71 @@ module.exports = {
       // Redirect to a success page
     } catch (error) {
       console.error("Error during verification:", error);
-  
+
       // Redirect to a failure page
       res.redirect("https://portal.investain.com/login");
     }
   },
 
-  forgetPassword : async (req, res) => {
+  forgetPassword: async (req, res) => {
     const { email } = req.body;
-  
+
     try {
       // Check if user exists
       const [user] = await DB.execute('SELECT * FROM users WHERE email = ?', [email]);
       if (!user.length) return res.status(404).json({ message: 'User not found' });
-  
+
       // Generate reset token
       const resetToken = crypto.randomBytes(32).toString('hex');
       const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
       const resetExpires = new Date(Date.now() + 900000); // 1 hour from now
-  
+
       // Update user with token and expiration
       await DB.execute(
         'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE email = ?',
         [hashedToken, resetExpires, email]
       );
-  let resetURL = "";
-      if(user[0].role == "Introduced Broker"){
-       resetURL = `https://partner.investain.com/forget-password`;
-      }else{
-         resetURL = `https://portal.investain.com/forget-password`;
+      let resetURL = "";
+      if (user[0].role == "Introduced Broker") {
+        resetURL = `https://partner.investain.com/forget-password`;
+      } else {
+        resetURL = `https://portal.investain.com/forget-password`;
       }
-  
 
-     const info = await forgetPasswordEmail(email,resetURL);
-  if(info){
-    res.status(200).json({ message: 'Reset email sent successfully!' });
-  }else{
-    res.status(500).json({ message: 'Error sending reset email', error });
-  }
+
+      const info = await forgetPasswordEmail(email, resetURL);
+      if (info) {
+        res.status(200).json({ message: 'Reset email sent successfully!' });
+      } else {
+        res.status(500).json({ message: 'Error sending reset email', error });
+      }
     } catch (error) {
       res.status(500).json({ message: 'Error sending reset email', error });
     }
   },
 
-  resetPassword : async (req, res) => {
+  resetPassword: async (req, res) => {
     const { token, newPassword } = req.body;
-  
+
     try {
       // Hash the token and find the user
       const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-      const [user] = await  DB.execute(
+      const [user] = await DB.execute(
         'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > ?',
         [hashedToken, new Date()]
       );
-  
+
       if (!user.length) return res.status(400).json({ message: 'Invalid or expired token' });
-  
+
       // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 12);
-  
+
       // Update user's password and clear reset fields
       await DB.execute(
         'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL WHERE id = ?',
         [hashedPassword, user[0].id]
       );
-  
+
       res.status(200).json({ message: 'Password updated successfully!' });
     } catch (error) {
       res.status(500).json({ message: 'Error resetting password', error });

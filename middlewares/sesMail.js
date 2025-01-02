@@ -58,14 +58,14 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
 };
 
 // Function to send a trading account creation email
-const sendTradingAccountEmail = async(customerEmail, customerName, accountType, accountNumber)=> {
+const sendTradingAccountEmail = async (customerEmail, customerName, accountType, accountNumber) => {
   try {
-      // Email template
-      const mailOptions = {
-          from: 'support@investain.com', // Replace with your email
-          to: customerEmail,
-          subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
-          html: `
+    // Email template
+    const mailOptions = {
+      from: 'support@investain.com', // Replace with your email
+      to: customerEmail,
+      subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
+      html: `
               <p>Dear ${customerName},</p>
 
               <p>We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created, and you are now ready to begin your trading journey with us.</p>
@@ -83,25 +83,25 @@ const sendTradingAccountEmail = async(customerEmail, customerName, accountType, 
               <p>Best regards,</p>
               <p>The INVESTAiN Team</p>
           `,
-      };
+    };
 
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Trading Account Email sent: ' + info.response);
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Trading Account Email sent: ' + info.response);
   } catch (error) {
-      console.error('Error sending email of trading account:', error);
+    console.error('Error sending email of trading account:', error);
   }
 }
 
-const sendDemoAccountEmail = async(customerEmail, customerName, accountNumber)=> {
+const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) => {
   try {
 
-      // Email template
-      const mailOptions = {
-          from: 'support@investain.com', // Replace with your email
-          to: customerEmail,
-          subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
-          html: `
+    // Email template
+    const mailOptions = {
+      from: 'support@investain.com', // Replace with your email
+      to: customerEmail,
+      subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
+      html: `
               <p>Dear ${customerName},</p>
 
               <p>Thank you for choosing <strong>INVESTAiN</strong> to explore the world of trading. Your demo account has been successfully created, allowing you to practice and refine your trading strategies risk-free.</p>
@@ -128,43 +128,65 @@ const sendDemoAccountEmail = async(customerEmail, customerName, accountNumber)=>
               <p>Best regards,</p>
               <p>The INVESTAiN Team</p>
           `,
-      };
+    };
 
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Demo Account Email sent: ' + info.response);
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Demo Account Email sent: ' + info.response);
   } catch (error) {
-      console.error('Error sending email of demo account:', error);
+    console.error('Error sending email of demo account:', error);
   }
 }
 
-const forgetPasswordEmail = async(email,resetLink) =>{
+const forgetPasswordEmail = async (email, resetLink) => {
   try {
     const mailOptions = {
       from: 'support@investain.com',
       to: email,
       subject: 'Reset Your Password – INVESTAiN',
-      html: `
-          <p>Dear,</p>
-
-          <p>We received a request to reset your password for your account at <strong>INVESTAiN</strong>. If you made this request, please click the link below to reset your password:</p>
-
-          <p><a href="${resetLink}">Reset My Password</a></p>
-
-          <p>If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.</p>
-
-          <p>This link will expire in 15 minutes for your security.</p>
-
-          <p>Best regards,</p>
-          <p>The INVESTAiN Team</p>
+      html: `<html>
+  <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
+    <table width="100%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
+          <h2 style="margin: 0;">INVESTAiN</h2>
+          <p style="font-size: 18px;">Reset Your Password</p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
+          <h3 style="color: #333;">Password Reset Request</h3>
+          <p style="font-size: 16px;">
+            We received a request to reset your password for your account at <strong>INVESTAiN</strong>.
+            If you made this request, please click the button below to reset your password:
+          </p>
+          <p>
+            <a href="${resetLink}" style="background-color: red; color: white; padding: 12px 30px; text-decoration: none; font-size: 16px; border-radius: 4px; text-align: center;">Reset My Password</a>
+          </p>
+          <p style="font-size: 14px; color: #666;">
+            If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.
+          </p>
+          <p style="font-size: 14px; color: #666;">
+            This link will expire in 15 minutes for your security.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
+          <p style="font-size: 14px; color: #888;">&copy; 2024 INVESTAiN. All rights reserved.</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
       `,
     };
     const info = await transporter.sendMail(mailOptions);
     console.log('Forget Password Email sent: ' + info.response);
     return info.response;
-} catch (error) {
+  } catch (error) {
     console.error('Error sending email of Forget Password:', error);
-}
+  }
 }
 
 module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail };
