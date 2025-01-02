@@ -520,9 +520,9 @@ module.exports = {
       );
       let resetURL = "";
       if (user[0].role == "Introduced Broker") {
-        resetURL = `https://partner.investain.com/forget-password`;
+        resetURL = `https://partner.investain.com/forget-password?token=${resetToken}`;
       } else {
-        resetURL = `https://portal.investain.com/forget-password`;
+        resetURL = `https://portal.investain.com/forget-password?token=${resetToken}`;
       }
 
 
