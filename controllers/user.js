@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const { createHash } = crypto;
+const axios = require('axios');
 const { sendVerificationEmail, forgetPasswordEmail } = require('../middlewares/sesMail.js')
 
 const fetchUserByEmailOrID = async (data, isEmail) => {
@@ -565,7 +566,7 @@ module.exports = {
     }
   },
 
-  kycAccessToken : async(req, res) => {
+   kycAccessToken : async (req, res) => {
     console.log("Creating an access token for initializing SDK...");
   
     const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
@@ -574,25 +575,21 @@ module.exports = {
       return res.status(400).json({ error: 'externalUserId is required' });
     }
   
-    const method = 'post';
-    const url = `/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
+    try {
+      const url = `https://api.sumsub.com/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
   
-    const headers = {
-      'Accept': 'application/json',
-      'X-App-Token': req.headers.appToken
-    };
+      const headers = {
+        'Accept': 'application/json',
+        'X-App-Token': req.headers.appToken
+      };
   
-    // Here, you would typically make an HTTP request to the external service
-    // using a library like axios or node-fetch. For now, we'll return the config.
+      const response = await axios.post(url, null, { headers });
   
-    const config = {
-      method,
-      url,
-      headers,
-      data: null
-    };
-  
-    // Send the configuration back as the response (for demonstration purposes)
-    return res.json(config);
-  }
+      res.status(200).json(response.data);
+    } catch (error) {
+      console.error("Error creating access token:", error);
+      res.status(500).json({ message: 'Error creating access token', error: error.message });
+    }
+  },
+
 };
