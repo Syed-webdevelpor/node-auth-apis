@@ -2,9 +2,41 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
-const { createHash } = crypto;
 const axios = require('axios');
+const { createHash } = crypto;
 const { sendVerificationEmail, forgetPasswordEmail } = require('../middlewares/sesMail.js')
+
+
+axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
+// Function to create the signature for Sumsub API requests
+function createSignature(config) {
+  const ts = Math.floor(Date.now() / 1000);
+  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
+    .update(ts + config.method.toUpperCase() + config.url)
+    .digest('hex');
+
+  config.headers['X-App-Access-Ts'] = ts;
+  config.headers['X-App-Access-Sig'] = signature;
+
+  return config;
+}
+
+// Intercept all requests to add the signature
+axios.interceptors.request.use(createSignature, function (error) {
+  return Promise.reject(error);
+});
+
+// Function to create an access token
+async function createAccessToken(externalUserId, levelName = 'basic-kyc-level', ttlInSecs = 600) {
+  const url = `/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
+
+  const headers = {
+    'Accept': 'application/json',
+    'X-App-Token': process.env.SUMSUB_APP_TOKEN
+  };
+
+  return axios.post(url, null, { headers });
+}
 
 const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";
@@ -566,30 +598,22 @@ module.exports = {
     }
   },
 
-   kycAccessToken : async (req, res) => {
-    console.log("Creating an access token for initializing SDK...");
-  
-    const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
-  
-    if (!externalUserId) {
-      return res.status(400).json({ error: 'externalUserId is required' });
-    }
-  
-    try {
-      const url = `https://api.sumsub.com/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
-  
-      const headers = {
-        'Accept': 'application/json',
-        'X-App-Token': req.headers.appToken
-      };
-  
-      const response = await axios.post(url, null, { headers });
-  
-      res.status(200).json(response.data);
-    } catch (error) {
-      console.error("Error creating access token:", error);
-      res.status(500).json({ message: 'Error creating access token', error: error.message });
-    }
-  },
+// Controller function
+ kycAccessToken : async (req, res) => {
+  const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
+
+  if (!externalUserId) {
+    return res.status(400).json({ error: 'externalUserId is required' });
+  }
+
+  try {
+    const response = await createAccessToken(externalUserId, levelName, ttlInSecs);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error creating access token:", error);
+    res.status(500).json({ message: 'Error creating access token', error: error.response?.data || error.message });
+  }
+},
+
 
 };
