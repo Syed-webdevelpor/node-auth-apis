@@ -564,4 +564,35 @@ module.exports = {
       res.status(500).json({ message: 'Error resetting password', error });
     }
   },
+
+  kycAccessToken : async(req, res) => {
+    console.log("Creating an access token for initializing SDK...");
+  
+    const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
+  
+    if (!externalUserId) {
+      return res.status(400).json({ error: 'externalUserId is required' });
+    }
+  
+    const method = 'post';
+    const url = `/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
+  
+    const headers = {
+      'Accept': 'application/json',
+      'X-App-Token': req.headers.appToken
+    };
+  
+    // Here, you would typically make an HTTP request to the external service
+    // using a library like axios or node-fetch. For now, we'll return the config.
+  
+    const config = {
+      method,
+      url,
+      headers,
+      data: null
+    };
+  
+    // Send the configuration back as the response (for demonstration purposes)
+    return res.json(config);
+  }
 };
