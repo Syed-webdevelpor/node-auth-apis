@@ -598,22 +598,22 @@ module.exports = {
     }
   },
 
-// Controller function
- kycAccessToken : async (req, res) => {
-  const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
+  // Controller function
+  kycAccessToken: async (req, res) => {
+    const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
 
-  if (!externalUserId) {
-    return res.status(400).json({ error: 'externalUserId is required' });
-  }
+    if (!externalUserId) {
+      return res.status(400).json({ error: 'externalUserId is required' });
+    }
 
-  try {
-    const response = await createAccessToken(externalUserId, levelName, ttlInSecs);
-    res.status(200).json(response.data);
-  } catch (error) {
-    console.error("Error creating access token:", error);
-    res.status(500).json({ message: 'Error creating access token', error: error.response?.data || error.message });
-  }
-},
+    try {
+      const response = await createAccessToken(externalUserId, levelName, ttlInSecs);
+      res.status(200).json(response.data);
+    } catch (error) {
+      console.error("Error creating access token:", error);
+      res.status(500).json({ message: 'Error creating access token', error: error.response?.data || error.message });
+    }
+  },
 
 
 };
