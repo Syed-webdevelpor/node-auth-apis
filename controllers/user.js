@@ -4,7 +4,7 @@ const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const axios = require('axios');
 const { createHash } = crypto;
-const { sendVerificationEmail, forgetPasswordEmail } = require('../middlewares/sesMail.js')
+const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail } = require('../middlewares/sesMail.js')
 
 
 axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
