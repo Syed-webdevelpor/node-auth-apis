@@ -90,31 +90,38 @@ module.exports = {
         role,
         is_approved,
         is_verified,
+        platform, // Expecting 'platform' to indicate 'web' or 'mobile'
       } = req.body;
-
+  
       // Validate input
-      if (!email || !password || !id) {
-        return res.status(400).json("Missing required fields");
+      if (!email || !password || !id || !platform) {
+        return res.status(400).json({
+          status: 400,
+          message: "Missing required fields",
+        });
       }
-
+  
       // Hash password
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
-
+  
       // Generate referral code
       const referralCode = crypto.randomBytes(4).toString("hex");
-
+  
       // Check if user with the given email already exists
       const user = await fetchUserByEmailOrID(email, true);
       if (user.length > 0) {
-        return res.status(403).json("Email already exists");
+        return res.status(403).json({
+          status: 403,
+          message: "Email already exists",
+        });
       }
-
+  
       // Determine affiliation type
       let affiliationType = "Direct";
       let referringUser = null;
       let row = null;
-
+  
       if (referCode) {
         // Check if referCode belongs to an introducing broker
         [row] = await DB.execute(
@@ -134,12 +141,14 @@ module.exports = {
           }
         }
       }
-      // Generate verification token
-      const verificationToken = crypto.randomBytes(32).toString("hex");
-      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
-      // Insert new user
+  
+      // Variables for verification
+      let verificationToken = null;
+      let otp = null;
+  
+      // Insert new user into the database
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`,`role`, `is_approved`, `is_verified`, `verification_token`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`, `otp`, `otp_created_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           id,
           email,
@@ -153,12 +162,22 @@ module.exports = {
           role,
           is_approved,
           is_verified,
-          verificationToken
+          platform === "web" ? (verificationToken = crypto.randomBytes(32).toString("hex")) : null,
+          platform === "mobile" ? (otp = Math.floor(100000 + Math.random() * 900000)) : null,
+          platform === "mobile" ? new Date() : null,
         ]
       );
-
+  
+      // If user creation failed, stop further processing
+      if (!result.affectedRows) {
+        return res.status(500).json({
+          status: 500,
+          message: "User registration failed. Please try again.",
+        });
+      }
+  
+      // Handle referral subusers
       if (referCode) {
-        // Update subusers for referring user
         if (referringUser) {
           let subusers = referringUser.subusers
             ? JSON.parse(referringUser.subusers)
@@ -169,8 +188,7 @@ module.exports = {
             referringUser[0].id,
           ]);
         }
-
-        // Update subusers for introducing broker
+  
         if (row.length !== 0) {
           let subusers = row.subusers ? JSON.parse(row.subusers) : [];
           subusers.push(id);
@@ -180,33 +198,50 @@ module.exports = {
           );
         }
       }
-      await sendVerificationEmail(email, verificationLink);
+  
+      // Send verification email or OTP only after user creation
+      if (platform === "web") {
+        const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+        await sendVerificationEmail(email, verificationLink);
+      } else if (platform === "mobile") {
+        await sendOtpEmail(email, otp); // Ensure `sendOtpEmail` is implemented for sending OTP
+      }
+  
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
-
+  
       const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
-
+  
       const [result1] = await DB.execute(
         "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
         [id, md5Refresh]
       );
-
+  
       if (!result1.affectedRows) {
-        throw new Error("Failed to whitelist the refresh token.");
+        return res.status(500).json({
+          status: 500,
+          message: "Failed to whitelist the refresh token.",
+        });
       }
+  
       res.status(201).json({
         status: 201,
-        message: "You have been successfully registered. Please verify your email.",
+        message: "You have been successfully registered. Please verify your email or OTP.",
         user_id: id,
         access_token,
         refresh_token,
         referral_code: referralCode,
       });
     } catch (err) {
-      next(err);
+      res.status(500).json({
+        status: 500,
+        message: "An unexpected error occurred.",
+        error: err.message,
+      });
     }
   },
+  
 
   login: async (req, res, next) => {
     try {
@@ -615,5 +650,44 @@ module.exports = {
     }
   },
 
+  verifyOtp: async (req, res, next) => {
+    try {
+      const { email, otp } = req.body;
+  
+      if (!email || !otp) {
+        return res.status(400).json("Missing required fields");
+      }
+  
+      // Fetch user by email
+      const [user] = await DB.execute(
+        "SELECT * FROM `users` WHERE `email` = ?",
+        [email]
+      );
+  
+      if (!user || user.length === 0) {
+        return res.status(404).json("User not found");
+      }
+  
+      // Check OTP validity
+      const currentTime = new Date();
+      const otpExpiryTime = new Date(user[0].otp_created_at);
+      otpExpiryTime.setMinutes(otpExpiryTime.getMinutes() + 10); // OTP expires in 10 minutes
+  
+      if (user[0].otp !== otp || currentTime > otpExpiryTime) {
+        return res.status(400).json("Invalid or expired OTP");
+      }
+  
+      // Mark user as verified
+      await DB.execute("UPDATE `users` SET `is_verified` = ? WHERE `email` = ?", [
+        true,
+        email,
+      ]);
+  
+      res.status(200).json("Email verified successfully");
+    } catch (err) {
+      next(err);
+    }
+  },
+  
 
 };

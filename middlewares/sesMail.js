@@ -240,4 +240,48 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
   }
 }
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail,sendTransactionNotificationEmail };
+const sendOtpEmail = async (recipientEmail, otp) => {
+  const mailOptions = {
+    from: 'support@investain.com', // Verified sender email
+    to: recipientEmail, // Verified recipient email
+    subject: 'Your OTP for Account Verification',
+    html: `<html>
+        <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
+          <table width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
+                <h2 style="margin: 0;">INVESTAiN</h2>
+                <p style="font-size: 18px;">Your One-Time Password (OTP)</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
+                <h3 style="color: #333;">Verify Your Account</h3>
+                <p style="font-size: 16px;">We received a request to verify your account. Use the following OTP to complete the process:</p>
+                <p style="font-size: 24px; font-weight: bold; color: #e74c3c; margin: 20px 0;">${otp}</p>
+                <p style="font-size: 14px; color: #666;">This OTP is valid for the next 10 minutes. Please do not share it with anyone.</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
+                <p style="font-size: 14px; color: #888;">If you did not request this, please ignore this email or contact support immediately.</p>
+                <p style="font-size: 14px; color: #888;">&copy; 2024 INVESTAiN. All rights reserved.</p>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('OTP email sent!', info);
+    return { success: true, info };
+  } catch (error) {
+    console.error('Error sending OTP email: ', error);
+    return { success: false, error };
+  }
+};
+
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail,sendTransactionNotificationEmail, sendOtpEmail };
