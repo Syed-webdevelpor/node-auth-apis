@@ -39,7 +39,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
             </tr>
             <tr>
               <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
-                <p style="font-size: 14px; color: #888;">&copy; 2024 INVESTAiN. All rights reserved.</p>
+                <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
               </td>
             </tr>
           </table>
@@ -173,7 +173,7 @@ const forgetPasswordEmail = async (email, resetLink) => {
       </tr>
       <tr>
         <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
-          <p style="font-size: 14px; color: #888;">&copy; 2024 INVESTAiN. All rights reserved.</p>
+          <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
         </td>
       </tr>
     </table>
@@ -265,7 +265,7 @@ const sendOtpEmail = async (recipientEmail, otp) => {
             <tr>
               <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
                 <p style="font-size: 14px; color: #888;">If you did not request this, please ignore this email or contact support immediately.</p>
-                <p style="font-size: 14px; color: #888;">&copy; 2024 INVESTAiN. All rights reserved.</p>
+                <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
               </td>
             </tr>
           </table>
