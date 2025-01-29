@@ -92,7 +92,7 @@ module.exports = {
         is_verified,
         platform, // Expecting 'platform' to indicate 'web' or 'mobile'
       } = req.body;
-  
+
       // Validate input
       if (!email || !password || !id || !platform) {
         return res.status(400).json({
@@ -100,14 +100,14 @@ module.exports = {
           message: "Missing required fields",
         });
       }
-  
+
       // Hash password
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(password, saltRounds);
-  
+
       // Generate referral code
       const referralCode = crypto.randomBytes(4).toString("hex");
-  
+
       // Check if user with the given email already exists
       const user = await fetchUserByEmailOrID(email, true);
       if (user.length > 0) {
@@ -116,12 +116,12 @@ module.exports = {
           message: "Email already exists",
         });
       }
-  
+
       // Determine affiliation type
       let affiliationType = "Direct";
       let referringUser = null;
       let row = null;
-  
+
       if (referCode) {
         // Check if referCode belongs to an introducing broker
         [row] = await DB.execute(
@@ -141,11 +141,11 @@ module.exports = {
           }
         }
       }
-  
+
       // Variables for verification
       let verificationToken = null;
       let otp = null;
-  
+
       // Insert new user into the database
       const [result] = await DB.execute(
         "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`, `otp`, `otp_created_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -167,7 +167,7 @@ module.exports = {
           platform === "mobile" ? new Date() : null,
         ]
       );
-  
+
       // If user creation failed, stop further processing
       if (!result.affectedRows) {
         return res.status(500).json({
@@ -175,7 +175,7 @@ module.exports = {
           message: "User registration failed. Please try again.",
         });
       }
-  
+
       // Handle referral subusers
       if (referCode) {
         if (referringUser) {
@@ -188,7 +188,7 @@ module.exports = {
             referringUser[0].id,
           ]);
         }
-  
+
         if (row.length !== 0) {
           let subusers = row.subusers ? JSON.parse(row.subusers) : [];
           subusers.push(id);
@@ -198,7 +198,7 @@ module.exports = {
           );
         }
       }
-  
+
       // Send verification email or OTP only after user creation
       if (platform === "web") {
         const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
@@ -206,25 +206,25 @@ module.exports = {
       } else if (platform === "mobile") {
         await sendOtpEmail(email, otp); // Ensure `sendOtpEmail` is implemented for sending OTP
       }
-  
+
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
-  
+
       const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
-  
+
       const [result1] = await DB.execute(
         "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
         [id, md5Refresh]
       );
-  
+
       if (!result1.affectedRows) {
         return res.status(500).json({
           status: 500,
           message: "Failed to whitelist the refresh token.",
         });
       }
-  
+
       res.status(201).json({
         status: 201,
         message: "You have been successfully registered. Please verify your email or OTP.",
@@ -241,7 +241,7 @@ module.exports = {
       });
     }
   },
-  
+
 
   login: async (req, res, next) => {
     try {
@@ -653,41 +653,101 @@ module.exports = {
   verifyOtp: async (req, res, next) => {
     try {
       const { email, otp } = req.body;
-  
+
       if (!email || !otp) {
-        return res.status(400).json("Missing required fields");
+        return res.status(400).json({
+          status: 400,
+          message: "Missing required fields"
+        });
       }
-  
+
       // Fetch user by email
       const [user] = await DB.execute(
         "SELECT * FROM `users` WHERE `email` = ?",
         [email]
       );
-  
+
       if (!user || user.length === 0) {
-        return res.status(404).json("User not found");
+        return res.status(404).json({
+          status: 404,
+          message: "User not found"
+        });
       }
-  
+
       // Check OTP validity
       const currentTime = new Date();
       const otpExpiryTime = new Date(user[0].otp_created_at);
       otpExpiryTime.setMinutes(otpExpiryTime.getMinutes() + 10); // OTP expires in 10 minutes
-  
+
       if (user[0].otp !== otp || currentTime > otpExpiryTime) {
-        return res.status(400).json("Invalid or expired OTP");
+        return res.status(400).json({
+          status: 400,
+          message: "Invalid or expired OTP"
+        });
       }
-  
+
       // Mark user as verified
       await DB.execute("UPDATE `users` SET `is_verified` = ? WHERE `email` = ?", [
         true,
         email,
       ]);
-  
-      res.status(200).json("Email verified successfully");
+
+      res.status(200).json({
+        status: 200,
+        message: "Email verified successfully"
+      });
     } catch (err) {
       next(err);
     }
   },
-  
+
+  resendOtp: async (req, res) => {
+    try {
+      const { email, platform } = req.body;
+
+      // Validate input
+      if (!email || !platform) {
+        return res.status(400).json({
+          status: 400,
+          message: "Missing required fields",
+        });
+      }
+
+      // Check if user exists
+      const [user] = await DB.execute("SELECT * FROM `users` WHERE `email` = ?", [email]);
+
+      if (user.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+
+      // Generate new OTP
+      const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+
+      // Update OTP in database
+      await DB.execute("UPDATE `users` SET `otp` = ?, `otp_created_at` = ? WHERE `email` = ?", [
+        otp,
+        new Date(),
+        email,
+      ]);
+
+      // Send OTP email
+      await sendOtpEmail(email, otp);
+
+      res.status(200).json({
+        status: 200,
+        message: "OTP has been resent successfully",
+      });
+    } catch (err) {
+      res.status(500).json({
+        status: 500,
+        message: "An unexpected error occurred.",
+        error: err.message,
+      });
+    }
+  },
+
 
 };
