@@ -23,8 +23,8 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
           <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
               <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-                <h2 style="margin: 0;">INVESTAiN</h2>
-                <p style="font-size: 18px;">Your email address verification</p>
+                <img src="./public/images/logo.jpeg" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
+                <p style="font-size: 18px;">Your email address verification!</p>
               </td>
             </tr>
             <tr>
@@ -149,7 +149,7 @@ const forgetPasswordEmail = async (email, resetLink) => {
     <table width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-          <h2 style="margin: 0;">INVESTAiN</h2>
+           <img src="./public/images/logo.jpeg" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
           <p style="font-size: 18px;">Reset Your Password</p>
         </td>
       </tr>
@@ -250,7 +250,7 @@ const sendOtpEmail = async (recipientEmail, otp) => {
           <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
               <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-                <h2 style="margin: 0;">INVESTAiN</h2>
+                 <img src="./public/images/logo.jpeg" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
                 <p style="font-size: 18px;">Your One-Time Password (OTP)</p>
               </td>
             </tr>
