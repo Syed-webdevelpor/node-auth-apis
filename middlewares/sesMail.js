@@ -12,6 +12,14 @@ const transporter = nodemailer.createTransport({
   }),
 });
 
+const attachments = [
+  {
+    filename: 'logo.jpeg',
+    path: './public/images/logo.jpeg',
+    cid: 'investain_logo', // This will reference the image in HTML
+  },
+];
+
 // Function to send a verification email
 const sendVerificationEmail = async (recipientEmail, verificationLink) => {
   const mailOptions = {
@@ -23,13 +31,12 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
           <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
               <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-                <img src="./public/images/logo.jpeg" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
-                <p style="font-size: 18px;">Your email address verification!</p>
+                <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
               </td>
             </tr>
             <tr>
               <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
-                <h3 style="color: #333;">Verify Your Email Address</h3>
+                <h3 style="color: #333;">Verify Your Email Address!</h3>
                 <p style="font-size: 16px;">Thank you for registering with INVESTAiN! Please click the button below to verify your email address and complete the registration process.</p>
                 <p>
                   <a href="${verificationLink}" style="background-color: red; color: white; padding: 12px 30px; text-decoration: none; font-size: 16px; border-radius: 4px; text-align: center;">Verify Email</a>
@@ -45,6 +52,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink) => {
           </table>
         </body>
       </html>`,
+      attachments: attachments,
   };
 
   try {
@@ -149,8 +157,7 @@ const forgetPasswordEmail = async (email, resetLink) => {
     <table width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-           <img src="./public/images/logo.jpeg" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
-          <p style="font-size: 18px;">Reset Your Password</p>
+           <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
         </td>
       </tr>
       <tr>
@@ -180,6 +187,7 @@ const forgetPasswordEmail = async (email, resetLink) => {
   </body>
 </html>
       `,
+      attachments: attachments,
     };
     const info = await transporter.sendMail(mailOptions);
     console.log('Forget Password Email sent: ' + info.response);
@@ -250,8 +258,7 @@ const sendOtpEmail = async (recipientEmail, otp) => {
           <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
               <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-                 <img src="./public/images/logo.jpeg" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
-                <p style="font-size: 18px;">Your One-Time Password (OTP)</p>
+                 <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
               </td>
             </tr>
             <tr>
@@ -271,6 +278,7 @@ const sendOtpEmail = async (recipientEmail, otp) => {
           </table>
         </body>
       </html>`,
+      attachments: attachments,
   };
 
   try {
