@@ -66,12 +66,12 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
                 link</a>
         </p>
     </div>
+
+    <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding: 20px;">
           <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
       </div>
-    <div
-        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-
         <div style="text-align: center; padding: 20px;">
             <a href="https://apps.apple.com"
                 style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
