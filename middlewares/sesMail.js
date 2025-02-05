@@ -58,7 +58,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         <!-- Email Verification Section (Body) -->
        
     </div>
-    <div style="padding: 20px; padding-top:40px; padding-bottom:40px; max-width: 600px; margin: 0 auto;">
+    <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
         <h3 style="color: #333; text-align: center; margin: 0 0 20px 0;">Verify Your E-mail!</h3>
         <p style="text-align: left; margin: 0 0 10px 0;">Dear ${customerName},</p>
         <p style="font-size: 16px; text-align: left; margin: 0;">
@@ -66,6 +66,9 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
                 link</a>
         </p>
     </div>
+      <div style="text-align: center; padding: 20px;">
+          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+      </div>
     <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
 
@@ -85,9 +88,6 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         </div>
 
         <!-- Social Media Icons -->
-                <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
-        </div>
         <div style="text-align: center; padding: 20px; ">
             <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
                 <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
@@ -111,7 +111,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         <div style="text-align: center; padding: 20px;">
             <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
-                <strong>support@investain.com</strong>
+                <strong style="color: red;">support@investain.com</strong>
             </p>
         </div>
 
@@ -321,7 +321,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
   }
 }
 
-const sendOtpEmail = async (recipientEmail, otp) => {
+const sendOtpEmail = async (recipientEmail, otp,customerName) => {
   const mailOptions = {
     from: 'support@investain.com', // Verified sender email
     to: recipientEmail, // Verified recipient email
