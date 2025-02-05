@@ -18,40 +18,107 @@ const attachments = [
     path: './public/images/logo.jpeg',
     cid: 'investain_logo', // This will reference the image in HTML
   },
+  {
+    filename: 'app_gallery.png',
+    path: './public/images/app_gallery.png',
+    cid: 'app_gallery', // This will reference the image in HTML
+  },
+  {
+    filename: 'play_store.png',
+    path: './public/images/play_store.jpeg',
+    cid: 'play_store', // This will reference the image in HTML
+  },
+  {
+    filename: 'app_store.png',
+    path: './public/images/app_store.png',
+    cid: 'app_store', // This will reference the image in HTML
+  },
+
 ];
 
 // Function to send a verification email
-const sendVerificationEmail = async (recipientEmail, verificationLink) => {
+const sendVerificationEmail = async (recipientEmail, verificationLink, customerName) => {
   const mailOptions = {
     from: 'support@investain.com', // Verified sender email
     to: recipientEmail, // Verified recipient email
     subject: 'Please Verify Your Email Address',
     html: `<html>
-        <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
-          <table width="100%" cellspacing="0" cellpadding="0">
-            <tr>
-              <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-                <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
-                <h3 style="color: #333;">Verify Your Email Address!</h3>
-                <p style="font-size: 16px;">Thank you for registering with INVESTAiN! Please click the button below to verify your email address and complete the registration process.</p>
-                <p>
-                  <a href="${verificationLink}" style="background-color: red; color: white; padding: 12px 30px; text-decoration: none; font-size: 16px; border-radius: 4px; text-align: center;">Verify Email</a>
-                </p>
-                <p style="font-size: 14px; color: #666;">If you did not create an account, no further action is required.</p>
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
-                <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
-              </td>
-            </tr>
-          </table>
-        </body>
-      </html>`,
+
+<body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+    <!-- Main Container -->
+    <div
+        style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <!-- Logo Section (Header) -->
+        <div style="text-align: center; padding: 20px;">
+            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 150px; height: 150px;" />
+        </div>
+
+        <!-- Email Verification Section (Body) -->
+       
+    </div>
+    <div style="padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h3 style="color: #333; text-align: center; margin: 0 0 20px 0;">Verify Your E-mail!</h3>
+        <p style="text-align: left; margin: 0 0 10px 0;">Dear ${customerName},</p>
+        <p style="font-size: 16px; text-align: left; margin: 0;">
+            Verify your email <a href="${verificationLink}" style="color: red; font-weight: bold;">by clicking this
+                link</a>
+        </p>
+    </div>
+    <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://apps.apple.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+            </a>
+            <a href="https://play.google.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </a>
+            <a href="https://appgallery.huawei.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </a>
+        </div>
+
+        <!-- Social Media Icons -->
+        <div style="text-align: center; padding: 20px; ">
+            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                    style="width: 24px; height: 24px;">
+            </a>
+        </div>
+
+        <!-- Contact Us Section -->
+        <div style="text-align: center; padding: 20px;">
+            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong>support@investain.com</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+            style="text-align: center; padding: 10px; background-color: #fafafa; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>`,
       attachments: attachments,
   };
 
@@ -146,23 +213,24 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
   }
 }
 
-const forgetPasswordEmail = async (email, resetLink) => {
+const forgetPasswordEmail = async (email, resetLink, customerName) => {
   try {
     const mailOptions = {
       from: 'support@investain.com',
       to: email,
       subject: 'Reset Your Password – INVESTAiN',
       html: `<html>
-  <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
+  <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
     <table width="100%" cellspacing="0" cellpadding="0">
       <tr>
-        <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-           <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
+        <td align="center" style="background-color:white; padding: 20px; color: white;">
+           <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 150px; height: 150px;" />
         </td>
       </tr>
       <tr>
         <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
           <h3 style="color: #333;">Password Reset Request</h3>
+          <p>Dear ${customerName},</p>
           <p style="font-size: 16px;">
             We received a request to reset your password for your account at <strong>INVESTAiN</strong>.
             If you made this request, please click the button below to reset your password:
@@ -254,16 +322,17 @@ const sendOtpEmail = async (recipientEmail, otp) => {
     to: recipientEmail, // Verified recipient email
     subject: 'Your OTP for Account Verification',
     html: `<html>
-        <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
+        <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
           <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
-              <td align="center" style="background-color: #4d4d4d; padding: 20px; color: white;">
-                 <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 50px; height: 50px;" />
+              <td align="center" style="background-color:white; padding: 20px; color: white;">
+                 <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 150px; height: 150px;" />
               </td>
             </tr>
             <tr>
               <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
                 <h3 style="color: #333;">Verify Your Account</h3>
+                <p>Dear ${customerName},</p>
                 <p style="font-size: 16px;">We received a request to verify your account. Use the following OTP to complete the process:</p>
                 <p style="font-size: 24px; font-weight: bold; color: #e74c3c; margin: 20px 0;">${otp}</p>
                 <p style="font-size: 14px; color: #666;">This OTP is valid for the next 10 minutes. Please do not share it with anyone.</p>

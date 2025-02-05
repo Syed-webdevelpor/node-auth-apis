@@ -202,7 +202,7 @@ module.exports = {
       // Send verification email or OTP only after user creation
       if (platform === "web") {
         const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
-        await sendVerificationEmail(email, verificationLink);
+        await sendVerificationEmail(email, verificationLink,username);
       } else if (platform === "mobile") {
         await sendOtpEmail(email, otp); // Ensure `sendOtpEmail` is implemented for sending OTP
       }
@@ -508,7 +508,7 @@ module.exports = {
       }
 
       // Send the verification email
-      await sendVerificationEmail(email, verificationLink);
+      await sendVerificationEmail(email, verificationLink,user[0].username);
 
       res.status(200).json({
         status: 200,
@@ -594,7 +594,7 @@ module.exports = {
       }
 
 
-      const info = await forgetPasswordEmail(email, resetURL);
+      const info = await forgetPasswordEmail(email, resetURL, user[0].username);
       if (info) {
         res.status(200).json({ message: 'Reset password email sent successfully!' });
       } else {
