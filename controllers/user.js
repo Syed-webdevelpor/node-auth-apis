@@ -506,7 +506,7 @@ module.exports = {
       if (!result.affectedRows) {
         throw new Error("Failed to update verification token.");
       }
-
+console.log(user[0]);
       // Send the verification email
       await sendVerificationEmail(email, verificationLink,user[0].username);
 
