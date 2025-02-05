@@ -25,7 +25,7 @@ const attachments = [
   },
   {
     filename: 'play_store.png',
-    path: './public/images/play_store.jpeg',
+    path: './public/images/play_store.png',
     cid: 'play_store', // This will reference the image in HTML
   },
   {
