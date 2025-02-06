@@ -69,7 +69,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 
     <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-      <div style="text-align: center; padding: 20px;">
+      <div style="text-align: center; padding-top: 40px;">
           <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
       </div>
         <div style="text-align: center; padding: 20px;">
@@ -145,24 +145,83 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
       from: 'support@investain.com', // Replace with your email
       to: customerEmail,
       subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
-      html: `
-              <p>Dear ${customerName},</p>
+      html: `<html>
 
-              <p>We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created, and you are now ready to begin your trading journey with us.</p>
+<body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+    <!-- Main Container -->
+    <div
+        style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <!-- Logo Section (Header) -->
+        <div style="text-align: center; padding: 20px;">
+        <a href="https://investain.com"
+                style="text-decoration: none;">
+            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+        </div>    
+        </div>
+        <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
+<p>Dear ${customerName},</p>
+        <p>We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created.</p>
 
-              <p><strong>Account Details:</strong></p>
-              <ul>
-                  <li>Account Type: ${accountType}</li>
-                  <li>Account Number: ${accountNumber}</li>
-              </ul>
+<p>To start trading, please complete your KYC verification by uploading the required documents. This step is essential for account approval.</p>
 
-              <p>Should you have any questions or require assistance, our support team is available 24/5 to help you. You can reach us at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
+<p><a href="https://portal.investain.com/live-account/step4" style="color: #d32f2f; text-decoration: underline; font-weight: bold;">Click here to upload your documents</a></p>
+                  </div>
+         <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; padding-top: 40px;">
+          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+      </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://apps.apple.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+            </a>
+            <a href="https://play.google.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </a>
+            <a href="https://appgallery.huawei.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </a>
+        </div>
 
-              <p>We’re thrilled to have you on board and look forward to supporting your trading success.</p>
+        <!-- Social Media Icons -->
+        <div style="text-align: center; padding: 20px; ">
+            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                    style="width: 24px; height: 24px;">
+            </a>
+        </div>
 
-              <p>Best regards,</p>
-              <p>The INVESTAiN Team</p>
-          `,
+        <!-- Contact Us Section -->
+        <div style="text-align: center; padding: 20px;">
+            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="color: red;">support@investain.com</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+            style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+        </div>
+    </div> 
+    </body>
+</html>`,
     };
 
     // Send the email
@@ -181,7 +240,20 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
       from: 'support@investain.com', // Replace with your email
       to: customerEmail,
       subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
-      html: `
+      html: `<html>
+
+<body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+    <!-- Main Container -->
+    <div
+        style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <!-- Logo Section (Header) -->
+        <div style="text-align: center; padding: 20px;">
+        <a href="https://investain.com"
+                style="text-decoration: none;">
+            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+        </div>    
+        </div>
+        <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
               <p>Dear ${customerName},</p>
 
               <p>Thank you for choosing <strong>INVESTAiN</strong> to explore the world of trading. Your demo account has been successfully created, allowing you to practice and refine your trading strategies risk-free.</p>
@@ -205,9 +277,63 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
 
               <p>We’re excited to support you as you gain confidence in your trading skills.</p>
 
-              <p>Best regards,</p>
-              <p>The INVESTAiN Team</p>
-          `,
+</div>
+         <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; padding-top: 40px;">
+          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+      </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://apps.apple.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+            </a>
+            <a href="https://play.google.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </a>
+            <a href="https://appgallery.huawei.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </a>
+        </div>
+
+        <!-- Social Media Icons -->
+        <div style="text-align: center; padding: 20px; ">
+            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                    style="width: 24px; height: 24px;">
+            </a>
+        </div>
+
+        <!-- Contact Us Section -->
+        <div style="text-align: center; padding: 20px;">
+            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="color: red;">support@investain.com</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+            style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+        </div>
+    </div> 
+    </body>
+</html> `,
     };
 
     // Send the email
