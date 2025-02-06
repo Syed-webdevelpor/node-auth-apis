@@ -124,7 +124,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 </body>
 
 </html>`,
-      attachments: attachments,
+    attachments: attachments,
   };
 
   try {
@@ -222,6 +222,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
     </div> 
     </body>
 </html>`,
+      attachments: attachments,
     };
 
     // Send the email
@@ -334,6 +335,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
     </div> 
     </body>
 </html> `,
+      attachments: attachments,
     };
 
     // Send the email
@@ -351,15 +353,19 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
       to: email,
       subject: 'Reset Your Password – INVESTAiN',
       html: `<html>
-  <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
-    <table width="100%" cellspacing="0" cellpadding="0">
-      <tr>
-        <td align="center" style="background-color:white; padding: 20px; color: white;">
-           <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 150px; height: 150px;" />
-        </td>
-      </tr>
-      <tr>
-        <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
+
+<body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+    <!-- Main Container -->
+    <div
+        style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <!-- Logo Section (Header) -->
+        <div style="text-align: center; padding: 20px;">
+        <a href="https://investain.com"
+                style="text-decoration: none;">
+            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+        </div>    
+        </div>
+        <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
           <h3 style="color: #333;">Password Reset Request</h3>
           <p>Dear ${customerName},</p>
           <p style="font-size: 16px;">
@@ -367,7 +373,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
             If you made this request, please click the button below to reset your password:
           </p>
           <p>
-            <a href="${resetLink}" style="background-color: red; color: white; padding: 12px 30px; text-decoration: none; font-size: 16px; border-radius: 4px; text-align: center;">Reset My Password</a>
+            <a href="${resetLink}" style="color: red; font-weight: bold;">Reset your password</a>
           </p>
           <p style="font-size: 14px; color: #666;">
             If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.
@@ -375,15 +381,62 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
           <p style="font-size: 14px; color: #666;">
             This link will expire in 15 minutes for your security.
           </p>
-        </td>
-      </tr>
-      <tr>
-        <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
-          <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
-        </td>
-      </tr>
-    </table>
-  </body>
+        </div>
+         <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; padding-top: 40px;">
+          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+      </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://apps.apple.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+            </a>
+            <a href="https://play.google.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </a>
+            <a href="https://appgallery.huawei.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </a>
+        </div>
+
+        <!-- Social Media Icons -->
+        <div style="text-align: center; padding: 20px; ">
+            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                    style="width: 24px; height: 24px;">
+            </a>
+        </div>
+
+        <!-- Contact Us Section -->
+        <div style="text-align: center; padding: 20px;">
+            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="color: red;">support@investain.com</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+            style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+        </div>
+    </div> 
+    </body>
 </html>
       `,
       attachments: attachments,
@@ -399,22 +452,35 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
 async function sendTransactionNotificationEmail(customerEmail, customerName, transactionType, transactionAmount, transactionDate, accountNumber, transactionId, sourceWallet = '', destinationWallet = '') {
   try {
 
-      // Determine transaction details message
-      let transactionDetails = '';
-      if (transactionType === 'Deposit') {
-          transactionDetails = 'Your deposit has been successfully processed, and the funds have been credited to your account. You can now use the available balance for trading.';
-      } else if (transactionType === 'Withdrawal') {
-          transactionDetails = 'Your withdrawal request has been successfully processed. Please check your bank/wallet account for the transferred amount.';
-      } else if (transactionType === 'Transfer') {
-          transactionDetails = `A transfer between your wallets has been successfully completed. The funds have been moved from ${sourceWallet} to ${destinationWallet}.`;
-      }
+    // Determine transaction details message
+    let transactionDetails = '';
+    if (transactionType === 'Deposit') {
+      transactionDetails = 'Your deposit has been successfully processed, and the funds have been credited to your account. You can now use the available balance for trading.';
+    } else if (transactionType === 'Withdrawal') {
+      transactionDetails = 'Your withdrawal request has been successfully processed. Please check your bank/wallet account for the transferred amount.';
+    } else if (transactionType === 'Transfer') {
+      transactionDetails = `A transfer between your wallets has been successfully completed. The funds have been moved from ${sourceWallet} to ${destinationWallet}.`;
+    }
 
-      // Email template
-      const mailOptions = {
-          from: 'support@investain.com', // Replace with your email
-          to: customerEmail,
-          subject: `Transaction Notification – ${transactionType} for Your Account`,
-          html: `
+    // Email template
+    const mailOptions = {
+      from: 'support@investain.com', // Replace with your email
+      to: customerEmail,
+      subject: `Transaction Notification – ${transactionType} for Your Account`,
+      html: `<html>
+
+<body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+    <!-- Main Container -->
+    <div
+        style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <!-- Logo Section (Header) -->
+        <div style="text-align: center; padding: 20px;">
+        <a href="https://investain.com"
+                style="text-decoration: none;">
+            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+        </div>    
+        </div>
+        <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
               <p>Dear ${customerName},</p>
 
               <p>We are writing to inform you about a recent transaction made on your account. Below are the details of the ${transactionType.toLowerCase()} for your account:</p>
@@ -434,51 +500,157 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
 
               <p>We appreciate your trust in <strong>INVESTAiN</strong> and look forward to assisting you in your trading journey.</p>
 
-              <p>Best regards,</p>
-              <p>The INVESTAiN Team</p>
-          `,
-      };
+</div>
+         <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; padding-top: 40px;">
+          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+      </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://apps.apple.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+            </a>
+            <a href="https://play.google.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </a>
+            <a href="https://appgallery.huawei.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </a>
+        </div>
 
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Transaction notification email sent: ' + info.response);
+        <!-- Social Media Icons -->
+        <div style="text-align: center; padding: 20px; ">
+            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                    style="width: 24px; height: 24px;">
+            </a>
+        </div>
+
+        <!-- Contact Us Section -->
+        <div style="text-align: center; padding: 20px;">
+            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="color: red;">support@investain.com</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+            style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+        </div>
+    </div> 
+    </body>
+</html>
+          `,
+      attachments: attachments,
+    };
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Transaction notification email sent: ' + info.response);
   } catch (error) {
-      console.error('Error sending transaction notification email:', error);
+    console.error('Error sending transaction notification email:', error);
   }
 }
 
-const sendOtpEmail = async (recipientEmail, otp,customerName) => {
+const sendOtpEmail = async (recipientEmail, otp, customerName) => {
   const mailOptions = {
     from: 'support@investain.com', // Verified sender email
     to: recipientEmail, // Verified recipient email
     subject: 'Your OTP for Account Verification',
     html: `<html>
-        <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px;">
-          <table width="100%" cellspacing="0" cellpadding="0">
-            <tr>
-              <td align="center" style="background-color:white; padding: 20px; color: white;">
-                 <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 150px; height: 150px;" />
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding: 40px 20px; background-color: white; border: 1px solid #ddd; border-top: none;">
+
+<body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+    <!-- Main Container -->
+    <div
+        style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <!-- Logo Section (Header) -->
+        <div style="text-align: center; padding: 20px;">
+        <a href="https://investain.com"
+                style="text-decoration: none;">
+            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+        </div>    
+        </div>
+        <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
                 <h3 style="color: #333;">Verify Your Account</h3>
                 <p>Dear ${customerName},</p>
                 <p style="font-size: 16px;">We received a request to verify your account. Use the following OTP to complete the process:</p>
                 <p style="font-size: 24px; font-weight: bold; color: #e74c3c; margin: 20px 0;">${otp}</p>
                 <p style="font-size: 14px; color: #666;">This OTP is valid for the next 10 minutes. Please do not share it with anyone.</p>
-              </td>
-            </tr>
-            <tr>
-              <td align="center" style="padding: 10px; background-color: #f7f7f7; border-top: 1px solid #ddd;">
-                <p style="font-size: 14px; color: #888;">If you did not request this, please ignore this email or contact support immediately.</p>
-                <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
-              </td>
-            </tr>
-          </table>
-        </body>
-      </html>`,
-      attachments: attachments,
+</div>
+         <div
+        style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; padding-top: 40px;">
+          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+      </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://apps.apple.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+            </a>
+            <a href="https://play.google.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </a>
+            <a href="https://appgallery.huawei.com"
+                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </a>
+        </div>
+
+        <!-- Social Media Icons -->
+        <div style="text-align: center; padding: 20px; ">
+            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                    style="width: 24px; height: 24px;">
+            </a>
+            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                    style="width: 24px; height: 24px;">
+            </a>
+        </div>
+
+        <!-- Contact Us Section -->
+        <div style="text-align: center; padding: 20px;">
+            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="color: red;">support@investain.com</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+            style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+        </div>
+    </div> 
+    </body>
+</html>`,
+    attachments: attachments,
   };
 
   try {
@@ -492,4 +664,4 @@ const sendOtpEmail = async (recipientEmail, otp,customerName) => {
 };
 
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail,sendTransactionNotificationEmail, sendOtpEmail };
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail };
