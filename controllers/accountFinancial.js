@@ -28,13 +28,10 @@ const startBroadcasting = () => {
     wss.clients.forEach(async (client) => {
       if (client.readyState === WebSocket.OPEN) {
         const userId = client.userId; // Extract userId from the client object
-        console.log(userId);
         
         if (userId) {
           try {
-            const accountFinancials = await fetchaccountFinancialByUserID(userId);
-            console.log(accountFinancials);
-            
+            const accountFinancials = await fetchaccountFinancialByUserID(userId);          
             if (accountFinancials.length > 0) {
               client.send(JSON.stringify({
                 type: 'ACCOUNT_FINANCIAL_UPDATE',
