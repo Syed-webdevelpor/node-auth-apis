@@ -28,7 +28,7 @@ const startBroadcasting = () => {
     wss.clients.forEach(async (client) => {
       if (client.readyState === WebSocket.OPEN) {
         const userId = client.userId; // Extract userId from the client object
-        console.log(client);
+        console.log(userId);
         
         if (userId) {
           const accountFinancials = await fetchaccountFinancialByUserID(userId);
