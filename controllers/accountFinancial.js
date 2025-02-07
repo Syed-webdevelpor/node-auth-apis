@@ -33,6 +33,8 @@ const startBroadcasting = () => {
         if (userId) {
           try {
             const accountFinancials = await fetchaccountFinancialByUserID(userId);
+            console.log(accountFinancials);
+            
             if (accountFinancials.length > 0) {
               client.send(JSON.stringify({
                 type: 'ACCOUNT_FINANCIAL_UPDATE',
