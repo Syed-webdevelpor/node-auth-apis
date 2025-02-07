@@ -62,8 +62,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         <h3 style="color: #333; text-align: center; margin: 0 0 20px 0;">Verify Your E-mail!</h3>
         <p style="text-align: left; margin: 0 0 10px 0;">Dear ${customerName},</p>
         <p style="font-size: 16px; text-align: left; margin: 0;">
-            Verify your email <a href="${verificationLink}" style="color: red; font-weight: bold;">by clicking this
-                link</a>
+            Verify your email by clicking this <a href="${verificationLink}" style="color: red; font-weight: bold;">link</a>
         </p>
     </div>
 
@@ -164,7 +163,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
 
 <p>To start trading, please complete your KYC verification by uploading the required documents. This step is essential for account approval.</p>
 
-<p><a href="https://portal.investain.com/live-account/step4" style="color: #d32f2f; text-decoration: underline; font-weight: bold;">Click here to upload your documents</a></p>
+<p><a href="https://portal.investain.com/live-account/step4" style="color: #d32f2f; text-decoration: underline; font-weight: bold;">Click here</a> to upload your documents</p>
                   </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
@@ -373,7 +372,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
             If you made this request, please click the button below to reset your password:
           </p>
           <p>
-            <a href="${resetLink}" style="color: red; font-weight: bold;">Reset your password</a>
+            <a href="${resetLink}" style="color: red; font-weight: bold;">Reset</a> your password
           </p>
           <p style="font-size: 14px; color: #666;">
             If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.

@@ -1,8 +1,9 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
+const wss = require("./../middlewares/websocket.js"); // Import the WebSocket server
 
-const fetchAllaccountFinancial= async () => {
+const fetchAllaccountFinancial = async () => {
   sql = "SELECT * FROM `account_financials`";
   const [row] = await DB.execute(sql);
   return row;
@@ -19,6 +20,18 @@ const fetchaccountFinancialByAccountId = async (id) => {
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
+
+const broadcastUpdate = (accountFinancial) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: 'ACCOUNT_FINANCIAL_UPDATE',
+        data: accountFinancial
+      }));
+    }
+  });
+};
+
 module.exports = {
 
   createAccountFinancial: async (req, res, next) => {
@@ -139,7 +152,7 @@ module.exports = {
         currency,
         account_id
       } = req.body;
-  
+
       const [result] = await DB.execute(
         "UPDATE `account_financials` SET `equity` = ?, `credit` = ?, `withdrawal_amount` = ?, `leverage` = ?, `deposit` = ?, `currency` = ?, `platforms` = ?, `userId` = ? WHERE `account_id` = ?",
         [
@@ -154,14 +167,20 @@ module.exports = {
           account_id
         ]
       );
-  
+
       if (result.affectedRows === 0) {
         return res.status(404).json({
           status: 404,
           message: "Account Financial not found",
         });
       }
-  
+
+      // Fetch the updated account financial data
+      const updatedAccountFinancial = await fetchaccountFinancialByAccountId(account_id);
+
+      // Broadcast the update to all connected clients
+      broadcastUpdate(updatedAccountFinancial[0]);
+
       res.status(200).json({
         status: 200,
         message: "Account Financial updated successfully",
@@ -170,5 +189,4 @@ module.exports = {
       next(err);
     }
   },
-   
 };
