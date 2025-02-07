@@ -22,7 +22,7 @@ const fetchaccountFinancialByAccountId = async (id) => {
   return row;
 };
 
-// Function to send data to clients every 5 seconds
+// Function to send data to clients every 10 seconds
 const startBroadcasting = () => {
   setInterval(async () => {
     wss.clients.forEach(async (client) => {
@@ -47,7 +47,7 @@ const startBroadcasting = () => {
         }
       }
     });
-  }, 5000); // 5 seconds
+  }, 10000); // 10 seconds
 };
 // Start broadcasting
 startBroadcasting();
