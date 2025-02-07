@@ -369,7 +369,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
           <p>Dear ${customerName},</p>
           <p style="font-size: 16px;">
             We received a request to reset your password for your account at <strong>INVESTAiN</strong>.
-            please click this <a href="${resetLink}" style="color: red; font-weight: bold;">link</a> button reset your password:
+            please click this <a href="${resetLink}" style="color: red; font-weight: bold;">link</a> reset your password:
           </p>
           <p style="font-size: 14px; color: #666;">
             If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.
