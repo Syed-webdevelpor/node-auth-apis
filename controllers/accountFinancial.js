@@ -21,16 +21,24 @@ const fetchaccountFinancialByAccountId = async (id) => {
   return row;
 };
 
-const broadcastUpdate = (accountFinancial) => {
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({
-        type: 'ACCOUNT_FINANCIAL_UPDATE',
-        data: accountFinancial
-      }));
-    }
-  });
+// Function to send data to clients every 5 seconds
+const startBroadcasting = () => {
+  setInterval(async () => {
+    clients.forEach(async (userId, client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        const accountFinancials = await fetchaccountFinancialByUserID(userId);
+        if (accountFinancials.length > 0) {
+          client.send(JSON.stringify({
+            type: 'ACCOUNT_FINANCIAL_UPDATE',
+            data: accountFinancials
+          }));
+        }
+      }
+    });
+  }, 5000); // 5 seconds
 };
+// Start broadcasting
+startBroadcasting();
 
 module.exports = {
 
@@ -174,12 +182,6 @@ module.exports = {
           message: "Account Financial not found",
         });
       }
-
-      // Fetch the updated account financial data
-      const updatedAccountFinancial = await fetchaccountFinancialByAccountId(account_id);
-
-      // Broadcast the update to all connected clients
-      broadcastUpdate(updatedAccountFinancial[0]);
 
       res.status(200).json({
         status: 200,
