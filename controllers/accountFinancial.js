@@ -1,7 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
-const wss = require("./../middlewares/websocket.js"); // Import the WebSocket server
+const { wss } = require("./../middlewares/websocket.js"); // Import the WebSocket server
 const WebSocket = require('ws');
 
 const fetchAllaccountFinancial = async () => {
@@ -28,16 +28,21 @@ const startBroadcasting = () => {
     wss.clients.forEach(async (client) => {
       if (client.readyState === WebSocket.OPEN) {
         const userId = client.userId; // Extract userId from the client object
-        console.log(userId);
         
         if (userId) {
-          const accountFinancials = await fetchaccountFinancialByUserID(userId);
-          if (accountFinancials.length > 0) {
-            client.send(JSON.stringify({
-              type: 'ACCOUNT_FINANCIAL_UPDATE',
-              data: accountFinancials
-            }));
+          try {
+            const accountFinancials = await fetchaccountFinancialByUserID(userId);
+            if (accountFinancials.length > 0) {
+              client.send(JSON.stringify({
+                type: 'ACCOUNT_FINANCIAL_UPDATE',
+                data: accountFinancials
+              }));
+            }
+          } catch (error) {
+            console.error('Error fetching account financial data:', error);
           }
+        } else {
+          console.error('userId is undefined for client');
         }
       }
     });
