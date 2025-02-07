@@ -25,14 +25,17 @@ const fetchaccountFinancialByAccountId = async (id) => {
 // Function to send data to clients every 5 seconds
 const startBroadcasting = () => {
   setInterval(async () => {
-    wss.clients.forEach(async (userId, client) => {
+    wss.clients.forEach(async (client) => {
       if (client.readyState === WebSocket.OPEN) {
-        const accountFinancials = await fetchaccountFinancialByUserID(userId);
-        if (accountFinancials.length > 0) {
-          client.send(JSON.stringify({
-            type: 'ACCOUNT_FINANCIAL_UPDATE',
-            data: accountFinancials
-          }));
+        const userId = client.userId; // Extract userId from the client object
+        if (userId) {
+          const accountFinancials = await fetchaccountFinancialByUserID(userId);
+          if (accountFinancials.length > 0) {
+            client.send(JSON.stringify({
+              type: 'ACCOUNT_FINANCIAL_UPDATE',
+              data: accountFinancials
+            }));
+          }
         }
       }
     });
