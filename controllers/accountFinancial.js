@@ -24,7 +24,7 @@ const fetchaccountFinancialByAccountId = async (id) => {
 // Function to send data to clients every 5 seconds
 const startBroadcasting = () => {
   setInterval(async () => {
-    clients.forEach(async (userId, client) => {
+    wss.clients.forEach(async (userId, client) => {
       if (client.readyState === WebSocket.OPEN) {
         const accountFinancials = await fetchaccountFinancialByUserID(userId);
         if (accountFinancials.length > 0) {
