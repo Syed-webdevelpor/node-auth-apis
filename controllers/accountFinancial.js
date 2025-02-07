@@ -2,6 +2,7 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 const wss = require("./../middlewares/websocket.js"); // Import the WebSocket server
+const WebSocket = require('ws');
 
 const fetchAllaccountFinancial = async () => {
   sql = "SELECT * FROM `account_financials`";
