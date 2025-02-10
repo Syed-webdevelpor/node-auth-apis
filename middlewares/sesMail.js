@@ -43,7 +43,24 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     to: recipientEmail, // Verified recipient email
     subject: 'Please Verify Your Email Address',
     html: `<html>
-
+<head>
+    <style>
+        /* Media query for mobile view */
+        @media (max-width: 600px) {
+            .download-app-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Space between images */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            padding: 20px;
+        }
+            .download-app-container img {
+                width: 80px; /* Smaller size for mobile */
+            }
+        }
+    </style>
+</head>
 <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
     <!-- Main Container -->
     <div
@@ -71,7 +88,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
       <div style="text-align: center; padding-top: 40px;">
           <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
       </div>
-        <div style="text-align: center; padding: 20px;">
+        <div class="download-app-container" style="text-align: center; padding: 20px;">
             <a href="https://apps.apple.com"
                 style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
                 <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
