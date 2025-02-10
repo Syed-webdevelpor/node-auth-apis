@@ -267,6 +267,26 @@ module.exports = {
       if (!result.affectedRows) {
         throw new Error("Failed to whitelist the refresh token.");
       }
+      const [userdata] = await DB.execute(
+        "SELECT id, is_verified,username,email FROM users WHERE id = ?",
+        [user.id]
+      );
+      if (userdata[0].is_verified === false) {
+              // Generate a new verification token
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+
+      // Update the user's verification token in the database
+      const [result] = await DB.execute(
+        "UPDATE users SET verification_token = ? WHERE id = ?",
+        [verificationToken, userdata[0].id]
+      );
+
+      if (!result.affectedRows) {
+        throw new Error("Failed to update verification token.");
+      }
+      await sendVerificationEmail(userdata[0].email, verificationLink,userdata[0].username);
+      }
       res.json({
         status: 200,
         access_token,
