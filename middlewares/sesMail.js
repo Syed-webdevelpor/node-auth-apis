@@ -46,17 +46,9 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 <head>
     <style>
         /* Media query for mobile view */
-        @media (max-width: 600px) {
-            .download-app-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px; /* Space between images */
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-            padding: 20px;
-        }
+
             .download-app-container img {
-                width: 80px; /* Smaller size for mobile */
+                width: 60px; /* Smaller size for mobile */
             }
         }
     </style>
