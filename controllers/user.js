@@ -271,7 +271,7 @@ module.exports = {
         "SELECT id, is_verified,username,email FROM users WHERE id = ?",
         [user.id]
       );
-      if (userdata[0].is_verified === 1) {
+      if (userdata[0].is_verified === 0) {
               // Generate a new verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
       const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
