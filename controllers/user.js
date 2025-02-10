@@ -271,7 +271,6 @@ module.exports = {
         "SELECT id, is_verified,username,email FROM users WHERE id = ?",
         [user.id]
       );
-      console.log(userdata[0]);
       
       if (userdata[0].is_verified === 0) {
               // Generate a new verification token
