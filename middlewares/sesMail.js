@@ -55,8 +55,8 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
                         text-align: center !important;
                         }
                         .download-img {
-                        width: 130px !important;
-                        margin-bottom: 8px !important; /* Adds spacing between images */
+                        width: 132px !important;
+                        margin-bottom: 5px !important; /* Adds spacing between images */
                         }
                     }
                 </style>
