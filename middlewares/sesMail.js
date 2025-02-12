@@ -46,13 +46,17 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
+                    body{
+                    font-family: Rajdhani, sans-serif;
+                    }
                         .download-app-container td {
                         display: block;
                         width: 100% !important;
                         text-align: center !important;
                         }
                         .download-img {
-                        margin-bottom: 10px !important; /* Adds spacing between images */
+                        width: 125px !important;
+                        margin-bottom: 8px !important; /* Adds spacing between images */
                         }
                     }
                 </style>
