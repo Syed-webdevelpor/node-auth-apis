@@ -55,7 +55,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
                         text-align: center !important;
                         }
                         .download-img {
-                        width: 125px !important;
+                        width: 130px !important;
                         margin-bottom: 8px !important; /* Adds spacing between images */
                         }
                     }
@@ -92,17 +92,17 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         <tr class="download-app-container">
             <td>
             <a href="https://apps.apple.com">
-                <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 125px; width: 100%;">
+                <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
             </a>
             </td>
             <td>
             <a href="https://play.google.com">
-                <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 125px; width: 100%;">
+                <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
             </a>
             </td>
             <td>
             <a href="https://appgallery.huawei.com">
-                <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 125px; width: 100%;">
+                <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 130px; width: 100%;">
             </a>
             </td>
         </tr>
