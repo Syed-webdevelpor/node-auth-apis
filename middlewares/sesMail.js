@@ -45,11 +45,16 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     html: `<html>
             <head>
                 <style>
-                @media screen and (max-width: 600px) {
-                    .download-img {
-                    width: 60px !important;
+                    @media screen and (max-width: 600px) {
+                        .download-app-container td {
+                        display: block;
+                        width: 100% !important;
+                        text-align: center !important;
+                        }
+                        .download-img {
+                        margin-bottom: 10px !important; /* Adds spacing between images */
+                        }
                     }
-                }
                 </style>
             </head>
 <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
@@ -77,7 +82,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
+          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
       </div>
         <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr>
