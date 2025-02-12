@@ -43,16 +43,15 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     to: recipientEmail, // Verified recipient email
     subject: 'Please Verify Your Email Address',
     html: `<html>
-<head>
-    <style>
-        /* Media query for mobile view */
-        @media (max-width: 600px) {
-            .download-app-container img {
-                width: 60px !important; /* Smaller size for mobile */
-            }
-        }
-    </style>
-</head>
+            <head>
+                <style>
+                @media screen and (max-width: 600px) {
+                    .download-img {
+                    width: 60px !important;
+                    }
+                }
+                </style>
+            </head>
 <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
     <!-- Main Container -->
     <div
@@ -80,20 +79,25 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
       <div style="text-align: center; padding-top: 40px;">
           <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
       </div>
-        <div class="download-app-container" style="text-align: center; padding: 20px;">
-            <a href="https://apps.apple.com"
-                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
-                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
+        <table align="center" role="presentation" style="width: 100%; text-align: center;">
+        <tr>
+            <td>
+            <a href="https://apps.apple.com">
+                <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
             </a>
-            <a href="https://play.google.com"
-                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
-                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
+            </td>
+            <td>
+            <a href="https://play.google.com">
+                <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
             </a>
-            <a href="https://appgallery.huawei.com"
-                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
-                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
+            </td>
+            <td>
+            <a href="https://appgallery.huawei.com">
+                <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 120px; width: 100%;">
             </a>
-        </div>
+            </td>
+        </tr>
+        </table>
 
         <!-- Social Media Icons -->
         <div style="text-align: center; padding: 20px; ">
@@ -154,7 +158,15 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
       to: customerEmail,
       subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
       html: `<html>
-
+            <head>
+                <style>
+                @media screen and (max-width: 600px) {
+                    .download-img {
+                    width: 60px !important;
+                    }
+                }
+                </style>
+            </head>
 <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
     <!-- Main Container -->
     <div
@@ -179,20 +191,25 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
       <div style="text-align: center; padding-top: 40px;">
           <h2 style="color: #333; margin: 0 0 10px 0;">Download our App</h2>
       </div>
-        <div style="text-align: center; padding: 20px;">
-            <a href="https://apps.apple.com"
-                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
-                <img src="cid:app_store" alt="Download on App Store" style="width: 120px;">
-            </a>
-            <a href="https://play.google.com"
-                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
-                <img src="cid:play_store" alt="Download on Google Play" style="width: 120px;">
-            </a>
-            <a href="https://appgallery.huawei.com"
-                style="text-decoration: none; display: inline-block; margin: 0 10px; vertical-align: middle;">
-                <img src="cid:app_gallery" alt="Download on App Gallery" style="width: 120px;">
-            </a>
-        </div>
+    <table align="center" role="presentation" style="width: 100%; text-align: center;">
+        <tr>
+            <td>
+                <a href="https://apps.apple.com">
+                <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                </a>
+            </td>
+            <td>
+                <a href="https://play.google.com">
+                <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                </a>
+            </td>
+            <td>
+                <a href="https://appgallery.huawei.com">
+                <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                </a>
+            </td>
+        </tr>
+    </table>
 
         <!-- Social Media Icons -->
         <div style="text-align: center; padding: 20px; ">
