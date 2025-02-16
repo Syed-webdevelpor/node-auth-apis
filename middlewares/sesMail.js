@@ -204,7 +204,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
           <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
-        <tr>
+        <tr class="download-app-container">
             <td>
                 <a href="https://apps.apple.com">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
@@ -336,7 +336,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
           <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
-        <tr>
+        <tr class="download-app-container">
             <td>
                 <a href="https://apps.apple.com">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
@@ -455,7 +455,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
           <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
-        <tr>
+        <tr class="download-app-container">
             <td>
                 <a href="https://apps.apple.com">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
@@ -593,7 +593,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
           <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
-        <tr>
+        <tr class="download-app-container">
             <td>
                 <a href="https://apps.apple.com">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
@@ -705,7 +705,7 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
           <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
-        <tr>
+        <tr class="download-app-container">
             <td>
                 <a href="https://apps.apple.com">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
