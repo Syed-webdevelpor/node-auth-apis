@@ -73,9 +73,9 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
        
     </div>
     <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-        <h3 style="color: #333; text-align: center; margin: 0 0 20px 0;">Verify Your E-mail!</h3>
-        <p style="text-align: left; margin: 0 0 10px 0;">Dear ${customerName},</p>
-        <p style="font-size: 16px; text-align: left; margin: 0;">
+        <h3 style="font-family: Rajdhani, sans-serif; color: #333; text-align: center; margin: 0 0 20px 0;">Verify Your E-mail!</h3>
+        <p style="font-family: Rajdhani, sans-serif; text-align: left; margin: 0 0 10px 0;">Dear ${customerName},</p>
+        <p style="font-family: Rajdhani, sans-serif; font-size: 16px; text-align: left; margin: 0;">
             Verify your email by clicking this <a href="${verificationLink}" style="color: red; font-weight: bold;">link</a>
         </p>
     </div>
@@ -83,7 +83,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
         <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -137,16 +137,16 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
-            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
-                <strong style="color: red;">support@investain.com</strong>
+            <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
             </p>
         </div>
 
         <!-- Footer -->
         <div
             style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -201,17 +201,17 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-<p>Dear ${customerName},</p>
-        <p>We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created.</p>
+<p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
+        <p style="font-family: Rajdhani, sans-serif;">We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created.</p>
 
-<p>To start trading, please complete your KYC verification by uploading the required documents. This step is essential for account approval.</p>
+<p style="font-family: Rajdhani, sans-serif;">To start trading, please complete your KYC verification by uploading the required documents. This step is essential for account approval.</p>
 
-<p><a href="https://portal.investain.com/live-account/step4" style="color: #d32f2f; text-decoration: underline; font-weight: bold;">Click here</a> to upload your documents</p>
+<p style="font-family: Rajdhani, sans-serif;"><a href="https://portal.investain.com/live-account/step4" style="color: #d32f2f; text-decoration: underline; font-weight: bold;">Click here</a> to upload your documents</p>
                   </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -316,34 +316,34 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-              <p>Dear ${customerName},</p>
+              <p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
 
-              <p>Thank you for choosing <strong>INVESTAiN</strong> to explore the world of trading. Your demo account has been successfully created, allowing you to practice and refine your trading strategies risk-free.</p>
+              <p style="font-family: Rajdhani, sans-serif;">Thank you for choosing <strong>INVESTAiN</strong> to explore the world of trading. Your demo account has been successfully created, allowing you to practice and refine your trading strategies risk-free.</p>
 
-              <p><strong>Account Details:</strong></p>
-              <ul>
+              <p style="font-family: Rajdhani, sans-serif;"><strong>Account Details:</strong></p>
+              <ul style="font-family: Rajdhani, sans-serif;">
                   <li>Account Type: Demo</li>
                   <li>Account Number: ${accountNumber}</li>
               </ul>
 
-              <p>You can access your demo account using our platform via your registered credentials. This account comes preloaded with virtual funds, enabling you to test your trading strategies in a real-time market environment.</p>
+              <p style="font-family: Rajdhani, sans-serif;">You can access your demo account using our platform via your registered credentials. This account comes preloaded with virtual funds, enabling you to test your trading strategies in a real-time market environment.</p>
 
-              <p><strong>How to Get Started:</strong></p>
-              <ul>
+              <p style="font-family: Rajdhani, sans-serif;"> <strong>How to Get Started:</strong></p>
+              <ul style="font-family: Rajdhani, sans-serif;">
                   <li>Log in to your account through our platform.</li>
                   <li>Explore the tools, charts, and features available.</li>
                   <li>Practice trading without any financial risk.</li>
               </ul>
 
-              <p>If you have any questions or need assistance, our support team is here to help. Feel free to reach out to us at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
+              <p style="font-family: Rajdhani, sans-serif;">If you have any questions or need assistance, our support team is here to help. Feel free to reach out to us at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
 
-              <p>We’re excited to support you as you gain confidence in your trading skills.</p>
+              <p style="font-family: Rajdhani, sans-serif;">We’re excited to support you as you gain confidence in your trading skills.</p>
 
 </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -387,16 +387,16 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
-            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
-                <strong style="color: red;">support@investain.com</strong>
+            <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
             </p>
         </div>
 
         <!-- Footer -->
         <div
             style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
         </div>
     </div> 
     </body>
@@ -446,23 +446,23 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-          <h3 style="color: #333;">Password Reset Request</h3>
-          <p>Dear ${customerName},</p>
-          <p style="font-size: 16px;">
+          <h3 style="font-family: Rajdhani, sans-serif; font-size:20px; color: #333;">Password Reset Request</h3>
+          <p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
+          <p style="font-family: Rajdhani, sans-serif; font-size: 16px;">
             We received a request to reset your password for your account at <strong>INVESTAiN</strong>.
-            please click this <a href="${resetLink}" style="color: red; font-weight: bold;">link</a> reset your password:
+            please click this <a href="${resetLink}" style="font-family: Rajdhani, sans-serif; color: red; font-weight: bold;">link</a> reset your password:
           </p>
-          <p style="font-size: 14px; color: #666;">
+          <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #666;">
             If you did not request to reset your password, please ignore this email or contact our support team if you have concerns.
           </p>
-          <p style="font-size: 14px; color: #666;">
+          <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #666;">
             This link will expire in 15 minutes for your security.
           </p>
         </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -506,16 +506,16 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
-            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
-                <strong style="color: red;">support@investain.com</strong>
+            <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
             </p>
         </div>
 
         <!-- Footer -->
         <div
             style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
         </div>
     </div> 
     </body>
@@ -577,12 +577,12 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-              <p>Dear ${customerName},</p>
+              <p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
 
-              <p>We are writing to inform you about a recent transaction made on your account. Below are the details of the ${transactionType.toLowerCase()} for your account:</p>
+              <p style="font-family: Rajdhani, sans-serif;">We are writing to inform you about a recent transaction made on your account. Below are the details of the ${transactionType.toLowerCase()} for your account:</p>
 
-              <p><strong>Transaction Details:</strong></p>
-              <ul>
+              <p style="font-family: Rajdhani, sans-serif;"><strong>Transaction Details:</strong></p>
+              <ul style="font-family: Rajdhani, sans-serif;">
                   <li>Transaction Type: ${transactionType}</li>
                   <li>Amount: ${transactionAmount}</li>
                   <li>Date: ${transactionDate}</li>
@@ -590,17 +590,17 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
                   <li>Transaction ID: ${transactionId}</li>
               </ul>
 
-              <p>${transactionDetails}</p>
+              <p style="font-family: Rajdhani, sans-serif;">${transactionDetails}</p>
 
-              <p>If you have any questions regarding this transaction or need further assistance, please don’t hesitate to reach out to our support team at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
+              <p style="font-family: Rajdhani, sans-serif;">If you have any questions regarding this transaction or need further assistance, please don’t hesitate to reach out to our support team at <a href="mailto:support@investain.com">support@investain.com</a>.</p>
 
-              <p>We appreciate your trust in <strong>INVESTAiN</strong> and look forward to assisting you in your trading journey.</p>
+              <p style="font-family: Rajdhani, sans-serif;">We appreciate your trust in <strong>INVESTAiN</strong> and look forward to assisting you in your trading journey.</p>
 
 </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="style="font-family: Rajdhani, sans-serif;" color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -644,16 +644,16 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
-            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
-                <strong style="color: red;">support@investain.com</strong>
+            <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
             </p>
         </div>
 
         <!-- Footer -->
         <div
             style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
         </div>
     </div> 
     </body>
@@ -703,16 +703,16 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-                <h3 style="color: #333;">Verify Your Account</h3>
-                <p>Dear ${customerName},</p>
-                <p style="font-size: 16px;">We received a request to verify your account. Use the following OTP to complete the process:</p>
-                <p style="font-size: 24px; font-weight: bold; color: #e74c3c; margin: 20px 0;">${otp}</p>
-                <p style="font-size: 14px; color: #666;">This OTP is valid for the next 10 minutes. Please do not share it with anyone.</p>
+                <h3 style="font-family: Rajdhani, sans-serif; font-size:20px; color: #333;">Verify Your Account</h3>
+                <p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
+                <p style="font-family: Rajdhani, sans-serif; font-size: 16px;">We received a request to verify your account. Use the following OTP to complete the process:</p>
+                <p style="font-family: Rajdhani, sans-serif; font-size: 24px; font-weight: bold; color: #e74c3c; margin: 20px 0;">${otp}</p>
+                <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #666;">This OTP is valid for the next 10 minutes. Please do not share it with anyone.</p>
 </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -756,16 +756,16 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
-            <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
-                <strong style="color: red;">support@investain.com</strong>
+            <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
             </p>
         </div>
 
         <!-- Footer -->
         <div
             style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-            <p style="font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+            <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
         </div>
     </div> 
     </body>
