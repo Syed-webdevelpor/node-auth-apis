@@ -45,6 +45,11 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     html: `<html>
             <head>
                 <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+                    body {
+                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -73,7 +78,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
        
     </div>
     <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-        <h3 style="font-family: Rajdhani, sans-serif; color: #333; text-align: center; margin: 0 0 20px 0;">Verify Your E-mail!</h3>
+        <h3 style="font-family: Rajdhani, sans-serif; color: #333; text-align: center; margin: 0 0 20px 0; font-size:20px;">Verify Your E-mail!</h3>
         <p style="font-family: Rajdhani, sans-serif; text-align: left; margin: 0 0 10px 0;">Dear ${customerName},</p>
         <p style="font-family: Rajdhani, sans-serif; font-size: 16px; text-align: left; margin: 0;">
             Verify your email by clicking this <a href="${verificationLink}" style="color: red; font-weight: bold;">link</a>
@@ -83,7 +88,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
       </div>
         <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -176,6 +181,11 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
       html: `<html>
             <head>
                 <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+                    body {
+                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -234,24 +244,34 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
     </table>
 
         <!-- Social Media Icons -->
-        <div style="text-align: center; padding: 20px; ">
-            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
-                    style="width: 24px; height: 24px;">
-            </a>
-        </div>
+ <table align="center" cellpadding="10">
+            <tr>
+                <td>
+                    <a href="https://facebook.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://x.com/investain_com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://www.linkedin.com/company/investain/">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://instagram.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+            </tr>
+        </table>
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
@@ -291,6 +311,11 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
       html: `<html>
             <head>
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+                    body {
+                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -366,24 +391,34 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
     </table>
 
         <!-- Social Media Icons -->
-        <div style="text-align: center; padding: 20px; ">
-            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
-                    style="width: 24px; height: 24px;">
-            </a>
-        </div>
+ <table align="center" cellpadding="10">
+            <tr>
+                <td>
+                    <a href="https://facebook.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://x.com/investain_com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://www.linkedin.com/company/investain/">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://instagram.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+            </tr>
+        </table>
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
@@ -421,6 +456,11 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
       html: `<html>
             <head>
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+                    body {
+                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -485,24 +525,34 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
     </table>
 
         <!-- Social Media Icons -->
-        <div style="text-align: center; padding: 20px; ">
-            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
-                    style="width: 24px; height: 24px;">
-            </a>
-        </div>
+ <table align="center" cellpadding="10">
+            <tr>
+                <td>
+                    <a href="https://facebook.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://x.com/investain_com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://www.linkedin.com/company/investain/">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://instagram.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+            </tr>
+        </table>
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
@@ -552,6 +602,11 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
       html: `<html>
             <head>
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+                    body {
+                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -623,24 +678,34 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
     </table>
 
         <!-- Social Media Icons -->
-        <div style="text-align: center; padding: 20px; ">
-            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
-                    style="width: 24px; height: 24px;">
-            </a>
-        </div>
+ <table align="center" cellpadding="10">
+            <tr>
+                <td>
+                    <a href="https://facebook.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://x.com/investain_com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://www.linkedin.com/company/investain/">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://instagram.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+            </tr>
+        </table>
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
@@ -678,6 +743,11 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
     html: `<html>
             <head>
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+                    body {
+                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -735,24 +805,34 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
     </table>
 
         <!-- Social Media Icons -->
-        <div style="text-align: center; padding: 20px; ">
-            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
-                    style="width: 24px; height: 24px;">
-            </a>
-        </div>
+ <table align="center" cellpadding="10">
+            <tr>
+                <td>
+                    <a href="https://facebook.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://x.com/investain_com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://www.linkedin.com/company/investain/">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://instagram.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+            </tr>
+        </table>
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
