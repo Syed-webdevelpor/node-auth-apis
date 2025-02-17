@@ -48,7 +48,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
                     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
 
                     body {
-                    font-family: 'Rajdhani', Arial, sans-serif !important;
+                    font-family: Rajdhani, sans-serif !important;
                     }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
