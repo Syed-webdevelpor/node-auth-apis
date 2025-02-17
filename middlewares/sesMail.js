@@ -45,11 +45,6 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     html: `<html>
             <head>
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-
-                    body {
-                    font-family: Rajdhani, sans-serif !important;
-                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -181,11 +176,6 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
       html: `<html>
             <head>
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-
-                    body {
-                    font-family: 'Rajdhani', Arial, sans-serif !important;
-                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -221,7 +211,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -311,11 +301,6 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
       html: `<html>
             <head>
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-
-                    body {
-                    font-family: 'Rajdhani', Arial, sans-serif !important;
-                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -368,7 +353,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -456,11 +441,6 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
       html: `<html>
             <head>
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-
-                    body {
-                    font-family: 'Rajdhani', Arial, sans-serif !important;
-                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -502,7 +482,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -602,11 +582,6 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
       html: `<html>
             <head>
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-
-                    body {
-                    font-family: 'Rajdhani', Arial, sans-serif !important;
-                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -655,7 +630,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="style="font-family: Rajdhani, sans-serif;" color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="style="font-family: Rajdhani, sans-serif;" color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -743,11 +718,6 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
     html: `<html>
             <head>
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-
-                    body {
-                    font-family: 'Rajdhani', Arial, sans-serif !important;
-                    }
                     @media screen and (max-width: 600px) {
                         .download-app-container td {
                         display: block;
@@ -782,7 +752,7 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
+          <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
