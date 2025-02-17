@@ -83,7 +83,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
     <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
         <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -106,24 +106,34 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         </table>
 
         <!-- Social Media Icons -->
-        <div style="text-align: center; padding: 20px; ">
-            <a href="https://facebook.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://x.com/investain_com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://www.linkedin.com/company/investain/" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
-                    style="width: 24px; height: 24px;">
-            </a>
-            <a href="https://instagram.com" style="margin: 0 10px; display: inline-block;">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
-                    style="width: 24px; height: 24px;">
-            </a>
-        </div>
+        <table align="center" cellpadding="10">
+            <tr>
+                <td>
+                    <a href="https://facebook.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://x.com/investain_com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://www.linkedin.com/company/investain/">
+                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+                <td>
+                    <a href="https://instagram.com">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                            style="width: 24px; height: 24px;">
+                    </a>
+                </td>
+            </tr>
+        </table>
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
@@ -201,7 +211,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -333,7 +343,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -452,7 +462,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -590,7 +600,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
@@ -702,7 +712,7 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
-          <h3 style="color: #333; margin: 0 0 10px 0;">Download our App</h3>
+          <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Download our App</h3>
       </div>
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
