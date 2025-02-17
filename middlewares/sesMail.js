@@ -137,7 +137,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
                 <strong style="color: red;">support@investain.com</strong>
             </p>
@@ -255,7 +255,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
                 <strong style="color: red;">support@investain.com</strong>
             </p>
@@ -387,7 +387,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
                 <strong style="color: red;">support@investain.com</strong>
             </p>
@@ -506,7 +506,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
                 <strong style="color: red;">support@investain.com</strong>
             </p>
@@ -644,7 +644,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
                 <strong style="color: red;">support@investain.com</strong>
             </p>
@@ -756,7 +756,7 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
 
         <!-- Contact Us Section -->
         <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #333; margin: 0 0 10px 0;">Contact us</h3>
+            <h3 style="color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
             <p style="font-size: 16px; margin: 0;">For any inquiries please reach us at
                 <strong style="color: red;">support@investain.com</strong>
             </p>
