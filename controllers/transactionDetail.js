@@ -81,14 +81,14 @@ module.exports = {
 
           // Add to receiver account
           await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
-            [amount, amount, to_id]
+            "UPDATE `account_financials` SET `balance` = `balance` + ? WHERE `account_id` = ?",
+            [amount, to_id]
           );
           }else if(from_type === 'account' && to_type ==='wallet'){
             // Deduct from sender account
           await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
-            [amount, amount, from_id]
+            "UPDATE `account_financials` SET `balance` = `balance` - ? WHERE `account_id` = ?",
+            [amount, from_id]
           );
 
           // Add to receiver account
@@ -110,13 +110,13 @@ module.exports = {
           );
           }else{
             await DB.execute(
-              "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
-              [amount, amount, from_id]
+              "UPDATE `account_financials` SET `balance` = `balance` - ? WHERE `account_id` = ?",
+              [amount, from_id]
             );
 
             await DB.execute(
-              "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
-              [amount, amount, to_id]
+              "UPDATE `account_financials` SET `balance` = `balance` + ? WHERE `account_id` = ?",
+              [amount, to_id]
             );
           }
           
