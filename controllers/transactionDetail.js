@@ -71,10 +71,12 @@ module.exports = {
           );
         } 
         else if (transaction_type === 'Transfer') {
+
+          if(from_type === 'wallet'){
           // Deduct from sender account
           await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
-            [amount, amount, from_id]
+            "UPDATE `wallets` SET `balance` = `balance` - ? WHERE `wallet_number` = ?",
+            [amount, from_id]
           );
 
           // Add to receiver account
@@ -82,6 +84,20 @@ module.exports = {
             "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
             [amount, amount, to_id]
           );
+          }else{
+            // Deduct from sender account
+          await DB.execute(
+            "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
+            [amount, amount, from_id]
+          );
+
+          // Add to receiver account
+          await DB.execute(
+            "UPDATE `wallets` SET `balance` = `balance` + ? WHERE `wallet_number` = ?",
+            [amount, to_id]
+          );
+          }
+          
         }
 
       // Fetch user details
