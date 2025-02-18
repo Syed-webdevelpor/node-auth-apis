@@ -57,6 +57,32 @@ module.exports = {
       if (!transaction) {
         throw new Error("Transaction not found");
       }
+        // Update account financials based on transaction type
+        if (transaction_type === 'Deposit') {
+          await DB.execute(
+            "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
+            [amount, amount, to_id]
+          );
+        } 
+        else if (transaction_type === 'Withdrawal') {
+          await DB.execute(
+            "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
+            [amount, amount, from_id]
+          );
+        } 
+        else if (transaction_type === 'Transfer') {
+          // Deduct from sender account
+          await DB.execute(
+            "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
+            [amount, amount, from_id]
+          );
+
+          // Add to receiver account
+          await DB.execute(
+            "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
+            [amount, amount, to_id]
+          );
+        }
 
       // Fetch user details
       const [rows] = await DB.execute(
