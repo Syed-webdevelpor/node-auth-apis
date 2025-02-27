@@ -20,7 +20,7 @@ const startBroadcasting = () => {
         if (userId) {
           try {
             const wallets = await fetchWalletByUserID(userId);          
-            if (accountFinancials.length > 0) {
+            if (wallets.length > 0) {
               client.send(JSON.stringify({
                 type: 'WALLET_UPDATE',
                 data: wallets
