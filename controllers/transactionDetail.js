@@ -57,7 +57,8 @@ module.exports = {
       if (!transaction) {
         throw new Error("Transaction not found");
       }
-        // Update account financials based on transaction type
+      if(transaction.status === "success"){
+         // Update account financials based on transaction type
         if (transaction_type === 'Deposit') {
           await DB.execute(
             "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
@@ -121,6 +122,8 @@ module.exports = {
           }
           
         }
+      }
+       
 
       // Fetch user details
       const [rows] = await DB.execute(
