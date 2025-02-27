@@ -1,6 +1,8 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
+const { wss } = require("./../middlewares/websocket.js"); 
+const WebSocket = require('ws');
 
 const fetchWalletByUserID = async (id) => {
   sql = "SELECT * FROM `wallets` WHERE `userId`=?";
