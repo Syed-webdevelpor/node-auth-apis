@@ -2,6 +2,9 @@ const express = require("express");
 const passport = require('passport');
 const session = require('express-session');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const csrf = require('csurf');
 const dbConnection = require("./dbConnection.js");
 const userRoutes = require("./routers/user.js");
 const authRoutes = require("./routers/auth.js");
@@ -24,18 +27,32 @@ const port = process.env.PORT || 3000;
 
 // Middleware to parse JSON requests
 app.use(express.json());
-// Initialize session management middleware
-app.use(session({
-  secret: 'your-secret-key', 
-  resave: false, 
-  saveUninitialized: true
+app.use(helmet())
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
 }));
-
-app.use(cors());
-
-// Initialize Passport
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24,
+    sameSite: 'strict',
+  },
+}));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(csrf({ cookie: true }));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+app.use(limiter);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
