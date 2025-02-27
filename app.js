@@ -4,7 +4,6 @@ const session = require('express-session');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const csrf = require('csurf');
 const dbConnection = require("./dbConnection.js");
 const userRoutes = require("./routers/user.js");
 const authRoutes = require("./routers/auth.js");
@@ -49,7 +48,6 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(csrf({ cookie: true }));
 
 // Rate limiting
 const limiter = rateLimit({
