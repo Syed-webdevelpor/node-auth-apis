@@ -8,6 +8,35 @@ const fetchWalletByUserID = async (id) => {
   return row;
 };
 
+// Function to send data to clients every 10 seconds
+const startBroadcasting = () => {
+  setInterval(async () => {
+    wss.clients.forEach(async (client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        const userId = client.userId; // Extract userId from the client object
+        
+        if (userId) {
+          try {
+            const wallets = await fetchWalletByUserID(userId);          
+            if (accountFinancials.length > 0) {
+              client.send(JSON.stringify({
+                type: 'WALLET_UPDATE',
+                data: wallets
+              }));
+            }
+          } catch (error) {
+            console.error('Error fetching wallet data:', error);
+          }
+        } else {
+          console.error('userId is undefined for client');
+        }
+      }
+    });
+  }, 10000); // 10 seconds
+};
+// Start broadcasting
+startBroadcasting();
+
 module.exports = {
 
   wallet: async (req, res, next) => {
