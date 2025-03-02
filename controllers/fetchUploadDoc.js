@@ -11,22 +11,27 @@ const s3 = new AWS.S3({
   // Helper function to create Sumsub signature
   function createSignature(config) {
     const ts = Math.floor(Date.now() / 1000);
-    const signatureString = ts + config.method.toUpperCase() + config.url; // Include full URL
+    const signatureString = ts + config.method.toUpperCase() + config.url;
+    console.log('Signature String:', signatureString);
+  
     const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
       .update(signatureString)
       .digest('hex');
   
-    // Add headers
+    console.log('Generated Signature:', signature);
+    console.log('Timestamp (ts):', ts);
+  console.log(process.env.SUMSUB_SECRET_KEY);
     config.headers['X-App-Access-Ts'] = ts;
     config.headers['X-App-Access-Sig'] = signature;
-    config.headers['X-App-Token'] = process.env.SUMSUB_APP_TOKEN; // Ensure X-App-Token is included
+    config.headers['X-App-Token'] = process.env.SUMSUB_APP_TOKEN;
   
     return config;
   }
 // Intercept all requests to add the signature
 axios.interceptors.request.use((config) => {
   if (config.url.includes('https://api.sumsub.com')) {
-    return createSignature(config);
+    config = createSignature(config);
+    console.log('Request Headers:', config.headers);
   }
   return config;
 }, (error) => {
