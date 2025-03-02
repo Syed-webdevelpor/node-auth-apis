@@ -11,21 +11,19 @@ const s3 = new AWS.S3({
 
 // Helper function to create Sumsub signature
 function createSignature(ts, method, url, body = '') {
-  var ts = Math.floor(Date.now() / 1000);
-  const signature = crypto.createHmac('sha256',  process.env.SUMSUB_SECRET_KEY);
+  const signature = crypto.createHmac('sha256', SUMSUB_SECRET_KEY);
   signature.update(ts + method.toUpperCase() + url);
-  signature.digest('hex')
-  return signature;
+  return signature.digest('hex');
 }
 
 // Function to get applicant by external ID
 async function getApplicantByExternalId(externalId) {
   const ts = Math.floor(Date.now() / 1000);
-  const url = `${process.env.SUMSUB_BASE_URL}/resources/applicants/-;externalUserId=${encodeURIComponent(externalId)}/one`;
+  const url = `/resources/applicants/-;externalUserId=${encodeURIComponent(externalId)}/one`;
   const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${url}`, {
+    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
       headers: {
         'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
@@ -43,11 +41,11 @@ async function getApplicantByExternalId(externalId) {
 // Function to get applicant metadata (image IDs)
 async function getApplicantImageId(applicantId) {
   const ts = Math.floor(Date.now() / 1000);
-  const url = `${process.env.SUMSUB_BASE_URL}/resources/applicants/${applicantId}/metadata/resources`;
+  const url = `/resources/applicants/${applicantId}/metadata/resources`;
   const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${url}`, {
+    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
       headers: {
         'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
@@ -65,11 +63,11 @@ async function getApplicantImageId(applicantId) {
 // Function to download an image
 async function downloadImage(inspectionId, imageId) {
   const ts = Math.floor(Date.now() / 1000);
-  const url = `${process.env.SUMSUB_BASE_URL}/resources/inspections/${inspectionId}/resources/${imageId}`;
+  const url = `/resources/inspections/${inspectionId}/resources/${imageId}`;
   const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${url}`, {
+    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
       headers: {
         'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
