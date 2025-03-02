@@ -22,8 +22,7 @@ module.exports = {
         `https://api.sumsub.com/resources/applicants/?externalUserId=${encodeURIComponent(userId)}/one`,
         {
           headers: {
-            'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-            'X-App-Access-Ts': Math.floor(Date.now() / 1000),
+            'X-App-Token': process.env.SUMSUB_APP_TOKEN
           },
         }
       );
@@ -36,7 +35,7 @@ module.exports = {
         `https://api.sumsub.com/resources/applicants/${applicantId}/metadata/resources`,
         {
           headers: {
-            'X-App-Token': process.env.SUMSUB_APP_TOKEN,
+            'X-App-Token': process.env.SUMSUB_APP_TOKEN
           },
         }
       );
