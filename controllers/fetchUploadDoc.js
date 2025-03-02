@@ -56,10 +56,6 @@ module.exports = {
           {
             headers: {
               'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-              'X-App-Access-Sig': createSignature(
-                'GET',
-                `/resources/inspections/${inspectionId}/resources/${imageId}`
-              ),
               'X-App-Access-Ts': Math.floor(Date.now() / 1000),
             },
             responseType: 'arraybuffer',
