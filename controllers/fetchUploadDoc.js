@@ -23,7 +23,6 @@ module.exports = {
         {
           headers: {
             'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-            'X-App-Access-Sig': createSignature('GET', `/resources/applicants/-;externalUserId=${userId}/one`),
             'X-App-Access-Ts': Math.floor(Date.now() / 1000),
           },
         }
@@ -88,11 +87,18 @@ module.exports = {
 };
 
 // Helper function to create Sumsub signature
-function createSignature(method, path) {
+function createSignature(config) {
   const ts = Math.floor(Date.now() / 1000);
-  const signatureString = `${ts}${method.toUpperCase()}${path}`;
-  return crypto
-    .createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
-    .update(signatureString)
+  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
+    .update(ts + config.method.toUpperCase() + config.url)
     .digest('hex');
+
+  config.headers['X-App-Access-Ts'] = ts;
+  config.headers['X-App-Access-Sig'] = signature;
+
+  return config;
 }
+// Intercept all requests to add the signature
+axios.interceptors.request.use(createSignature, function (error) {
+  return Promise.reject(error);
+});
