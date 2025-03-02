@@ -27,7 +27,7 @@ axios.interceptors.request.use(createSignature, function (error) {
 });
 
 // Function to create an access token
-async function createAccessToken(externalUserId, levelName = 'basic-kyc-level', ttlInSecs = 600) {
+async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   const url = `/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
 
   const headers = {
