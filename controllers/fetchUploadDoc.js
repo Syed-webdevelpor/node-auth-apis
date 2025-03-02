@@ -19,7 +19,7 @@ module.exports = {
     try {
       // Step 1: Fetch applicant data from Sumsub
       const applicantResponse = await axios.get(
-        `https://api.sumsub.com/resources/applicants/?externalUserId=${encodeURIComponent(userId)}/one`,
+        `https://api.sumsub.com/resources/applicants/-;externalUserId=${encodeURIComponent(userId)}/one`,
         {
           headers: {
             'X-App-Token': process.env.SUMSUB_APP_TOKEN
