@@ -11,31 +11,12 @@ const s3 = new AWS.S3({
 
 // Helper function to create Sumsub signature
 function createSignature(ts, method, url, body = '') {
-  const signatureString = ts + method.toUpperCase() + url + body;
+  const path = new URL(url).pathname;
+  const query = new URL(url).search;
+  const signatureString = ts + method.toUpperCase() + path + query;
   return crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
     .update(signatureString)
     .digest('hex');
-}
-
-// Function to get access token
-async function getAccessToken(userId, levelName) {
-  const ts = Math.floor(Date.now() / 1000);
-  const url = `/resources/accessTokens?userId=${encodeURIComponent(userId)}&levelName=${encodeURIComponent(levelName)}`;
-  const signature = createSignature(ts, 'POST', url);
-
-  try {
-    const response = await axios.post(`${process.env.SUMSUB_BASE_URL}${url}`, null, {
-      headers: {
-        'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-        'X-App-Access-Ts': ts,
-        'X-App-Access-Sig': signature,
-      },
-    });
-    return response.data.token;
-  } catch (error) {
-    console.error('Error fetching access token:', error.response?.data || error.message);
-    throw error;
-  }
 }
 
 // Function to get applicant by external ID
@@ -47,6 +28,7 @@ async function getApplicantByExternalId(externalId) {
   try {
     const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
       headers: {
+        'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
         'X-App-Access-Ts': ts,
         'X-App-Access-Sig': signature,
@@ -68,6 +50,7 @@ async function getApplicantImageId(applicantId) {
   try {
     const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
       headers: {
+        'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
         'X-App-Access-Ts': ts,
         'X-App-Access-Sig': signature,
@@ -89,6 +72,7 @@ async function downloadImage(inspectionId, imageId) {
   try {
     const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
       headers: {
+        'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
         'X-App-Access-Ts': ts,
         'X-App-Access-Sig': signature,
@@ -130,9 +114,6 @@ module.exports = {
     }
   
     try {
-      // Step 1: Get access token
-      const accessToken = await getAccessToken(userId, levelName);
-      console.log('Access Token:', accessToken);
   
       // Step 2: Get applicant data
       const applicantData = await getApplicantByExternalId(userId);
