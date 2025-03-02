@@ -11,7 +11,7 @@ const s3 = new AWS.S3({
 
 // Helper function to create Sumsub signature
 function createSignature(ts, method, url, body = '') {
-  const signature = crypto.createHmac('sha256', SUMSUB_SECRET_KEY);
+  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY);
   signature.update(ts + method.toUpperCase() + url);
   return signature.digest('hex');
 }
