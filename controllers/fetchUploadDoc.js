@@ -22,11 +22,11 @@ function createSignature(ts, method, url, body = '') {
 // Function to get applicant by external ID
 async function getApplicantByExternalId(externalId) {
   const ts = Math.floor(Date.now() / 1000);
-  const url = `/resources/applicants/-;externalUserId=${encodeURIComponent(externalId)}/one`;
+  const url = `${process.env.SUMSUB_BASE_URL}/resources/applicants/-;externalUserId=${encodeURIComponent(externalId)}/one`;
   const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
+    const response = await axios.get(`${url}`, {
       headers: {
         'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
@@ -44,11 +44,11 @@ async function getApplicantByExternalId(externalId) {
 // Function to get applicant metadata (image IDs)
 async function getApplicantImageId(applicantId) {
   const ts = Math.floor(Date.now() / 1000);
-  const url = `/resources/applicants/${applicantId}/metadata/resources`;
+  const url = `${process.env.SUMSUB_BASE_URL}/resources/applicants/${applicantId}/metadata/resources`;
   const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
+    const response = await axios.get(`${url}`, {
       headers: {
         'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
@@ -66,11 +66,11 @@ async function getApplicantImageId(applicantId) {
 // Function to download an image
 async function downloadImage(inspectionId, imageId) {
   const ts = Math.floor(Date.now() / 1000);
-  const url = `/resources/inspections/${inspectionId}/resources/${imageId}`;
+  const url = `${process.env.SUMSUB_BASE_URL}/resources/inspections/${inspectionId}/resources/${imageId}`;
   const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
+    const response = await axios.get(`${url}`, {
       headers: {
         'Accept': 'application/json',
         'X-App-Token': process.env.SUMSUB_APP_TOKEN,
@@ -107,7 +107,6 @@ async function uploadFileToS3(imageContent, filename, bucketName) {
 module.exports = {
   fetchUploadDoc: async (req, res)=> {
     const { userId } = req.body;
-  const levelName ='Live account verification';
   const bucketName = process.env.AWS_BUCKET_NAME;
     if (!userId) {
       return res.status(400).json({ error: 'userId are required.' });
