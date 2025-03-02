@@ -122,10 +122,11 @@ async function uploadFileToS3(imageContent, filename, bucketName) {
 
 module.exports = {
   fetchUploadDoc: async (req, res)=> {
-    const { userId, levelName, bucketName } = req.body;
-  
-    if (!userId || !levelName || !bucketName) {
-      return res.status(400).json({ error: 'userId, levelName, and bucketName are required.' });
+    const { userId } = req.body;
+  const levelName ='Live account verification';
+  const bucketName = process.env.AWS_BUCKET_NAME;
+    if (!userId) {
+      return res.status(400).json({ error: 'userId are required.' });
     }
   
     try {
