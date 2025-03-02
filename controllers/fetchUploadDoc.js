@@ -11,12 +11,10 @@ const s3 = new AWS.S3({
 
 // Helper function to create Sumsub signature
 function createSignature(ts, method, url, body = '') {
-  const path = new URL(url).pathname;
-  const query = new URL(url).search;
-  const signatureString = ts + method.toUpperCase() + path + query;
-  return crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
-    .update(signatureString)
-    .digest('hex');
+  var ts = Math.floor(Date.now() / 1000);
+  const signature = crypto.createHmac('sha256',  SUMSUB_SECRET_KEY);
+  signature.update(ts + method.toUpperCase() + url);
+  return signature;
 }
 
 // Function to get applicant by external ID
