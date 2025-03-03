@@ -98,10 +98,10 @@ async function downloadImage(inspectionId, imageId) {
 }
 
 // Function to upload a file to AWS S3
-async function uploadFileToS3(imageContent, filename, bucketName) {
+async function uploadFileToS3(imageContent, filename, bucketName,userId) {
   const params = {
     Bucket: bucketName,
-    Key: `user-documents/${filename}`,
+    Key: `user/${userId}/${filename}`,
     Body: imageContent,
   };
 
@@ -137,7 +137,7 @@ module.exports = {
       for (const imageId of imageIds) {
         const imageContent = await downloadImage(inspectionId, imageId);
         const filename = `document_${imageId}.jpg`; // Adjust file extension as needed
-        const s3Url = await uploadFileToS3(imageContent, filename, bucketName);
+        const s3Url = await uploadFileToS3(imageContent, filename, bucketName,userId);
         console.log('Uploaded to S3:', s3Url);
       }
 
