@@ -9,26 +9,47 @@ const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
 });
 
-// Helper function to create Sumsub signature
-function createSignature(ts, method, url, body = '') {
-  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY);
-  signature.update(ts + method.toUpperCase() + url);
-  return signature.digest('hex');
+// Environment variables
+const SUMSUB_SECRET_KEY = process.env.SUMSUB_SECRET_KEY;
+const SUMSUB_APP_TOKEN = process.env.SUMSUB_APP_TOKEN;
+const SUMSUB_BASE_URL = process.env.SUMSUB_BASE_URL;
+
+// Axios interceptor to create and add the signature to the request
+axios.interceptors.request.use(createSignature, function (error) {
+  return Promise.reject(error);
+});
+
+// Function to create the signature
+function createSignature(config) {
+  // Generate timestamp in seconds
+  const ts = Math.floor(Date.now() / 1000);
+
+  // Create the signature string
+  const signatureString = ts + config.method.toUpperCase() + config.url;
+
+  // Calculate the HMAC-SHA256 signature
+  const signature = crypto
+    .createHmac('sha256', SUMSUB_SECRET_KEY)
+    .update(signatureString)
+    .digest('hex');
+
+  // Add the required headers to the request
+  config.headers['X-App-Token'] = SUMSUB_APP_TOKEN;
+  config.headers['X-App-Access-Ts'] = ts;
+  config.headers['X-App-Access-Sig'] = signature;
+
+  return config;
 }
 
 // Function to get applicant by external ID
 async function getApplicantByExternalId(externalId) {
-  const ts = Math.floor(Date.now() / 1000);
   const url = `/resources/applicants/-;externalUserId=${encodeURIComponent(externalId)}/one`;
-  const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
+    const response = await axios.get(url, {
+      baseURL: SUMSUB_BASE_URL, // Set the base URL
       headers: {
         'Accept': 'application/json',
-        'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-        'X-App-Access-Ts': ts,
-        'X-App-Access-Sig': signature,
       },
     });
     return response.data;
@@ -40,17 +61,13 @@ async function getApplicantByExternalId(externalId) {
 
 // Function to get applicant metadata (image IDs)
 async function getApplicantImageId(applicantId) {
-  const ts = Math.floor(Date.now() / 1000);
   const url = `/resources/applicants/${applicantId}/metadata/resources`;
-  const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
+    const response = await axios.get(url, {
+      baseURL: SUMSUB_BASE_URL, // Set the base URL
       headers: {
         'Accept': 'application/json',
-        'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-        'X-App-Access-Ts': ts,
-        'X-App-Access-Sig': signature,
       },
     });
     return response.data.items.map(item => item.id);
@@ -62,19 +79,15 @@ async function getApplicantImageId(applicantId) {
 
 // Function to download an image
 async function downloadImage(inspectionId, imageId) {
-  const ts = Math.floor(Date.now() / 1000);
   const url = `/resources/inspections/${inspectionId}/resources/${imageId}`;
-  const signature = createSignature(ts, 'GET', url);
 
   try {
-    const response = await axios.get(`${process.env.SUMSUB_BASE_URL}${url}`, {
+    const response = await axios.get(url, {
+      baseURL: SUMSUB_BASE_URL, // Set the base URL
       headers: {
         'Accept': 'application/json',
-        'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-        'X-App-Access-Ts': ts,
-        'X-App-Access-Sig': signature,
       },
-      responseType: 'arraybuffer',
+      responseType: 'arraybuffer', // To handle binary data (images)
     });
     return response.data;
   } catch (error) {
@@ -100,40 +113,37 @@ async function uploadFileToS3(imageContent, filename, bucketName) {
   }
 }
 
-
+// Main function to fetch and upload documents
 module.exports = {
-  fetchUploadDoc: async (req, res)=> {
+  fetchUploadDoc: async (req, res) => {
     const { userId } = req.body;
-  const bucketName = process.env.AWS_BUCKET_NAME;
+    const bucketName = process.env.AWS_BUCKET_NAME;
+
     if (!userId) {
-      return res.status(400).json({ error: 'userId are required.' });
+      return res.status(400).json({ error: 'userId is required.' });
     }
-  
+
     try {
-  
-      // Step 2: Get applicant data
+      // Step 1: Get applicant data
       const applicantData = await getApplicantByExternalId(userId);
       const applicantId = applicantData.id;
       const inspectionId = applicantData.inspectionId;
-      console.log('Applicant ID:', applicantId);
-      console.log('Inspection ID:', inspectionId);
-  
-      // Step 3: Get applicant metadata (image IDs)
+
+      // Step 2: Get applicant metadata (image IDs)
       const imageIds = await getApplicantImageId(applicantId);
-      console.log('Image IDs:', imageIds);
-  
-      // Step 4: Download and upload each image
+
+      // Step 3: Download and upload each image
       for (const imageId of imageIds) {
         const imageContent = await downloadImage(inspectionId, imageId);
         const filename = `document_${imageId}.jpg`; // Adjust file extension as needed
         const s3Url = await uploadFileToS3(imageContent, filename, bucketName);
         console.log('Uploaded to S3:', s3Url);
       }
-  
+
       res.status(200).json({ message: 'Documents uploaded successfully.' });
     } catch (error) {
       console.error('Error in fetchAndUploadDocuments:', error);
       res.status(500).json({ error: 'Failed to fetch and upload documents.' });
     }
-  } 
+  },
 };
