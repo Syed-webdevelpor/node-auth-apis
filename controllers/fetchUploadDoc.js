@@ -114,6 +114,24 @@ async function uploadFileToS3(imageContent, filename, bucketName,userId) {
   }
 }
 
+async function updateUserKycStatus(userId) {
+  const query = `
+    UPDATE users
+    SET kyc_completed = ?, is_approved = ?
+    WHERE id = ?
+  `;
+  const values = [1, 1, userId]; // Set kyc_completed and is_approved to 1 (true)
+
+  try {
+    const [result] = await DB.execute(query, values);
+    console.log(`User ${userId} KYC status updated successfully.`);
+    return result;
+  } catch (error) {
+    console.error('Error updating user KYC status:', error);
+    throw error;
+  }
+}
+
 // Main function to fetch and upload documents
 module.exports = {
   fetchUploadDoc: async (req, res) => {
@@ -140,8 +158,9 @@ module.exports = {
         const s3Url = await uploadFileToS3(imageContent, filename, bucketName,userId);
         console.log('Uploaded to S3:', s3Url);
       }
+      await updateUserKycStatus(userId);
 
-      res.status(200).json({ message: 'Documents uploaded successfully.' });
+      res.status(200).json({ message: 'Documents uploaded and KYC status updated successfully.' });
     } catch (error) {
       console.error('Error in fetchAndUploadDocuments:', error);
       res.status(500).json({ error: 'Failed to fetch and upload documents.' });
