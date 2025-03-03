@@ -1,6 +1,7 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const AWS = require('aws-sdk');
+const DB = require("../dbConnection.js");
 
 // Configure AWS S3
 const s3 = new AWS.S3({
