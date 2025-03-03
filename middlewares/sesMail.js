@@ -7,7 +7,7 @@ const transporter = nodemailer.createTransport({
     region: process.env.AWS_REGION, // Specify your SES region
     credentials: new AWS.Credentials({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // AWS Secret Key
+      secretAccessKey: process.env.AWS_SES_SECRET, // AWS Secret Key
     }),
   }),
 });
