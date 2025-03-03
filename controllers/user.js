@@ -232,6 +232,7 @@ module.exports = {
         access_token,
         refresh_token,
         referral_code: referralCode,
+        account_nature
       });
     } catch (err) {
       res.status(500).json({
@@ -268,7 +269,7 @@ module.exports = {
         throw new Error("Failed to whitelist the refresh token.");
       }
       const [userdata] = await DB.execute(
-        "SELECT id, is_verified,username,email FROM users WHERE id = ?",
+        "SELECT id, is_verified,username,email,account_nature,kyc_completed FROM users WHERE id = ?",
         [user.id]
       );
       
@@ -295,7 +296,8 @@ module.exports = {
         userId: user.id,
         role: user.role,
         account_nature: user.account_nature,
-        is_verified: user.is_verified
+        is_verified: user.is_verified,
+        kyc_completed:user.kyc_completed
       });
     } catch (err) {
       next(err);
