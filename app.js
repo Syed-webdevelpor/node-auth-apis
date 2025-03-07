@@ -57,7 +57,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 150,
 });
-app.use(limiter);
+// app.use(limiter);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
