@@ -3,7 +3,7 @@ const DB = require("../dbConnection.js");
 const { verifyToken } = require("../tokenHandler.js");
 
 const fetchOrganizationalInfoByID = async (id) => {
-  sql = "SELECT * FROM `organizational_info` WHERE `userId`=?";
+  sql = "SELECT * FROM `organizational_info` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };

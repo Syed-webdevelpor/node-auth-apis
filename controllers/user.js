@@ -201,7 +201,7 @@ module.exports = {
 
       // Send verification email or OTP only after user creation
       if (platform === "web") {
-        const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+        const verificationLink = `https://portal.investain.com/dashboard?token=${verificationToken}`;
         await sendVerificationEmail(email, verificationLink,username);
       } else if (platform === "mobile") {
         await sendOtpEmail(email, otp, username); // Ensure `sendOtpEmail` is implemented for sending OTP
@@ -518,7 +518,7 @@ module.exports = {
 
       // Generate a new verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
-      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      const verificationLink = `https://portal.investain.com/dashboard?token=${verificationToken}`;
 
       // Update the user's verification token in the database
       const [result] = await DB.execute(
