@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const axios = require('axios');
+const { DateTime } = require("luxon");
 const { createHash } = crypto;
 const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister } = require('../middlewares/sesMail.js')
 
@@ -209,7 +210,8 @@ module.exports = {
       } else if (platform === "mobile") {
         await sendOtpEmail(email, otp, username); // Ensure `sendOtpEmail` is implemented for sending OTP
       }
-      await newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,new Date())
+      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("EEEE, yyyy-MM-dd HH:mm:ss");
+      await newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,dubaiTime)
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
