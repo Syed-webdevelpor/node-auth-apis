@@ -4,7 +4,7 @@ const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const axios = require('axios');
 const { createHash } = crypto;
-const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail } = require('../middlewares/sesMail.js')
+const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister } = require('../middlewares/sesMail.js')
 
 
 axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
@@ -121,6 +121,7 @@ module.exports = {
       let affiliationType = "Direct";
       let referringUser = null;
       let row = null;
+      let referredBy = '';
 
       if (referCode) {
         // Check if referCode belongs to an introducing broker
@@ -130,6 +131,7 @@ module.exports = {
         );
         if (row.length !== 0) {
           affiliationType = "Introduced";
+          referredBy = row[0].username;
         } else {
           // Check if referCode belongs to another user
           [referringUser] = await DB.execute(
@@ -138,6 +140,7 @@ module.exports = {
           );
           if (referringUser) {
             affiliationType = "Affiliate";
+            referredBy = referringUser[0].username;
           }
         }
       }
@@ -206,7 +209,7 @@ module.exports = {
       } else if (platform === "mobile") {
         await sendOtpEmail(email, otp, username); // Ensure `sendOtpEmail` is implemented for sending OTP
       }
-
+      await newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,new Date())
       // Generate access token
       const access_token = generateToken({ id: id });
       const refresh_token = generateToken({ id: id }, false);
