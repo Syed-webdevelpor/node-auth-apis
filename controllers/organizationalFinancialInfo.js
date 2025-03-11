@@ -90,7 +90,7 @@ module.exports = {
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `orgFinancialInfo ` SET `annual_revenue` = ?, `net_worth` = ?, `other_assets` = ?, `source_of_funds` = ?, `is_shareholder` = ?, `is_beneficial_owner` = ?, `objective_of_investment` = ?, WHERE `userId` = ?",
+        "UPDATE `orgFinancialInfo ` SET `annual_revenue` = ?, `net_worth` = ?, `other_assets` = ?, `source_of_funds` = ?, `is_shareholder` = ?, `is_beneficial_owner` = ?, `objective_of_investment` = ? WHERE `userId` = ?",
         [
             annual_revenue,
             net_worth,
