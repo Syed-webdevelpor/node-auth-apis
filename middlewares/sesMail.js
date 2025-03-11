@@ -1012,6 +1012,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
          
       </div>
       <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
+                <p style="font-family: Rajdhani, sans-serif;">A new Real account has been created.</p>
                 <ul style="font-family: Rajdhani, sans-serif;">
                     <li>User ID: ${id}</li>
                     <li>Name: ${username}</li>
@@ -1109,4 +1110,138 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
     }
   };
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister };
+  const demoAccountCreation = async (id,firstName,lastName,email,phoneNumber,country,experience,expectedInvestment) => {
+    const mailOptions = {
+      from: 'support@investain.com', // Verified sender email
+      to: 'accounts@investain.com', // Verified recipient email
+      subject: 'New Account Creation',
+      html: `<html>
+              <head>
+                  <style>
+                      @media screen and (max-width: 600px) {
+                          .download-app-container td {
+                          display: block;
+                          width: 100% !important;
+                          text-align: center !important;
+                          }
+                          .download-img {
+                          width: 135px !important;
+                          margin-bottom: 5px !important; /* Adds spacing between images */
+                          }
+                      }
+                  </style>
+              </head>
+  <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+      <!-- Main Container -->
+      <div
+          style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+          <!-- Logo Section (Header) -->
+          <div style="text-align: center; padding: 20px;">
+          <a href="https://investain.com"
+                  style="text-decoration: none;">
+              <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+          </div>
+  
+          <!-- Email Verification Section (Body) -->
+         
+      </div>
+      <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
+                <p style="font-family: Rajdhani, sans-serif;">A new Demo account has successfully been created.</p>
+                <p style="font-family: Rajdhani, sans-serif;">Detail:</p>
+                <ul style="font-family: Rajdhani, sans-serif;">
+                    <li>User ID: ${id}</li>
+                    <li>Name: ${firstName} ${lastName}</li>
+                    <li>Email: ${email}</li>
+                    <li>Phone Number: ${phoneNumber}</li>
+                    <li>Country: ${country}</li>
+                    <li>Experience: ${experience}</li>
+                    <li>Expected Investment: ${expectedInvestment}</li>
+                </ul>
+      </div>
+  
+      <div
+          style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <div style="text-align: center; padding-top: 40px;">
+            <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
+        </div>
+          <table align="center" role="presentation" style="width: 100%; text-align: center;">
+          <tr class="download-app-container">
+              <td>
+              <a href="https://apps.apple.com">
+                  <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
+              </a>
+              </td>
+              <td>
+              <a href="https://play.google.com">
+                  <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
+              </a>
+              </td>
+              <td>
+              <a href="https://appgallery.huawei.com">
+                  <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 130px; width: 100%;">
+              </a>
+              </td>
+          </tr>
+          </table>
+  
+          <!-- Social Media Icons -->
+          <table align="center" cellpadding="10">
+              <tr>
+                  <td>
+                      <a href="https://facebook.com">
+                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://x.com/investain_com">
+                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://www.linkedin.com/company/investain/">
+                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://instagram.com">
+                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+              </tr>
+          </table>
+  
+          <!-- Contact Us Section -->
+          <div style="text-align: center; padding: 20px;">
+              <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+              <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                  <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
+              </p>
+          </div>
+  
+          <!-- Footer -->
+          <div
+              style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+              <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  
+  </html>`,
+      attachments: attachments,
+    };
+  
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Verification email sent!', info);
+      return { success: true, info };
+    } catch (error) {
+      console.error('Error sending email of verification user: ', error);
+      return { success: false, error };
+    }
+  };
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation };

@@ -1,7 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
-const { sendDemoAccountEmail } = require('../middlewares/sesMail.js')
+const { sendDemoAccountEmail, demoAccountCreation } = require('../middlewares/sesMail.js')
 
 const fetchDemoByID = async (id) => {
   sql = "SELECT * FROM `demo_accounts` WHERE `id`=?";
@@ -38,7 +38,8 @@ module.exports = {
           account_number
         ]
       );
-      sendDemoAccountEmail(email,firstName,account_number)
+      await sendDemoAccountEmail(email,firstName,account_number);
+      await demoAccountCreation(uuid,firstName,lastName,email,phoneNumber,country,experience,expectedInvestment)
       res.status(201).json({
         status: 201,
         message: "Your Demo Account has been created",
