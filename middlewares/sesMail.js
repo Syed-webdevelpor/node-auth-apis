@@ -1113,8 +1113,8 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   const demoAccountCreation = async (id,firstName,lastName,email,phoneNumber,country,experience,expectedInvestment) => {
     const mailOptions = {
       from: 'support@investain.com', // Verified sender email
-      to: 'accounts@investain.com', // Verified recipient email
-      subject: 'New Account Creation',
+      to: 'demo@investain.com', // Verified recipient email
+      subject: 'New Demo Account Creation',
       html: `<html>
               <head>
                   <style>
