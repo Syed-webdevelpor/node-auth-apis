@@ -574,7 +574,12 @@ module.exports = {
         "UPDATE `users` SET `is_verified` = ?, `verification_token` = NULL WHERE `id` = ?",
         [true, user[0].id]
       );
+      if (user[0].role == "Introduced Broker") {
+        return res.redirect("https://partner.investain.com/dashboard");
+      } else {
         return res.redirect("https://portal.investain.com/dashboard");
+      }
+        
       // Redirect to a success page
     } catch (error) {
       console.error("Error during verification:", error);
