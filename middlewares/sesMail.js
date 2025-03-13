@@ -66,7 +66,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         <div style="text-align: center; padding: 20px;">
         <a href="https://investain.com"
                 style="text-decoration: none;">
-            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+            <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
         </div>
 
         <!-- Email Verification Section (Body) -->
@@ -197,7 +197,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
         <div style="text-align: center; padding: 20px;">
         <a href="https://investain.com"
                 style="text-decoration: none;">
-            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+            <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
@@ -322,7 +322,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
         <div style="text-align: center; padding: 20px;">
         <a href="https://investain.com"
                 style="text-decoration: none;">
-            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+            <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
@@ -462,7 +462,7 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
         <div style="text-align: center; padding: 20px;">
         <a href="https://investain.com"
                 style="text-decoration: none;">
-            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+            <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
@@ -603,7 +603,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
         <div style="text-align: center; padding: 20px;">
         <a href="https://investain.com"
                 style="text-decoration: none;">
-            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+            <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
@@ -739,7 +739,7 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
         <div style="text-align: center; padding: 20px;">
         <a href="https://investain.com"
                 style="text-decoration: none;">
-            <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+            <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
@@ -865,7 +865,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <div style="text-align: center; padding: 20px;">
           <a href="https://investain.com"
                   style="text-decoration: none;">
-              <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+              <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
           </div>    
           </div>
           <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
@@ -1005,7 +1005,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <div style="text-align: center; padding: 20px;">
           <a href="https://investain.com"
                   style="text-decoration: none;">
-              <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+              <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
           </div>
   
           <!-- Email Verification Section (Body) -->
@@ -1139,7 +1139,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <div style="text-align: center; padding: 20px;">
           <a href="https://investain.com"
                   style="text-decoration: none;">
-              <img src="cid:investain_logo" alt="INVESTAiN Logo" style="width: 100px; height: 100px;" /></a>
+              <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
           </div>
   
           <!-- Email Verification Section (Body) -->
