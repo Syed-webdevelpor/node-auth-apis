@@ -1,6 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
+const { applicationSubmissionEmail } = require('../middlewares/sesMail.js')
 
 const fetchaccountInfoByID = async (id) => {
   sql = "SELECT * FROM `account_info` WHERE `userId`=?";
@@ -36,6 +37,17 @@ module.exports = {
         "UPDATE `users` SET `account_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
       );
+      const [user] = await DB.execute(
+        "SELECT * FROM `users` WHERE `id` = ?",
+        [userId]
+      );
+      let link;
+      if (user[0].role == "Introduced Broker") {
+        link = "https://partner.investain.com/dashboard";
+      } else {
+        link = "https://portal.investain.com/dashboard";
+      }
+      await applicationSubmissionEmail(user[0].email, link, user[0].username);
       res.status(201).json({
         status: 201,
         message: "Your Accounts Info have been created",
