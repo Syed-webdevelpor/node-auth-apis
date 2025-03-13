@@ -166,7 +166,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 };
 
 // Function to send a trading account creation email
-const sendTradingAccountEmail = async (customerEmail, customerName, accountType, accountNumber) => {
+const sendTradingAccountEmail = async (customerEmail, customerName, accountType, accountNumber, link) => {
   try {
     // Email template
     const mailOptions = {
@@ -204,9 +204,13 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
 <p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
         <p style="font-family: Rajdhani, sans-serif;">We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created.</p>
 
-<p style="font-family: Rajdhani, sans-serif;">To start trading, please complete your KYC verification by uploading the required documents. This step is essential for account approval.</p>
-
-<p style="font-family: Rajdhani, sans-serif;"><a href="https://portal.investain.com/live-account/step4" style="color: #d32f2f; text-decoration: underline; font-weight: bold;">Click here</a> to upload your documents</p>
+<p style="font-family: Rajdhani, sans-serif;">Your Trading account details are: </p>
+              <ul style="font-family: Rajdhani, sans-serif;">
+                    <li>Trading Server: INVESTAiN SERVER</li>
+                    <li>Login: ${link}</li>
+                    <li>Password: Use the same password you created during your application</li>
+                    <li>Leverage: 1:400</li>
+                </ul>
                   </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">

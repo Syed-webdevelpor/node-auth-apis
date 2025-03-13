@@ -41,14 +41,20 @@ module.exports = {
       
       const [rows] = await DB.execute(
         `SELECT 
-             users.id, users.email,
+             users.id, users.email, users.role,
              personal_info.first_name
          FROM users
          LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
          WHERE users.id = ?`,
         [user_id]
       );
-        sendTradingAccountEmail(rows[0].email,rows[0].first_name,account_type,account_number)
+      let link;
+      if (rows[0].role == "Introduced Broker") {
+        link = "https://partner.investain.com/dashboard";
+      } else {
+        link = "https://portal.investain.com/dashboard";
+      }
+        sendTradingAccountEmail(rows[0].email,rows[0].first_name,account_type,account_number, link)
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",
