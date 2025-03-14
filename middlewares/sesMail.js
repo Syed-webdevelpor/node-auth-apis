@@ -201,17 +201,28 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
         </div>    
         </div>
         <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-<p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
+        <p style="font-family: Rajdhani, sans-serif;">Dear ${customerName},</p>
         <p style="font-family: Rajdhani, sans-serif;">We are excited to welcome you to <strong>INVESTAiN</strong>. Your trading account has been successfully created.</p>
 
-<p style="font-family: Rajdhani, sans-serif;">Your Trading account details are: </p>
+        <p style="font-family: Rajdhani, sans-serif;">Your Trading account details are: </p>
               <ul style="font-family: Rajdhani, sans-serif;">
                     <li>Trading Server: INVESTAiN SERVER</li>
-                    <li>Login: ${link}</li>
+                    <li>Login: ${accountNumber}</li>
                     <li>Password: Use the same password you created during your application</li>
                     <li>Leverage: 1:400</li>
                 </ul>
-                  </div>
+        <p style="font-family: Rajdhani, sans-serif; font-weight:bold;">How to Fund Your Account: </p>
+                <ul style="font-family: Rajdhani, sans-serif;">
+                    <li>Log in to the <a href="${link}" style="color: red; font-weight: bold;">INVESTAiN</a> Client Portal.</li>
+                    <li>Go to the "Deposits" section.</li>
+                    <li>Select your preferred funding method.</li>
+                </ul>
+                 <p style="font-family: Rajdhani, sans-serif;">Important Notes: </p>
+                 <p style="font-family: Rajdhani, sans-serif;">Deposits will be credited to your chosen wallet or trading account.</p>
+                 <p style="font-family: Rajdhani, sans-serif;">We do not charge additional fees for deposits unless stated on our Deposits and Withdrawals page.</p>
+                 <p style="font-family: Rajdhani, sans-serif;">Third-party payments are not accepted. Any such transactions will be returned to the original payment source where possible.</p>
+                 <p style="font-family: Rajdhani, sans-serif;">Our Client Support team is available 24/5 to assist you. Feel free to reach out through any of our support channels.</p>
+                 </div>
          <div
         style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; padding-top: 40px;">
