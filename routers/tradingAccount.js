@@ -26,4 +26,6 @@ router.post(
   tradingAccount.updateAccount
 );
 
+router.post("/new_trading_acc_req", tokenValidation(), validate, tradingAccount.newTradingAccountReqEmail);
+
 module.exports = router;

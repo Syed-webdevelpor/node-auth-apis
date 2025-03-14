@@ -1,7 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
-const { sendTradingAccountEmail } = require('../middlewares/sesMail.js')
+const { sendTradingAccountEmail, sendNewTradingAccountReqEmail } = require('../middlewares/sesMail.js')
 
 const fetchAllTradingAccount = async () => {
   sql = "SELECT * FROM `trading_accounts`";
@@ -145,4 +145,23 @@ module.exports = {
       next(err);
     }
   },
+
+  newTradingAccountReqEmail: async (req, res, next) => {
+    try {
+        const {
+          user_id,
+          platform,
+          currency,
+          account_type,
+          reason
+        } = req.body;
+        const data = await sendNewTradingAccountReqEmail(user_id, platform, currency, account_type, reason);
+        res.status(201).json({
+            status: 201,
+            message: data,
+        });
+    } catch (err) {
+        next(err);
+    }
+},
 };
