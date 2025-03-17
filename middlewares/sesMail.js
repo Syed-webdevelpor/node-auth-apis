@@ -39,7 +39,7 @@ const attachments = [
 // Function to send a verification email
 const sendVerificationEmail = async (recipientEmail, verificationLink, customerName) => {
   const mailOptions = {
-    from: 'support@investain.com', // Verified sender email
+    from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
     to: recipientEmail, // Verified recipient email
     subject: 'Please Verify Your Email Address',
     html: `<html>
@@ -170,7 +170,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
   try {
     // Email template
     const mailOptions = {
-      from: 'support@investain.com', // Replace with your email
+      from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
       to: customerEmail,
       subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
       html: `<html>
@@ -310,7 +310,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
 
     // Email template
     const mailOptions = {
-      from: 'support@investain.com', // Replace with your email
+      from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
       to: customerEmail,
       subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
       html: `<html>
@@ -450,7 +450,7 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
 const forgetPasswordEmail = async (email, resetLink, customerName) => {
   try {
     const mailOptions = {
-      from: 'support@investain.com',
+      from: `"INVESTAiN" <support@investain.com>`,
       to: email,
       subject: 'Reset Your Password – INVESTAiN',
       html: `<html>
@@ -591,7 +591,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
 
     // Email template
     const mailOptions = {
-      from: 'support@investain.com', // Replace with your email
+      from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
       to: customerEmail,
       subject: `Transaction Notification – ${transactionType} for Your Account`,
       html: `<html>
@@ -727,7 +727,7 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
 
 const sendOtpEmail = async (recipientEmail, otp, customerName) => {
   const mailOptions = {
-    from: 'support@investain.com', // Verified sender email
+    from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
     to: recipientEmail, // Verified recipient email
     subject: 'Your OTP for Account Verification',
     html: `<html>
@@ -853,7 +853,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   
       // Email template
       const mailOptions = {
-        from: 'support@investain.com', // Replace with your email
+        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
         to: 'withdrawl@investain.com',
         subject: `Withdrawal Request Details`,
         html: `<html>
@@ -993,7 +993,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
 
   const newAccountRegister = async (id,username,email,phoneNumber,account_type,account_nature,referredBy,date) => {
     const mailOptions = {
-      from: 'support@investain.com', // Verified sender email
+      from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
       to: 'accounts@investain.com', // Verified recipient email
       subject: 'New Account Creation',
       html: `<html>
@@ -1127,7 +1127,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
 
   const demoAccountCreation = async (id,firstName,lastName,email,phoneNumber,country,experience,expectedInvestment) => {
     const mailOptions = {
-      from: 'support@investain.com', // Verified sender email
+      from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
       to: 'demo@investain.com', // Verified recipient email
       subject: 'New Demo Account Creation',
       html: `<html>
@@ -1261,7 +1261,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
 
   const applicationSubmissionEmail = async (email, link, customerName) => {
     const mailOptions = {
-      from: 'support@investain.com', // Verified sender email
+      from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
       to: email, // Verified recipient email
       subject: 'Your INVESTAiN account application has been submitted',
       html: `<html>
@@ -1414,8 +1414,8 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   
       // Email template
       const mailOptions = {
-        from: 'support@investain.com', // Replace with your email
-        to: 'withdrawl@investain.com',
+        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+        to: 'accounts@investain.com',
         subject: `New Additional Trading Account Request – User ID: ${user_id}`,
         html: `<html>
               <head>

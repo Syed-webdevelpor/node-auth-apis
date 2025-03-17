@@ -23,6 +23,7 @@ const organizationalInfo = require("./routers/organizationalInfo.js");
 const orgFinancialInfo = require("./routers/orgFinancialInfo.js");
 const fetchUploadDocRoutes = require("./routers/fetchUploadDoc.js");
 const withdrawalRoutes = require("./routers/withdrawal.js");
+const accountManagerRoutes = require("./routers/accountManager.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -78,6 +79,7 @@ app.use("/api/recentActivity", recentActivityRoutes);
 app.use("/api/demoAccount", demoAccountRoutes);
 app.use("/api/demoAccountFinancial", demoAccountFinancialRoutes);
 app.use("/api", referFriendRoutes);
+app.use("/api/accountManagers", accountManagerRoutes);
 app.use("/api/fetchAndUploadDoc", fetchUploadDocRoutes);
 app.use("/api/withDrawalEmail", withdrawalRoutes);
 app.use((err, req, res, next) => {

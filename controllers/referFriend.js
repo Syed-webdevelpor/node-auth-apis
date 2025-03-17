@@ -34,7 +34,7 @@ module.exports = {
       res.status(201).json({
         status: 201,
         message: "Refer Friend has been created",
-        account_id: uuid,
+        refer_friend_id: uuid,
       });
     } catch (err) {
       next(err);
@@ -54,7 +54,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        account_info: user[0],
+        refer_friend: user[0],
       });
     } catch (err) {
       next(err);
