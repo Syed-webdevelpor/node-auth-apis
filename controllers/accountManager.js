@@ -38,7 +38,7 @@ module.exports = {
       res.status(201).json({
         status: 201,
         message: "account manager has been created",
-        account_id: uuid,
+        account_manager_id: uuid,
       });
     } catch (err) {
       next(err);
