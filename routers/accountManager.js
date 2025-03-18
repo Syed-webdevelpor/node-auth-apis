@@ -12,6 +12,7 @@ router.post(
   validate,
   accountManager.createAccountManager
 );
+
 router.get(
   "/:id/getById",
   tokenValidation(),
@@ -24,6 +25,20 @@ router.get(
     tokenValidation(),
     validate,
     accountManager.getAllAccountManagers
-  );
+);
+
+router.put(
+  "/:id/update",
+  tokenValidation(),
+  validate,
+  accountManager.updateAccountManager
+);
+
+router.delete(
+  "/:id/delete",
+  tokenValidation(),
+  validate,
+  accountManager.deleteAccountManager
+);
 
 module.exports = router;

@@ -84,4 +84,67 @@ module.exports = {
       next(err);
     }
   }, 
+
+  updateAccountManager: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+
+      const { id } = req.params;
+      const { name, email, phone, region } = req.body;
+
+      // Check if the account manager exists
+      const user = await fetchAccountManagerByID(id);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "account manager not found",
+        });
+      }
+
+      // Update the account manager
+      const [result] = await DB.execute(
+        "UPDATE `account_managers` SET `name`=?, `email`=?, `phone`=?, `region`=? WHERE `id`=?",
+        [name, email, phone, region, id]
+      );
+
+      res.status(200).json({
+        status: 200,
+        message: "account manager updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  deleteAccountManager: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+
+      const { id } = req.params;
+
+      // Check if the account manager exists
+      const user = await fetchAccountManagerByID(id);
+      if (user.length !== 1) {
+        return res.status(404).json({
+          status: 404,
+          message: "account manager not found",
+        });
+      }
+
+      // Delete the account manager
+      const [result] = await DB.execute(
+        "DELETE FROM `account_managers` WHERE `id`=?",
+        [id]
+      );
+
+      res.status(200).json({
+        status: 200,
+        message: "account manager deleted successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };
