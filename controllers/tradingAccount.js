@@ -137,7 +137,7 @@ module.exports = {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
       const trading_accounts = await fetchTradingAccountByUserID(req.params.userId);
-      if (account_financials.length == 0) {
+      if (trading_accounts.length == 0) {
         return res.status(404).json({
           status: 404,
           message: "Trading accounts not found",
