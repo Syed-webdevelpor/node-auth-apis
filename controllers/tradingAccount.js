@@ -11,16 +11,15 @@ const fetchAllTradingAccount = async () => {
 
 const fetchTradingAccountByUserID = async (id) => {
   const sql = `
-    SELECT * 
-    FROM trading_accounts 
-    LEFT JOIN account_financials 
-    ON trading_accounts.account_number = account_financials.account_id 
-    WHERE trading_accounts.user_id = ?`;
+    SELECT ta.*, af.* 
+    FROM trading_accounts AS ta
+    LEFT JOIN account_financials AS af 
+    ON ta.account_number = af.account_id 
+    WHERE ta.user_id = ?`;
   
-  const [row] = await DB.execute(sql, [id]);
-  return row;
+  const [rows] = await DB.execute(sql, [id]);
+  return rows; // Returning the array of matching records
 };
-
 
 module.exports = {
 
