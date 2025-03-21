@@ -11,7 +11,7 @@ const fetchAllTradingAccount = async () => {
 
 const fetchTradingAccountByUserID = async (id) => {
   const sql = `
-    SELECT ta.account_number, af.* 
+    SELECT ta.*, af.* 
     FROM trading_accounts AS ta
     LEFT JOIN account_financials AS af 
     ON ta.account_number = af.account_id 
