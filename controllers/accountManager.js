@@ -66,7 +66,7 @@ module.exports = {
 
       const [result1] = await DB.execute(
         "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
-        [id, md5Refresh]
+        [uuid, md5Refresh]
       );
 
       if (!result1.affectedRows) {
