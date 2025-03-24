@@ -39,7 +39,7 @@ module.exports = {
       );
       let verificationToken = null;
       const saltRounds = 10;
-      const hashPassword = await bcrypt.hash(Math.random(8), saltRounds);
+      const hashPassword = await bcrypt.hash(Math.random().toString(36).slice(-8), saltRounds);
       const referralCode = crypto.randomBytes(4).toString("hex");
       const [user] = await DB.execute(
         "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
