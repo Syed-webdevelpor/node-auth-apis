@@ -68,7 +68,7 @@ const fetchAllUsers = async () => {
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-            LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
+       LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id`
@@ -91,6 +91,7 @@ module.exports = {
         role,
         is_approved,
         is_verified,
+        account_manager_id,
         platform, // Expecting 'platform' to indicate 'web' or 'mobile'
       } = req.body;
 
@@ -152,7 +153,7 @@ module.exports = {
 
       // Insert new user into the database
       const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`, `otp`, `otp_created_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`, `otp`, `otp_created_at`, `account_manager_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           id,
           email,
@@ -169,6 +170,7 @@ module.exports = {
           platform === "web" ? (verificationToken = crypto.randomBytes(32).toString("hex")) : null,
           platform === "mobile" ? (otp = Math.floor(100000 + Math.random() * 900000)) : null,
           platform === "mobile" ? new Date() : null,
+          account_manager_id
         ]
       );
 

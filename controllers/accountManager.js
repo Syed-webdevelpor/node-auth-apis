@@ -1,6 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
-const { verifyToken } = require("../tokenHandler.js");
+const crypto = require("crypto");
+const { generateToken, verifyToken } = require("../tokenHandler.js");
 
 const fetchAccountManagerByID = async (id) => {
   sql = "SELECT * FROM `account_managers` WHERE `id`=?";
@@ -9,10 +10,10 @@ const fetchAccountManagerByID = async (id) => {
 };
 
 const fetchAllAccountManagers = async (id) => {
-    sql = "SELECT * FROM `account_managers`";
-    const [row] = await DB.execute(sql);
-    return row;
-  };
+  sql = "SELECT * FROM `account_managers`";
+  const [row] = await DB.execute(sql);
+  return row;
+};
 
 module.exports = {
 
@@ -35,15 +36,55 @@ module.exports = {
           region
         ]
       );
+      let verificationToken = null;
+      const saltRounds = 10;
+      const hashPassword = await bcrypt.hash(Math.random(8), saltRounds);
+      const referralCode = crypto.randomBytes(4).toString("hex");
+      const [user] = await DB.execute(
+        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          uuid,
+          email,
+          hashPassword,
+          referralCode,
+          'Direct',
+          name,
+          'Individual',
+          phone,
+          'Account Manager',
+          false,
+          false,
+          verificationToken = crypto.randomBytes(32).toString("hex")
+        ]
+      );
+      const access_token = generateToken({ id: uuid });
+      const refresh_token = generateToken({ id: uuid }, false);
+
+      const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
+
+      const [result1] = await DB.execute(
+        "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
+        [id, md5Refresh]
+      );
+
+      if (!result1.affectedRows) {
+        return res.status(500).json({
+          status: 500,
+          message: "Failed to whitelist the refresh token.",
+        });
+      }
+      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      await sendVerificationEmail(email, verificationLink, name);
       res.status(201).json({
         status: 201,
-        message: "account manager has been created",
+        message: "account manager and user has been created",
         account_manager_id: uuid,
+        access_token
       });
     } catch (err) {
       next(err);
     }
-  }, 
+  },
 
   getAccountManagerById: async (req, res, next) => {
     try {
@@ -63,7 +104,7 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },      
+  },
 
   getAllAccountManagers: async (req, res, next) => {
     try {
@@ -83,7 +124,7 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  }, 
+  },
 
   updateAccountManager: async (req, res, next) => {
     try {
