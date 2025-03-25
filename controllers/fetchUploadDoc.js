@@ -117,7 +117,7 @@ async function uploadFileToS3(imageContent, filename, bucketName,userId) {
 
 async function updateUserKycStatus(userId) {
   try {
-    // First, get all available account managers
+    // First, get all account managers
     const [accountManagers] = await DB.execute("SELECT id FROM account_managers");
     
     if (accountManagers.length === 0) {
@@ -133,7 +133,7 @@ async function updateUserKycStatus(userId) {
       UPDATE users
       SET kyc_completed = ?, 
           is_approved = ?,
-          account_manager_id = ?,
+          account_manager_id = ?
       WHERE id = ?
     `;
     
