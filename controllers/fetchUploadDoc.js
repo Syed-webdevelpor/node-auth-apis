@@ -228,7 +228,7 @@ module.exports = {
   handleGetUserFiles: async (req, res) => {
     try {
       const { userId } = req.params;
-      const files = await getUserFilesFromS3(userId, process.env.S3_BUCKET_NAME);
+      const files = await getUserFilesFromS3(userId, process.env.AWS_BUCKET_NAME);
       res.status(200).json(files);
     } catch (error) {
       res.status(500).json({ error: error.message });
