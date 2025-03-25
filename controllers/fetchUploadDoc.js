@@ -116,19 +116,76 @@ async function uploadFileToS3(imageContent, filename, bucketName,userId) {
 }
 
 async function updateUserKycStatus(userId) {
-  const query = `
-    UPDATE users
-    SET kyc_completed = ?, is_approved = ?
-    WHERE id = ?
-  `;
-  const values = [1, 1, userId]; // Set kyc_completed and is_approved to 1 (true)
-
   try {
+    // First, get all available account managers
+    const [accountManagers] = await DB.execute("SELECT id FROM account_managers");
+    
+    if (accountManagers.length === 0) {
+      throw new Error('No account managers available');
+    }
+
+    // Select a random account manager
+    const randomIndex = Math.floor(Math.random() * accountManagers.length);
+    const randomAccountManager = accountManagers[randomIndex];
+    
+    // Update the user with KYC status and assign the account manager
+    const query = `
+      UPDATE users
+      SET kyc_completed = ?, 
+          is_approved = ?,
+          account_manager_id = ?,
+      WHERE id = ?
+    `;
+    
+    const values = [1, 1, randomAccountManager.id, userId];
+
     const [result] = await DB.execute(query, values);
-    console.log(`User ${userId} KYC status updated successfully.`);
+    console.log(`User ${userId} KYC status updated successfully and assigned to account manager ${randomAccountManager.id}`);
     return result;
   } catch (error) {
     console.error('Error updating user KYC status:', error);
+    throw error;
+  }
+}
+
+async function getUserFilesFromS3(userId, bucketName) {
+  const prefix = `user/${userId}/`;
+  const params = {
+    Bucket: bucketName,
+    Prefix: prefix
+  };
+
+  try {
+    const data = await s3.listObjectsV2(params).promise();
+    
+    if (!data.Contents || data.Contents.length === 0) {
+      return [];
+    }
+
+    const files = await Promise.all(
+      data.Contents.map(async (file) => {
+        // Get file metadata
+        const headParams = {
+          Bucket: bucketName,
+          Key: file.Key
+        };
+        const metadata = await s3.headObject(headParams).promise();
+        
+        return {
+          key: file.Key,
+          filename: metadata.Metadata['original-filename'] || file.Key.split('/').pop(),
+          url: `https://${bucketName}.s3.amazonaws.com/${file.Key}`,
+          fileType: metadata.Metadata['file-type'] || 'unknown',
+          size: file.Size,
+          lastModified: file.LastModified,
+          metadata: metadata.Metadata
+        };
+      })
+    );
+
+    return files;
+  } catch (error) {
+    console.error('Error fetching user files from S3:', error);
     throw error;
   }
 }
@@ -167,4 +224,14 @@ module.exports = {
       res.status(500).json({ error: 'Failed to fetch and upload documents.' });
     }
   },
+
+  handleGetUserFiles: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const files = await getUserFilesFromS3(userId, process.env.S3_BUCKET_NAME);
+      res.status(200).json(files);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 };

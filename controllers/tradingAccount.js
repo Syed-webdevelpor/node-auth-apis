@@ -1,7 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
-const { sendTradingAccountEmail, sendNewTradingAccountReqEmail } = require('../middlewares/sesMail.js')
+const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail } = require('../middlewares/sesMail.js')
 
 const fetchAllTradingAccount = async () => {
   sql = "SELECT * FROM `trading_accounts`";
@@ -161,6 +161,22 @@ module.exports = {
           account_type,
           reason
         } = req.body;
+        const [rows] = await DB.execute(
+          `SELECT 
+               users.id, users.email, users.role,
+               personal_info.first_name
+           FROM users
+           LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+           WHERE users.id = ?`,
+          [user_id]
+        );
+        if(rows.length === 0){
+         return res.status(400).json({
+            status: 400,
+            message: "user not found",
+          })
+        }
+        await sendNewTradingAccountEmail(rows[0].first_name, rows[0].email)
         const data = await sendNewTradingAccountReqEmail(user_id, platform, currency, account_type, reason);
         res.status(201).json({
             status: 201,
