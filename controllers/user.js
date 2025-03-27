@@ -712,7 +712,7 @@ module.exports = {
         const hashedPassword = await bcrypt.hash(newPassword, 12);
 
         // Update password in database
-        await DB.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+        await DB.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, id]);
 
         res.status(200).json({ message: 'Password changed successfully!' });
 
