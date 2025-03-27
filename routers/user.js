@@ -65,5 +65,6 @@ router.post("/resend_email",tokenValidation(), validate, user.resendVerification
 router.post("/forget_password", user.forgetPassword);
 router.post("/reset_password", user.resetPassword);
 router.post("/kyc_access_token", user.kycAccessToken);
+router.post("/change_password", tokenValidation(), validate, user.changePassword);
 
 module.exports = router;
