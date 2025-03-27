@@ -695,6 +695,31 @@ module.exports = {
     }
   },
 
+  changePassword : async (req, res) => {
+    const { currentPassword, newPassword, id } = req.body;
+
+    try {
+        // Get user from database
+        const [user] = await DB.execute('SELECT password FROM users WHERE id = ?', [id]);
+
+        if (!user.length) return res.status(404).json({ message: 'User not found' });
+
+        // Compare current password
+        const passwordMatch = await bcrypt.compare(currentPassword, user[0].password);
+        if (!passwordMatch) return res.status(400).json({ message: 'Current password is incorrect' });
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+        // Update password in database
+        await DB.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+
+        res.status(200).json({ message: 'Password changed successfully!' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error changing password', error });
+    }
+},
   // Controller function
   kycAccessToken: async (req, res) => {
     const { externalUserId, levelName = 'Live account verification', ttlInSecs = 600 } = req.body;
