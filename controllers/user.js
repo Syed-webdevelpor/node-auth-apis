@@ -53,7 +53,7 @@ const fetchUsersByAccManID = async (id) => {
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
        WHERE users.account_manager_id = ?`,
-    [data]
+    [id]
   );
   return rows;
 };
@@ -385,7 +385,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        user: user[0],
+        user: user,
       });
     } catch (err) {
       next(err);
