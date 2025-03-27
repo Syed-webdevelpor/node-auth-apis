@@ -53,6 +53,7 @@ router.post(
 // Get the user data by providing the access token
 router.get("/profile", tokenValidation(), validate, user.getUser);
 router.get("/getAll", tokenValidation(), validate, user.getAllUsers);
+router.get("/:accManId/getByAccManId", tokenValidation(), validate, user.getUsersByAccManId);
 router.get("/:userId/getProfile", tokenValidation(), validate, user.getProfile);
 router.post("/:id/update", tokenValidation(), validate, user.updateUser);
 router.get("/refresh", tokenValidation(true), validate, user.refreshToken);

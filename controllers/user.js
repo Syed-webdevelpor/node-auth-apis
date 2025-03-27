@@ -39,8 +39,7 @@ async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   return axios.post(url, null, { headers });
 }
 
-const fetchUserByEmailOrID = async (data, isEmail) => {
-  const column = isEmail ? "email" : "id";
+const fetchUsersByAccManID = async (id) => {
   const [rows] = await DB.execute(
     `SELECT 
          users.id, users.email,users.password,users.kyc_completed, users.referral_code,users.username,users.phoneNumber,users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at,
@@ -53,7 +52,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
-       WHERE users.${column} = ?`,
+       WHERE users.account_manager_id = ?`,
     [data]
   );
   return rows;
@@ -75,6 +74,27 @@ const fetchAllUsers = async () => {
   );
   return rows;
 };
+
+const fetchUserByEmailOrID = async (data, isEmail) => {
+  const column = isEmail ? "email" : "id";
+  const [rows] = await DB.execute(
+    `SELECT 
+         users.id, users.email,users.password,users.kyc_completed, users.referral_code,users.username,users.phoneNumber,users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at,
+         personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
+         financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
+         account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
+       FROM users
+       LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+       LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
+       LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
+       LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
+       LEFT JOIN account_info ON users.account_info_id = account_info.id
+       WHERE users.${column} = ?`,
+    [data]
+  );
+  return rows;
+};
+
 module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
@@ -347,6 +367,25 @@ module.exports = {
       res.json({
         status: 200,
         user: user,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getUsersByAccManId: async (req, res, next) => {
+    try {
+
+      const user = await fetchUsersByAccManID(req.params.accManId);
+      if (user.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+      res.json({
+        status: 200,
+        user: user[0],
       });
     } catch (err) {
       next(err);
