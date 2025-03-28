@@ -650,9 +650,9 @@ module.exports = {
       );
       let resetURL = "";
       if (user[0].role == "Introduced Broker") {
-        resetURL = `https://partner.investain.com/forget-password?token=${resetToken}`;
+        resetURL = `https://partner.investain.com/reset-password?token=${resetToken}`;
       } else {
-        resetURL = `https://portal.investain.com/forget-password?token=${resetToken}`;
+        resetURL = `https://portal.investain.com/reset-password?token=${resetToken}`;
       }
 
 
