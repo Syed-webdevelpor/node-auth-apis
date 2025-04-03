@@ -48,4 +48,11 @@ router.post(
   introducerBroker.updateIntroducingBroker
 );
 
+router.post(
+  "/new_ib_acc_req",
+  tokenValidation(),
+  validate,
+  introducerBroker.newIbReqEmail
+);
+
 module.exports = router;
