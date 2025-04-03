@@ -2,6 +2,7 @@ const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
 const crypto = require("crypto");
+const { sendNewIbEmail, sendIbReqEmail } = require('../middlewares/sesMail.js')
 
 const fetchIntroducingBrokerById = async (id) => {
   const sql = "SELECT * FROM `introducing_brokers` WHERE `ib_id`=?";
@@ -142,5 +143,35 @@ next();
       next(err);
     }
   },
-   
+     newIbReqEmail: async (req, res, next) => {
+       try {
+           const {
+             user_id,
+             country,
+           } = req.body;
+           const [rows] = await DB.execute(
+             `SELECT 
+                  users.id, users.email, users.phoneNumber, users.username
+                  personal_info.first_name
+              FROM users
+              LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+              WHERE users.id = ?`,
+             [user_id]
+           );
+           if(rows.length === 0){
+            return res.status(400).json({
+               status: 400,
+               message: "user not found",
+             })
+           }
+           await sendNewIbEmail(rows[0].first_name, rows[0].email)
+           const data = await sendIbReqEmail(rows[0].username, rows[0].email, rows[0].phoneNumber, country);
+           res.status(201).json({
+               status: 201,
+               message: data,
+           });
+       } catch (err) {
+           next(err);
+       }
+   },
 };

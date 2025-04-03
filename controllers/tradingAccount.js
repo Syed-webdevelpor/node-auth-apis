@@ -4,7 +4,11 @@ const { verifyToken } = require("../tokenHandler.js");
 const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail } = require('../middlewares/sesMail.js')
 
 const fetchAllTradingAccount = async () => {
-  sql = "SELECT * FROM `trading_accounts`";
+  sql =  `
+  SELECT ta.*, af.* 
+  FROM trading_accounts AS ta
+  LEFT JOIN account_financials AS af 
+  ON ta.account_number = af.account_id`;
   const [row] = await DB.execute(sql);
   return row;
 };
