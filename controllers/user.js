@@ -5,6 +5,7 @@ const DB = require("../dbConnection.js");
 const axios = require('axios');
 const { DateTime } = require("luxon");
 const { createHash } = crypto;
+const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
 const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister } = require('../middlewares/sesMail.js')
 
 
