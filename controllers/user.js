@@ -112,149 +112,103 @@ module.exports = {
         is_approved,
         is_verified,
         account_manager_id,
-        platform, // Expecting 'platform' to indicate 'web' or 'mobile'
+        platform // 'web' or 'mobile'
       } = req.body;
-
-      // Validate input
+  
       if (!email || !password || !id || !platform) {
-        return res.status(400).json({
-          status: 400,
-          message: "Missing required fields",
-        });
+        return res.status(400).json({ message: 'Missing required fields' });
       }
-
-      // Hash password
-      const saltRounds = 10;
-      const hashPassword = await bcrypt.hash(password, saltRounds);
-
-      // Generate referral code
-      const referralCode = crypto.randomBytes(4).toString("hex");
-
-      // Check if user with the given email already exists
-      const user = await fetchUserByEmailOrID(email, true);
-      if (user.length > 0) {
-        return res.status(403).json({
-          status: 403,
-          message: "Email already exists",
-        });
+  
+      const existingUser = await DB.execute('SELECT id FROM users WHERE email = ?', [email]);
+      if (existingUser[0].length > 0) {
+        return res.status(403).json({ message: 'Email already exists' });
       }
-
-      // Determine affiliation type
-      let affiliationType = "Direct";
-      let referringUser = null;
-      let row = null;
+  
+      const hashPassword = await bcrypt.hash(password, 10);
+      const referralCode = crypto.randomBytes(4).toString('hex');
+      let affiliationType = 'Direct';
       let referredBy = '';
-
+  
       if (referCode) {
-        // Check if referCode belongs to an introducing broker
-        [row] = await DB.execute(
-          "SELECT * FROM `introducing_brokers` WHERE `referral_code`=?",
-          [referCode]
-        );
-        if (row.length !== 0) {
-          affiliationType = "Introduced";
-          referredBy = row[0].username;
+        const [ib] = await DB.execute('SELECT * FROM introducing_brokers WHERE referral_code = ?', [referCode]);
+        if (ib.length) {
+          affiliationType = 'Introduced';
+          referredBy = ib[0].username;
         } else {
-          // Check if referCode belongs to another user
-          [referringUser] = await DB.execute(
-            "SELECT * FROM `users` WHERE `referral_code`=?",
-            [referCode]
-          );
-          if (referringUser) {
-            affiliationType = "Affiliate";
-            referredBy = referringUser[0].username;
+          const [refUser] = await DB.execute('SELECT * FROM users WHERE referral_code = ?', [referCode]);
+          if (refUser.length) {
+            affiliationType = 'Affiliate';
+            referredBy = refUser[0].username;
           }
         }
       }
-
-      // Variables for verification
+  
       let verificationToken = null;
       let otp = null;
-
-      // Insert new user into the database
-      const [result] = await DB.execute(
-        "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_type`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`, `otp`, `otp_created_at`, `account_manager_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          id,
-          email,
-          hashPassword,
-          referralCode,
-          affiliationType,
-          username,
-          account_type,
-          account_nature,
-          phoneNumber,
-          role,
-          is_approved,
-          is_verified,
-          platform === "web" ? (verificationToken = crypto.randomBytes(32).toString("hex")) : null,
-          platform === "mobile" ? (otp = Math.floor(100000 + Math.random() * 900000)) : null,
-          platform === "mobile" ? new Date() : null,
-          account_manager_id
-        ]
-      );
-
-      // If user creation failed, stop further processing
-      if (!result.affectedRows) {
-        return res.status(500).json({
-          status: 500,
-          message: "User registration failed. Please try again.",
-        });
+  
+      if (platform === 'web') {
+        verificationToken = crypto.randomBytes(32).toString('hex');
+      } else if (platform === 'mobile') {
+        otp = Math.floor(100000 + Math.random() * 900000);
       }
-
-      // Handle referral subusers
+  
+      const [insertResult] = await DB.execute(
+        `INSERT INTO users (id, email, password, referral_code, affiliation_type, username, account_type, account_nature, phoneNumber, role, is_approved, is_verified, verification_token, otp, otp_created_at, account_manager_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, email, hashPassword, referralCode, affiliationType, username, account_type, account_nature, phoneNumber, role, is_approved, is_verified, verificationToken, otp, platform === 'mobile' ? new Date() : null, account_manager_id]
+      );
+  
+      if (!insertResult.affectedRows) {
+        return res.status(500).json({ message: 'User registration failed.' });
+      }
+  
       if (referCode) {
-        if (referringUser) {
-          let subusers = referringUser.subusers
-            ? JSON.parse(referringUser.subusers)
-            : [];
+        const [refUser] = await DB.execute('SELECT * FROM users WHERE referral_code = ?', [referCode]);
+        if (refUser.length) {
+          let subusers = refUser[0].subusers ? JSON.parse(refUser[0].subusers) : [];
           subusers.push(id);
-          await DB.execute("UPDATE `users` SET `subusers` = ? WHERE `id` = ?", [
-            JSON.stringify(subusers),
-            referringUser[0].id,
-          ]);
+          await DB.execute('UPDATE users SET subusers = ? WHERE id = ?', [JSON.stringify(subusers), refUser[0].id]);
         }
-
-        if (row.length !== 0) {
-          let subusers = row.subusers ? JSON.parse(row.subusers) : [];
+  
+        const [ib] = await DB.execute('SELECT * FROM introducing_brokers WHERE referral_code = ?', [referCode]);
+        if (ib.length) {
+          let subusers = ib[0].subusers ? JSON.parse(ib[0].subusers) : [];
           subusers.push(id);
-          await DB.execute(
-            "UPDATE `introducing_brokers` SET `subusers` = ?  WHERE `ib_id` = ?",
-            [JSON.stringify(subusers), row[0].ib_id]
-          );
+          await DB.execute('UPDATE introducing_brokers SET subusers = ? WHERE ib_id = ?', [JSON.stringify(subusers), ib[0].ib_id]);
         }
       }
-
-      // Send verification email or OTP only after user creation
-      if (platform === "web") {
-        const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
-        await sendVerificationEmail(email, verificationLink,username);
-      } else if (platform === "mobile") {
-        await sendOtpEmail(email, otp, username); // Ensure `sendOtpEmail` is implemented for sending OTP
+  
+      if (platform === 'web') {
+        const link = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+        await sendVerificationEmail(email, link, username);
+      } else if (platform === 'mobile') {
+        await sendOtpEmail(email, otp, username);
       }
-      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("EEEE, yyyy-MM-dd HH:mm:ss");
-      await newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,dubaiTime)
-      // Generate access token
-      const access_token = generateToken({ id: id });
-      const refresh_token = generateToken({ id: id }, false);
-
-      const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
-
-      const [result1] = await DB.execute(
-        "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
-        [id, md5Refresh]
+  
+      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      const notificationId = `notif_${dubaiTime}_${crypto.randomBytes(4).toString('hex')}`;
+  
+      await DB.execute(
+        `INSERT INTO notifications (id, user_id, message) VALUES (?, ?, ?)`,
+        [notificationId, account_manager_id, `${username} has signed up.`]
       );
-
-      if (!result1.affectedRows) {
-        return res.status(500).json({
-          status: 500,
-          message: "Failed to whitelist the refresh token.",
-        });
-      }
-
-      res.status(201).json({
-        status: 201,
-        message: "You have been successfully registered. Please verify your email or OTP.",
+  
+      sendNotificationToUser(account_manager_id.toString(), {
+        type: 'new_notification',
+        id: notificationId,
+        message: `${username} has signed up.`,
+        is_read: false,
+        created_at: new Date().toISOString()
+      });
+  
+      const access_token = generateToken({ id });
+      const refresh_token = generateToken({ id }, false);
+      const md5Refresh = crypto.createHash('md5').update(refresh_token).digest('hex');
+  
+      await DB.execute('INSERT INTO refresh_tokens (user_id, token) VALUES (?, ?)', [id, md5Refresh]);
+  
+      return res.status(201).json({
+        message: 'User registered successfully. Please verify.',
         user_id: id,
         access_token,
         refresh_token,
@@ -262,11 +216,8 @@ module.exports = {
         account_nature
       });
     } catch (err) {
-      res.status(500).json({
-        status: 500,
-        message: "An unexpected error occurred.",
-        error: err.message,
-      });
+      console.error(err);
+      return res.status(500).json({ message: 'Internal Server Error', error: err.message });
     }
   },
 
