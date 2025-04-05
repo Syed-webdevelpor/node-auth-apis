@@ -206,6 +206,7 @@ module.exports = {
         id: notificationId,
         message: notificationMessage,
         is_read: false,
+        user_id: rows[0].id,
         created_at: new Date().toISOString()
       });
 
