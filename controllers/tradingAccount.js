@@ -194,7 +194,7 @@ module.exports = {
       const timestamp = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
       const notificationId = `notif_${timestamp}_${crypto.randomBytes(4).toString("hex")}`;
 
-      const notificationMessage = `${user.first_name} requested a new trading account (${currency}, ${account_type})`;
+      const notificationMessage = `${rows[0].first_name} requested a new trading account (${currency}, ${account_type})`;
 
       await DB.execute(
         `INSERT INTO notifications (id, user_id, message) VALUES (?, ?, ?)`,
