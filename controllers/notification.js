@@ -13,8 +13,8 @@ module.exports = {
         try {
             const data = verifyToken(req.headers.access_token);
             if (data && data.status) return res.status(data.status).json(data);
-            const notification = await fetchNotificationByAccManID(req.params.accManId);
-            if (notification.length === 0) {
+            const notifications = await fetchNotificationByAccManID(req.params.accManId);
+            if (notifications.length === 0) {
                 return res.status(404).json({
                     status: 404,
                     message: "notification not found",
@@ -22,7 +22,7 @@ module.exports = {
             }
             res.json({
                 status: 200,
-                notification: notification[0],
+                notification: notifications,
             });
         } catch (err) {
             next(err);
