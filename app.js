@@ -24,6 +24,7 @@ const orgFinancialInfo = require("./routers/orgFinancialInfo.js");
 const fetchUploadDocRoutes = require("./routers/fetchUploadDoc.js");
 const withdrawalRoutes = require("./routers/withdrawal.js");
 const accountManagerRoutes = require("./routers/accountManager.js");
+const notificationRoutes = require("./routers/notification.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -82,6 +83,7 @@ app.use("/api", referFriendRoutes);
 app.use("/api/accountManagers", accountManagerRoutes);
 app.use("/api/fetchAndUploadDoc", fetchUploadDocRoutes);
 app.use("/api/withDrawalEmail", withdrawalRoutes);
+app.use("/api/notification", notificationRoutes);
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
@@ -92,12 +94,12 @@ app.use((err, req, res, next) => {
 
 // If database is connected successfully, then run the server
 dbConnection
-    .getConnection()
-    .then(() => {
-        app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
-        });
-    })
-    .catch((err) => {
-        console.log(`Failed to connect to the database: ${err.message}`);
+  .getConnection()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
     });
+  })
+  .catch((err) => {
+    console.log(`Failed to connect to the database: ${err.message}`);
+  });
