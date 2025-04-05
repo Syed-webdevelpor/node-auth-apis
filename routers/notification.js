@@ -7,7 +7,7 @@ const notification = require("../controllers/notification.js");
 const router = express.Router();
 
 router.put(
-    "/:id/updateNotification",
+    "/updateNotification",
     tokenValidation(),
     validate,
     notification.updateNotification
