@@ -13,11 +13,11 @@ module.exports = {
         try {
             const data = verifyToken(req.headers.access_token);
             if (data && data.status) return res.status(data.status).json(data);
-            const notification = await fetchNotificationByAccManID(req.params.accManid);
+            const notification = await fetchNotificationByAccManID(req.params.accManId);
             if (notification.length === 0) {
                 return res.status(404).json({
                     status: 404,
-                    message: "Account manager not found",
+                    message: "notification not found",
                 });
             }
             res.json({
