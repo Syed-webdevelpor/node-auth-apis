@@ -2067,4 +2067,4 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
     }
   }
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail };
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail };
