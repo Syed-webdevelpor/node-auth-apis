@@ -189,7 +189,7 @@ module.exports = {
       );
       const accountManager = accManager[0];
       await sendNewTradingAccountEmail(rows[0].first_name, rows[0].email);
-      await sendNewTradingAccountReqToAccManagerEmail(accountManager, user_id, platform, currency, account_type, reason);
+      await sendNewTradingAccountReqToAccManagerEmail(accountManager.email, user_id, platform, currency, account_type, reason);
       // Send Notification
       const timestamp = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
       const notificationId = `notif_${timestamp}_${crypto.randomBytes(4).toString("hex")}`;
