@@ -187,6 +187,7 @@ module.exports = {
       }
   
       const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,dubaiTime)
       const notificationId = `notif_${dubaiTime}_${crypto.randomBytes(4).toString('hex')}`;
   
       await DB.execute(

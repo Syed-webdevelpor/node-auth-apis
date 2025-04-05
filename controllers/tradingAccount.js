@@ -1,10 +1,12 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
+const crypto = require("crypto");
 const { verifyToken } = require("../tokenHandler.js");
-const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail } = require('../middlewares/sesMail.js')
+const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
+const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewTradingAccountReqToAccManagerEmail } = require('../middlewares/sesMail.js')
 
 const fetchAllTradingAccount = async () => {
-  sql =  `
+  sql = `
   SELECT ta.*, af.* 
   FROM trading_accounts AS ta
   LEFT JOIN account_financials AS af 
@@ -48,7 +50,7 @@ module.exports = {
           account_mode
         ]
       );
-      
+
       const [rows] = await DB.execute(
         `SELECT 
              users.id, users.email, users.role,
@@ -64,7 +66,7 @@ module.exports = {
       } else {
         link = "https://portal.investain.com/dashboard";
       }
-        sendTradingAccountEmail(rows[0].email,rows[0].first_name,account_type,account_number, link)
+      sendTradingAccountEmail(rows[0].email, rows[0].first_name, account_type, account_number, link)
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",
@@ -87,7 +89,7 @@ module.exports = {
         account_status,
         account_mode
       } = req.body;
-  
+
       const [result] = await DB.execute(
         "UPDATE `trading_accounts` SET `user_id` = ?, `account_type` = ?, `account_number` = ?, `account_status` = ?, `account_mode` = ? WHERE `id` = ?",
         [
@@ -99,14 +101,14 @@ module.exports = {
           id
         ]
       );
-  
+
       if (result.affectedRows === 0) {
         return res.status(404).json({
           status: 404,
           message: "Account not found",
         });
       }
-  
+
       res.status(200).json({
         status: 200,
         message: "Account updated successfully",
@@ -114,8 +116,8 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },   
-  
+  },
+
   getAllTradingAccount: async (req, res, next) => {
     try {
       const data = verifyToken(req.headers.access_token);
@@ -158,36 +160,62 @@ module.exports = {
 
   newTradingAccountReqEmail: async (req, res, next) => {
     try {
-        const {
-          user_id,
-          platform,
-          currency,
-          account_type,
-          reason
-        } = req.body;
-        const [rows] = await DB.execute(
-          `SELECT 
-               users.id, users.email, users.role,
+      const {
+        user_id,
+        platform,
+        currency,
+        account_type,
+        reason
+      } = req.body;
+      const [rows] = await DB.execute(
+        `SELECT 
+               users.id, users.email, users.role, users.account_manager_id,
                personal_info.first_name
            FROM users
            LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
            WHERE users.id = ?`,
-          [user_id]
-        );
-        if(rows.length === 0){
-         return res.status(400).json({
-            status: 400,
-            message: "user not found",
-          })
-        }
-        await sendNewTradingAccountEmail(rows[0].first_name, rows[0].email)
-        const data = await sendNewTradingAccountReqEmail(user_id, platform, currency, account_type, reason);
-        res.status(201).json({
-            status: 201,
-            message: data,
-        });
+        [user_id]
+      );
+      if (rows.length === 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "user not found",
+        })
+      }
+      const [accManager] = await DB.execute(
+        `SELECT * FROM users WHERE id = ?`,
+        [rows[0].account_manager_id]
+      );
+      const accountManager = accManager[0];
+      await sendNewTradingAccountEmail(rows[0].first_name, rows[0].email);
+      await sendNewTradingAccountReqToAccManagerEmail(accountManager, user_id, platform, currency, account_type, reason);
+      // Send Notification
+      const timestamp = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      const notificationId = `notif_${timestamp}_${crypto.randomBytes(4).toString("hex")}`;
+
+      const notificationMessage = `${user.first_name} requested a new trading account (${currency}, ${account_type})`;
+
+      await DB.execute(
+        `INSERT INTO notifications (id, user_id, message) VALUES (?, ?, ?)`,
+        [notificationId, accountManager.id, notificationMessage]
+      );
+
+      sendNotificationToUser(accountManager.id.toString(), {
+        type: "new_notification",
+        id: notificationId,
+        message: notificationMessage,
+        is_read: false,
+        created_at: new Date().toISOString()
+      });
+
+      const data = await sendNewTradingAccountReqEmail(user_id, platform, currency, account_type, reason);
+
+      res.status(201).json({
+        status: 201,
+        message: data,
+      });
     } catch (err) {
-        next(err);
+      next(err);
     }
-},
+  },
 };
