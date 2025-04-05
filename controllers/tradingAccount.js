@@ -1,6 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
+const { DateTime } = require("luxon");
 const { verifyToken } = require("../tokenHandler.js");
 const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
 const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewTradingAccountReqToAccManagerEmail } = require('../middlewares/sesMail.js')
