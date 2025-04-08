@@ -21,29 +21,28 @@ const fetchAllAccountManagers = async (id) => {
 module.exports = {
 
   createAccountManager: async (req, res, next) => {
+    let connection;
     try {
-      const {
-        name,
-        email,
-        phone,
-        region
-      } = req.body;
+      const { name, email, phone, region } = req.body;
       const uuid = uuidv4();
-      const [result] = await DB.execute(
+      
+      // Get a connection from the pool
+      connection = await DB.getConnection();
+      await connection.beginTransaction();
+  
+      // 1. Create account manager
+      await connection.execute(
         "INSERT INTO `account_managers` (`id`, `name`,`email`,`phone`, `region`) VALUES (?,?,?, ?,?)",
-        [
-          uuid,
-          name,
-          email,
-          phone,
-          region
-        ]
+        [uuid, name, email, phone, region]
       );
-      let verificationToken = null;
+  
+      // 2. Create user
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(Math.random().toString(36).slice(-8), saltRounds);
       const referralCode = crypto.randomBytes(4).toString("hex");
-      const [user] = await DB.execute(
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+  
+      await connection.execute(
         "INSERT INTO `users` (`id`, `email`, `password`, `referral_code`, `affiliation_type`, `username`, `account_nature`, `phoneNumber`, `role`, `is_approved`, `is_verified`, `verification_token`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
@@ -57,27 +56,36 @@ module.exports = {
           'Account Manager',
           false,
           false,
-          verificationToken = crypto.randomBytes(32).toString("hex")
+          verificationToken
         ]
       );
+  
+      // 3. Generate tokens
       const access_token = generateToken({ id: uuid });
       const refresh_token = generateToken({ id: uuid }, false);
-
       const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
-
-      const [result1] = await DB.execute(
+  
+      // 4. Store refresh token
+      const [result1] = await connection.execute(
         "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
         [uuid, md5Refresh]
       );
-
+  
       if (!result1.affectedRows) {
+        await connection.rollback();
         return res.status(500).json({
           status: 500,
           message: "Failed to whitelist the refresh token.",
         });
       }
+  
+      // Commit the transaction if everything succeeded
+      await connection.commit();
+  
+      // Send verification email (outside transaction as it's not critical)
       const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
       await sendVerificationEmail(email, verificationLink, name);
+  
       res.status(201).json({
         status: 201,
         message: "account manager and user has been created",
@@ -85,7 +93,12 @@ module.exports = {
         access_token
       });
     } catch (err) {
+      // Roll back the transaction if any error occurs
+      if (connection) await connection.rollback();
       next(err);
+    } finally {
+      // Release the connection back to the pool
+      if (connection) connection.release();
     }
   },
 

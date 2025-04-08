@@ -25,9 +25,10 @@ router.post(
       .trim()
       .isLength({ min: 4 })
       .withMessage("Password must be at least 4 characters long"),
+    body("username").trim().notEmpty(),
+    body("phoneNumber").trim().notEmpty()
   ],
-  introducerBroker.createIntroducingBroker,
-  user.signup
+  introducerBroker.createIntroducingBroker
 );
 router.get(
   "/:id/get",

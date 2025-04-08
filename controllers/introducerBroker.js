@@ -1,8 +1,10 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
-const { verifyToken } = require("../tokenHandler.js");
+const { verifyToken, generateToken } = require("../tokenHandler.js");
 const crypto = require("crypto");
-const { sendNewIbEmail, sendIbReqEmail } = require('../middlewares/sesMail.js')
+const { createHash } = crypto;
+const bcrypt = require("bcrypt");
+const { sendNewIbEmail, sendIbReqEmail, sendVerificationEmail } = require('../middlewares/sesMail.js')
 
 const fetchIntroducingBrokerById = async (id) => {
   const sql = "SELECT * FROM `introducing_brokers` WHERE `ib_id`=?";
@@ -38,31 +40,99 @@ const fetchAllIntroducingBroker = async () => {
 module.exports = {
 
   createIntroducingBroker: async (req, res, next) => {
+    let connection;
     try {
-      const {
-        username,
-        email,
-        phoneNumber,
-        password,
-      } = req.body;
-      // Generate referral code
-        const referralCode = crypto.randomBytes(4).toString("hex");
+      const { username, email, phoneNumber, password } = req.body;
+      
+      // Validate required fields
+      if (!username || !email || !phoneNumber || !password) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+  
+      // Get database connection and start transaction
+      connection = await DB.getConnection();
+      await connection.beginTransaction();
+  
+      // Generate IDs and codes
       const uuid = uuidv4();
-      const [result] = await DB.execute(
+      const referralCode = crypto.randomBytes(4).toString("hex");
+      const hashPassword = await bcrypt.hash(password, 10);
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+  
+      // 1. Create introducing broker
+      await connection.execute(
         "INSERT INTO `introducing_brokers` (`ib_id`, `ib_name`, `email`, `phone_number`, `referral_code`) VALUES (?, ?, ?, ?, ?)",
+        [uuid, username, email, phoneNumber, referralCode]
+      );
+  
+      // 2. Create user account
+      const [insertResult] = await connection.execute(
+        `INSERT INTO users (
+          id, email, password, referral_code, affiliation_type, 
+          username, account_type, account_nature, phoneNumber, role, 
+          is_approved, is_verified, verification_token, account_manager_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          uuid,
+          uuid, 
+          email, 
+          hashPassword, 
+          referralCode, 
+          'Direct',
           username,
-          email,
+          'IB', // Assuming account_type for IB
+          'Individual', // Assuming account_nature
           phoneNumber,
-          referralCode
+          'Introducing Broker',
+          false, // is_approved
+          false, // is_verified
+          verificationToken,
+          null // account_manager_id (can be set if needed)
         ]
       );
-if (result) {
-next();
-}
+  
+      if (!insertResult.affectedRows) {
+        await connection.rollback();
+        return res.status(500).json({ message: 'User registration failed.' });
+      }
+  
+      // 3. Generate tokens
+      const access_token = generateToken({ id: uuid });
+      const refresh_token = generateToken({ id: uuid }, false);
+      const md5Refresh = crypto.createHash('md5').update(refresh_token).digest('hex');
+  
+      // 4. Store refresh token
+      await connection.execute(
+        'INSERT INTO refresh_tokens (user_id, token) VALUES (?, ?)', 
+        [uuid, md5Refresh]
+      );
+  
+      // Commit transaction if all operations succeeded
+      await connection.commit();
+  
+      // Send verification email (outside transaction)
+      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      await sendVerificationEmail(email, verificationLink, username);
+  
+      // Send success response
+      return res.status(201).json({
+        message: 'Introducing broker and user account created successfully',
+        ib_id: uuid,
+        access_token,
+        refresh_token,
+        referral_code: referralCode
+      });
+  
     } catch (err) {
-      next(err);
+      // Roll back transaction if any error occurs
+      if (connection) await connection.rollback();
+      console.error('Error creating introducing broker:', err);
+      return res.status(500).json({ 
+        message: 'Failed to create introducing broker', 
+        error: err.message 
+      });
+    } finally {
+      // Release connection back to pool
+      if (connection) connection.release();
     }
   },
 
