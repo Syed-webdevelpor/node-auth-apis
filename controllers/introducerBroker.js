@@ -151,7 +151,7 @@ next();
            } = req.body;
            const [rows] = await DB.execute(
              `SELECT 
-                  users.id, users.email, users.phoneNumber, users.username
+                  users.id, users.email, users.phoneNumber, users.username,
                   personal_info.first_name
               FROM users
               LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
