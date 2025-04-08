@@ -184,7 +184,7 @@ module.exports = {
         })
       }
       const [accManager] = await DB.execute(
-        `SELECT * FROM users WHERE id = ?`,
+        `SELECT * FROM account_managers WHERE id = ?`,
         [rows[0].account_manager_id]
       );
       const accountManager = accManager[0];
