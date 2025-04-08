@@ -46,7 +46,53 @@ module.exports = {
       
       // Validate required fields
       if (!username || !email || !phoneNumber || !password) {
-        return res.status(400).json({ message: 'Missing required fields' });
+        return res.status(400).json({ 
+          status: 400,
+          message: 'Missing required fields',
+          fields: {
+            username: !username ? 'Username is required' : undefined,
+            email: !email ? 'Email is required' : undefined,
+            phoneNumber: !phoneNumber ? 'Phone number is required' : undefined,
+            password: !password ? 'Password is required' : undefined
+          }
+        });
+      }
+  
+      // Pre-transaction duplicate checks
+      const [existingUsername] = await DB.execute(
+        "SELECT ib_id FROM introducing_brokers WHERE ib_name = ?", 
+        [username]
+      );
+      if (existingUsername.length > 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "Username already exists",
+          field: "username"
+        });
+      }
+  
+      const [existingEmail] = await DB.execute(
+        "SELECT ib_id FROM introducing_brokers WHERE email = ?", 
+        [email]
+      );
+      if (existingEmail.length > 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "Email already exists",
+          field: "email"
+        });
+      }
+  
+      const [existingPhone] = await DB.execute(
+        "SELECT ib_id FROM introducing_brokers WHERE phone_number = ?", 
+        [phoneNumber]
+      );
+      if (existingPhone.length > 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "Phone number already exists",
+          field: "phoneNumber"
+        });
       }
   
       // Get database connection and start transaction
@@ -70,8 +116,8 @@ module.exports = {
         `INSERT INTO users (
           id, email, password, referral_code, affiliation_type, 
           username, account_type, account_nature, phoneNumber, role, 
-          is_approved, is_verified, verification_token, account_manager_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          is_approved, is_verified, verification_token
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid, 
           email, 
@@ -79,20 +125,18 @@ module.exports = {
           referralCode, 
           'Direct',
           username,
-          'IB', // Assuming account_type for IB
-          'Individual', // Assuming account_nature
+          'IB',
+          'Individual',
           phoneNumber,
           'Introducing Broker',
-          false, // is_approved
-          false, // is_verified
-          verificationToken,
-          null // account_manager_id (can be set if needed)
+          false,
+          false,
+          verificationToken
         ]
       );
   
       if (!insertResult.affectedRows) {
-        await connection.rollback();
-        return res.status(500).json({ message: 'User registration failed.' });
+        throw new Error('User registration failed');
       }
   
       // 3. Generate tokens
@@ -115,20 +159,53 @@ module.exports = {
   
       // Send success response
       return res.status(201).json({
+        status: 201,
         message: 'Introducing broker and user account created successfully',
-        ib_id: uuid,
-        access_token,
-        refresh_token,
-        referral_code: referralCode
+        data: {
+          ib_id: uuid,
+          access_token,
+          refresh_token,
+          referral_code: referralCode
+        }
       });
   
     } catch (err) {
       // Roll back transaction if any error occurs
       if (connection) await connection.rollback();
+      
       console.error('Error creating introducing broker:', err);
+  
+      // Handle specific error cases
+      if (err.code === 'ER_DUP_ENTRY') {
+        if (err.sqlMessage.includes('username')) {
+          return res.status(400).json({
+            status: 400,
+            message: "Username already exists",
+            field: "username"
+          });
+        }
+        if (err.sqlMessage.includes('email')) {
+          return res.status(400).json({
+            status: 400,
+            message: "Email already exists",
+            field: "email"
+          });
+        }
+        if (err.sqlMessage.includes('phone')) {
+          return res.status(400).json({
+            status: 400,
+            message: "Phone number already exists",
+            field: "phoneNumber"
+          });
+        }
+      }
+  
+      // Generic error response
       return res.status(500).json({ 
-        message: 'Failed to create introducing broker', 
-        error: err.message 
+        status: 500,
+        message: 'Failed to create introducing broker',
+        error: err.message ,
+        details: err.stack
       });
     } finally {
       // Release connection back to pool

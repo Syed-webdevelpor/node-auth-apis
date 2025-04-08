@@ -25,18 +25,45 @@ module.exports = {
     try {
       const { name, email, phone, region } = req.body;
       const uuid = uuidv4();
-      
-      // Get a connection from the pool
+  
+      // 1. Pre-transaction validation checks
+      // Check for existing username
+      const [existingUsername] = await DB.execute(
+        "SELECT id FROM users WHERE username = ?", 
+        [name]
+      );
+      if (existingUsername.length > 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "Username already exists",
+          field: "username"
+        });
+      }
+  
+      // Check for existing email
+      const [existingEmail] = await DB.execute(
+        "SELECT id FROM users WHERE email = ?", 
+        [email]
+      );
+      if (existingEmail.length > 0) {
+        return res.status(400).json({
+          status: 400,
+          message: "Email already exists",
+          field: "email"
+        });
+      }
+  
+      // 2. Start transaction
       connection = await DB.getConnection();
       await connection.beginTransaction();
   
-      // 1. Create account manager
+      // 3. Create account manager
       await connection.execute(
         "INSERT INTO `account_managers` (`id`, `name`,`email`,`phone`, `region`) VALUES (?,?,?, ?,?)",
         [uuid, name, email, phone, region]
       );
   
-      // 2. Create user
+      // 4. Create user
       const saltRounds = 10;
       const hashPassword = await bcrypt.hash(Math.random().toString(36).slice(-8), saltRounds);
       const referralCode = crypto.randomBytes(4).toString("hex");
@@ -60,47 +87,73 @@ module.exports = {
         ]
       );
   
-      // 3. Generate tokens
+      // 5. Generate and store tokens
       const access_token = generateToken({ id: uuid });
       const refresh_token = generateToken({ id: uuid }, false);
       const md5Refresh = createHash("md5").update(refresh_token).digest("hex");
   
-      // 4. Store refresh token
-      const [result1] = await connection.execute(
+      const [tokenResult] = await connection.execute(
         "INSERT INTO `refresh_tokens` (`user_id`,`token`) VALUES (?,?)",
         [uuid, md5Refresh]
       );
   
-      if (!result1.affectedRows) {
-        await connection.rollback();
-        return res.status(500).json({
-          status: 500,
-          message: "Failed to whitelist the refresh token.",
-        });
+      if (!tokenResult.affectedRows) {
+        throw new Error("Failed to whitelist the refresh token");
       }
   
-      // Commit the transaction if everything succeeded
+      // 6. Commit transaction if all successful
       await connection.commit();
   
-      // Send verification email (outside transaction as it's not critical)
+      // 7. Send verification email (outside transaction)
       const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
       await sendVerificationEmail(email, verificationLink, name);
   
-      res.status(201).json({
+      return res.status(201).json({
         status: 201,
-        message: "account manager and user has been created",
+        message: "Account manager and user created successfully",
         account_manager_id: uuid,
         access_token
       });
+  
     } catch (err) {
-      // Roll back the transaction if any error occurs
+      // Rollback transaction on any error
       if (connection) await connection.rollback();
+      
+      console.error("Account Manager Creation Error:", err);
+  
+      // Handle specific error cases
+      if (err.code === 'ER_DUP_ENTRY') {
+        if (err.sqlMessage.includes('username')) {
+          return res.status(400).json({
+            status: 400,
+            message: "Username already exists",
+            field: "username"
+          });
+        }
+        if (err.sqlMessage.includes('email')) {
+          return res.status(400).json({
+            status: 400,
+            message: "Email already exists",
+            field: "email"
+          });
+        }
+        if (err.sqlMessage.includes('phone')) {
+          return res.status(400).json({
+            status: 400,
+            message: "Phone number already exists",
+            field: "phone"
+          });
+        }
+      }
+  
+      // Generic error response
       return res.status(500).json({ 
-        message: 'Failed to create account manager', 
-        error: err.message 
+        status: 500,
+        message: "Failed to create account manager",
+        error: err.message,
       });
     } finally {
-      // Release the connection back to the pool
+      // Release connection
       if (connection) connection.release();
     }
   },
