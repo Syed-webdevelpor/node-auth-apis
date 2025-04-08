@@ -95,7 +95,10 @@ module.exports = {
     } catch (err) {
       // Roll back the transaction if any error occurs
       if (connection) await connection.rollback();
-      next(err);
+      return res.status(500).json({ 
+        message: 'Failed to create account manager', 
+        error: err.message 
+      });
     } finally {
       // Release the connection back to the pool
       if (connection) connection.release();
