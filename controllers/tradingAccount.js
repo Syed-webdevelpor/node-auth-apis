@@ -220,4 +220,49 @@ module.exports = {
       next(err);
     }
   },
+  
+  getTradingAccountsByAccManId: async (req, res, next) => {
+    try {
+      // First get all user IDs for this account manager
+      const [userRows] = await DB.execute(
+        "SELECT id FROM users WHERE account_manager_id = ?",
+        [req.params.accManId]
+      );
+  
+      if (userRows.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "No users found for this account manager",
+        });
+      }
+  
+      // Extract just the user IDs
+      const userIds = userRows.map(user => user.id);
+  
+      // Get all trading accounts with financial info for these users
+      const [tradingAccounts] = await DB.execute(
+        `SELECT ta.*, af.*, u.email, u.username 
+         FROM trading_accounts AS ta
+         LEFT JOIN account_financials AS af ON ta.account_number = af.account_id
+         LEFT JOIN users AS u ON ta.user_id = u.id
+         WHERE ta.user_id IN (?)`,
+        [userIds]
+      );
+  
+      if (tradingAccounts.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "No trading accounts found for these users",
+        });
+      }
+  
+      res.json({
+        status: 200,
+        trading_accounts: tradingAccounts,
+        count: tradingAccounts.length
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };

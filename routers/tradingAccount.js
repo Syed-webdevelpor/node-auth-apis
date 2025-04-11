@@ -25,6 +25,7 @@ router.post(
   validate,
   tradingAccount.updateAccount
 );
+router.get("/:accManId/getTradingAccounts", tokenValidation(), validate, tradingAccount.getTradingAccountsByAccManId);
 
 router.post("/new_trading_acc_req", tokenValidation(), validate, tradingAccount.newTradingAccountReqEmail);
 
