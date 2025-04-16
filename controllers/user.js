@@ -62,7 +62,7 @@ const fetchUsersByAccManID = async (id) => {
 const fetchAllUsers = async () => {
   const [rows] = await DB.execute(
     `SELECT 
-         users.id, users.email,users.kyc_completed, users.referral_code,users.username, users.phoneNumber,users.role,users.account_nature,users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at,
+         users.id, users.email,users.kyc_completed, users.referral_code,users.username, users.phoneNumber,users.role,users.account_nature,users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at,
          personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
@@ -80,7 +80,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";
   const [rows] = await DB.execute(
     `SELECT 
-         users.id, users.email,users.password,users.kyc_completed, users.referral_code,users.username,users.phoneNumber,users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at,
+         users.id, users.email,users.password,users.kyc_completed, users.referral_code,users.username,users.phoneNumber,users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at,
          personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
@@ -249,7 +249,7 @@ module.exports = {
         throw new Error("Failed to whitelist the refresh token.");
       }
       const [userdata] = await DB.execute(
-        "SELECT id, is_verified,username,email,account_nature,kyc_completed FROM users WHERE id = ?",
+        "SELECT id, is_verified,username,email,account_nature,kyc_completed, current_step FROM users WHERE id = ?",
         [user.id]
       );
       
@@ -277,7 +277,8 @@ module.exports = {
         role: user.role,
         account_nature: user.account_nature,
         is_verified: user.is_verified,
-        kyc_completed:user.kyc_completed
+        kyc_completed:user.kyc_completed,
+        current_step : user.current_step
       });
     } catch (err) {
       next(err);
