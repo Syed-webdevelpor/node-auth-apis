@@ -6,6 +6,7 @@ const {
   validate,
 } = require("../middlewares/authentication.js");
 const user = require("../controllers/user.js");
+const biometricController = require('../controllers/biometric.js');
 const router = express.Router();
 
 // Register a new User
@@ -66,5 +67,18 @@ router.post("/forget_password", user.forgetPassword);
 router.post("/reset_password", user.resetPassword);
 router.post("/kyc_access_token", user.kycAccessToken);
 router.post("/change_password", tokenValidation(), validate, user.changePassword);
+
+// Biometric routers
+// Device Registration Flow
+router.post('/generate-registration-options', biometricController.generateRegistrationOptions);
+router.post('/register-device', tokenValidation(), validate, biometricController.registerBiometricDevice);
+
+// Authentication Flow
+router.post('/generate-authentication-options', biometricController.generateAuthenticationOptions);
+router.post('/verify-authentication', biometricController.verifyAuthentication);
+
+// Device Management
+router.get('/devices/:userId', tokenValidation(), validate, biometricController.getUserDevices);
+router.post('/revoke-device', tokenValidation(), validate, biometricController.revokeDevice);
 
 module.exports = router;
