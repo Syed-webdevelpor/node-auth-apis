@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { generateToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
-const { WebAuthn } = require('@simplewebauthn/server');
+const { generateRegistrationOptions, verifyRegistrationResponse, verifyAuthenticationResponse , generateAuthenticationOptions } = require('@simplewebauthn/server');
 
 // Configure WebAuthn
 const rpName = 'INVESTAiN';
@@ -19,7 +19,7 @@ module.exports = {
             }
 
             // Verify attestation
-            const verification = await WebAuthn.verifyRegistrationResponse({
+            const verification = await verifyRegistrationResponse({
                 response: attestationResponse,
                 expectedChallenge: async (challenge) => {
                     const [challengeRow] = await DB.execute(
@@ -74,34 +74,34 @@ module.exports = {
     generateRegistrationOptions: async (req, res) => {
         try {
             const { userId, email } = req.body;
-
+    
             if (!userId || !email) {
                 return res.status(400).json({ message: 'Missing required fields' });
             }
-
+    
             // Generate challenge
             const challenge = crypto.randomBytes(32).toString('base64');
-
+    
             // Store challenge
             await DB.execute(
                 'INSERT INTO auth_challenges (id, user_id, challenge, expires_at) VALUES (?, ?, ?, ?)',
                 [crypto.randomBytes(16).toString('hex'), userId, challenge, new Date(Date.now() + 300000)]
             );
-
+    
             // Get user's existing devices
             const [devices] = await DB.execute(
                 'SELECT credential_id FROM biometric_credentials WHERE user_id = ?',
                 [userId]
             );
-
+    
             const excludeCredentials = devices.map(device => ({
                 id: Buffer.from(device.credential_id, 'base64'),
                 type: 'public-key',
             }));
-
-            const options = WebAuthn.generateRegistrationOptions({
-                rpName,
-                rpID,
+    
+            const options = generateRegistrationOptions({
+                rpName: 'INVESTAiN',
+                rpID: 'server.investain.com',
                 userID: userId,
                 userName: email,
                 challenge: Buffer.from(challenge, 'base64'),
@@ -111,11 +111,14 @@ module.exports = {
                     userVerification: 'required',
                 },
             });
-
+    
             res.status(200).json(options);
         } catch (err) {
             console.error('Options generation error:', err);
-            res.status(500).json({ message: 'Failed to generate registration options' });
+            res.status(500).json({ 
+                message: 'Failed to generate registration options',
+                error: err.message // Include error message in response
+            });
         }
     },
 
@@ -157,7 +160,7 @@ module.exports = {
                 [crypto.randomBytes(16).toString('hex'), user[0].id, challenge, new Date(Date.now() + 300000)]
             );
 
-            const options = WebAuthn.generateAuthenticationOptions({
+            const options = generateAuthenticationOptions({
                 challenge: Buffer.from(challenge, 'base64'),
                 allowCredentials,
                 userVerification: 'required',
@@ -199,7 +202,7 @@ module.exports = {
             }
 
             // Verify assertion
-            const verification = await WebAuthn.verifyAuthenticationResponse({
+            const verification = await verifyAuthenticationResponse({
                 response: assertionResponse,
                 expectedChallenge: async (challenge) => {
                     const [challengeRow] = await DB.execute(
