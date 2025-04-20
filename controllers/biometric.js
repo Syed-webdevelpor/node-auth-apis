@@ -114,7 +114,7 @@ module.exports = {
                     userVerification: 'required',
                 },
             });
-    
+    console.log(options);
             res.status(200).json(options);
         } catch (err) {
             console.error('Options generation error:', err);
