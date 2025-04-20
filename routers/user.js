@@ -69,16 +69,15 @@ router.post("/kyc_access_token", user.kycAccessToken);
 router.post("/change_password", tokenValidation(), validate, user.changePassword);
 
 // Biometric routers
-// Device Registration Flow
-router.post('/generate-registration-options', biometricController.generateRegistrationOptions);
-router.post('/register-device', tokenValidation(), validate, biometricController.registerBiometricDevice);
+// Device Registration
+router.post('/devices/register', tokenValidation(), validate, biometricController.registerDevice);
 
-// Authentication Flow
-router.post('/generate-authentication-options', biometricController.generateAuthenticationOptions);
-router.post('/verify-authentication', biometricController.verifyAuthentication);
+// Local Authentication
+router.post('/auth/local/verify', biometricController.verifyLocalAuth);
 
 // Device Management
 router.get('/devices/:userId', tokenValidation(), validate, biometricController.getUserDevices);
+router.post('/devices/toggle-local-auth', tokenValidation(), validate, biometricController.toggleLocalAuth);
 router.post('/revoke-device', tokenValidation(), validate, biometricController.revokeDevice);
 
 module.exports = router;
