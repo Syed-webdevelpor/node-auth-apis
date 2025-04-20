@@ -99,10 +99,13 @@ module.exports = {
                 type: 'public-key',
             }));
     
+            // Convert string userId to Uint8Array
+            const userID = Uint8Array.from(userId, c => c.charCodeAt(0));
+    
             const options = generateRegistrationOptions({
                 rpName: 'INVESTAiN',
                 rpID: 'server.investain.com',
-                userID: userId,
+                userID: userID, // Now using Uint8Array
                 userName: email,
                 challenge: Buffer.from(challenge, 'base64'),
                 excludeCredentials,
@@ -117,7 +120,7 @@ module.exports = {
             console.error('Options generation error:', err);
             res.status(500).json({ 
                 message: 'Failed to generate registration options',
-                error: err.message // Include error message in response
+                error: err.message
             });
         }
     },
