@@ -102,7 +102,7 @@ module.exports = {
             // Convert string userId to Uint8Array
             const userID = Uint8Array.from(userId, c => c.charCodeAt(0));
     
-            const options = generateRegistrationOptions({
+            const options = await generateRegistrationOptions({
                 rpName: 'INVESTAiN',
                 rpID: 'server.investain.com',
                 userID: userID, // Now using Uint8Array
