@@ -59,13 +59,23 @@ module.exports = {
                 'UPDATE user_devices SET last_login = NOW() WHERE id = ?',
                 [deviceId]
             );
-
+            const [userdata] = await DB.execute(
+                "SELECT id, is_verified,username,email,account_nature,kyc_completed, current_step FROM users WHERE id = ?",
+                [userId]
+            );
+            if (!userdata.length) return res.status(404).json({ message: 'User not found' });
+            const user = userdata[0];
             res.status(200).json({
                 status: 200,
                 access_token,
                 refresh_token,
                 userId,
-                deviceId
+                deviceId,
+                role: user.role,
+                account_nature: user.account_nature,
+                is_verified: user.is_verified,
+                kyc_completed: user.kyc_completed,
+                current_step: user.current_step
             });
         } catch (err) {
             console.error('Local auth verification error:', err);
@@ -106,8 +116,8 @@ module.exports = {
                 [enable, deviceId, userId]
             );
 
-            res.status(200).json({ 
-                message: `Local auth ${enable ? 'enabled' : 'disabled'}` 
+            res.status(200).json({
+                message: `Local auth ${enable ? 'enabled' : 'disabled'}`
             });
         } catch (err) {
             console.error('Toggle local auth error:', err);
