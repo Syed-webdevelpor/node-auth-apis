@@ -33,6 +33,26 @@ const attachments = [
     path: './public/images/app_store.png',
     cid: 'app_store', // This will reference the image in HTML
   },
+  {
+    filename: 'fb.png',
+    path: './public/images/fb.png',
+    cid: 'fb_logo', // This will reference the image in HTML
+  },
+  {
+    filename: 'insta.png',
+    path: './public/images/insta.png',
+    cid: 'insta_logo', // This will reference the image in HTML
+  },
+  {
+    filename: 'linkdin.png',
+    path: './public/images/linkdin.png',
+    cid: 'linkdin_logo', // This will reference the image in HTML
+  },
+  {
+    filename: 'twitter.png',
+    path: './public/images/twitter.png',
+    cid: 'twitter_logo', // This will reference the image in HTML
+  },
 
 ];
 
@@ -88,12 +108,12 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
         <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
             <td>
-            <a href="https://apps.apple.com">
+            <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
             </a>
             </td>
             <td>
-            <a href="https://play.google.com">
+            <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                 <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
             </a>
             </td>
@@ -110,25 +130,25 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
             <tr>
                 <td>
                     <a href="https://facebook.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                        <img src="cid:fb_logo" alt="Facebook"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://x.com/investain_com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                        <img src="cid:twitter_logo" alt="Twitter"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://www.linkedin.com/company/investain/">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                        <img src="cid:linkdin_logo" alt="LinkedIn"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://instagram.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                        <img src="cid:insta_logo" alt="Instagram"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
@@ -231,12 +251,12 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
             <td>
-                <a href="https://apps.apple.com">
+                <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
             <td>
-                <a href="https://play.google.com">
+                <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                 <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
@@ -253,25 +273,25 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
             <tr>
                 <td>
                     <a href="https://facebook.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                        <img src="cid:fb_logo" alt="Facebook"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://x.com/investain_com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                        <img src="cid:twitter_logo" alt="Twitter"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://www.linkedin.com/company/investain/">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                        <img src="cid:linkdin_logo" alt="LinkedIn"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://instagram.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                        <img src="cid:insta_logo" alt="Instagram"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
@@ -373,12 +393,12 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
             <td>
-                <a href="https://apps.apple.com">
+                <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
             <td>
-                <a href="https://play.google.com">
+                <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                 <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
@@ -395,25 +415,25 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
             <tr>
                 <td>
                     <a href="https://facebook.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                        <img src="cid:fb_logo" alt="Facebook"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://x.com/investain_com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                        <img src="cid:twitter_logo" alt="Twitter"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://www.linkedin.com/company/investain/">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                        <img src="cid:linkdin_logo" alt="LinkedIn"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://instagram.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                        <img src="cid:insta_logo" alt="Instagram"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
@@ -502,12 +522,12 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
             <td>
-                <a href="https://apps.apple.com">
+                <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
             <td>
-                <a href="https://play.google.com">
+                <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                 <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
@@ -524,25 +544,25 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
             <tr>
                 <td>
                     <a href="https://facebook.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                        <img src="cid:fb_logo" alt="Facebook"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://x.com/investain_com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                        <img src="cid:twitter_logo" alt="Twitter"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://www.linkedin.com/company/investain/">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                        <img src="cid:linkdin_logo" alt="LinkedIn"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://instagram.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                        <img src="cid:insta_logo" alt="Instagram"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
@@ -650,12 +670,12 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
             <td>
-                <a href="https://apps.apple.com">
+                <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
             <td>
-                <a href="https://play.google.com">
+                <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                 <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
@@ -672,25 +692,25 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
             <tr>
                 <td>
                     <a href="https://facebook.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                        <img src="cid:fb_logo" alt="Facebook"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://x.com/investain_com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                        <img src="cid:twitter_logo" alt="Twitter"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://www.linkedin.com/company/investain/">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                        <img src="cid:linkdin_logo" alt="LinkedIn"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://instagram.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                        <img src="cid:insta_logo" alt="Instagram"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
@@ -772,12 +792,12 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
     <table align="center" role="presentation" style="width: 100%; text-align: center;">
         <tr class="download-app-container">
             <td>
-                <a href="https://apps.apple.com">
+                <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                 <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
             <td>
-                <a href="https://play.google.com">
+                <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                 <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                 </a>
             </td>
@@ -794,25 +814,25 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
             <tr>
                 <td>
                     <a href="https://facebook.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                        <img src="cid:fb_logo" alt="Facebook"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://x.com/investain_com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                        <img src="cid:twitter_logo" alt="Twitter"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://www.linkedin.com/company/investain/">
-                        <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                        <img src="cid:linkdin_logo" alt="LinkedIn"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
                 <td>
                     <a href="https://instagram.com">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                        <img src="cid:insta_logo" alt="Instagram"
                             style="width: 24px; height: 24px;">
                     </a>
                 </td>
@@ -914,12 +934,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-                  <a href="https://apps.apple.com">
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
               <td>
-                  <a href="https://play.google.com">
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
@@ -936,25 +956,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1048,12 +1068,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-              <a href="https://apps.apple.com">
+              <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
               </a>
               </td>
               <td>
-              <a href="https://play.google.com">
+              <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
               </a>
               </td>
@@ -1070,25 +1090,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1182,12 +1202,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-              <a href="https://apps.apple.com">
+              <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
               </a>
               </td>
               <td>
-              <a href="https://play.google.com">
+              <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
               </a>
               </td>
@@ -1204,25 +1224,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1332,12 +1352,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-              <a href="https://apps.apple.com">
+              <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
               </a>
               </td>
               <td>
-              <a href="https://play.google.com">
+              <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
               </a>
               </td>
@@ -1354,25 +1374,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1467,12 +1487,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-                  <a href="https://apps.apple.com">
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
               <td>
-                  <a href="https://play.google.com">
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
@@ -1489,25 +1509,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1602,12 +1622,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-                  <a href="https://apps.apple.com">
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
               <td>
-                  <a href="https://play.google.com">
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
@@ -1624,25 +1644,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1729,12 +1749,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-                  <a href="https://apps.apple.com">
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
               <td>
-                  <a href="https://play.google.com">
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
@@ -1751,25 +1771,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1856,12 +1876,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-                  <a href="https://apps.apple.com">
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
               <td>
-                  <a href="https://play.google.com">
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
@@ -1878,25 +1898,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
@@ -1990,12 +2010,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       <table align="center" role="presentation" style="width: 100%; text-align: center;">
           <tr class="download-app-container">
               <td>
-                  <a href="https://apps.apple.com">
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
                   <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
               <td>
-                  <a href="https://play.google.com">
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
                   <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
                   </a>
               </td>
@@ -2012,25 +2032,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <tr>
                   <td>
                       <a href="https://facebook.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook"
+                          <img src="cid:fb_logo" alt="Facebook"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://x.com/investain_com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124021.png" alt="Twitter"
+                          <img src="cid:twitter_logo" alt="Twitter"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://www.linkedin.com/company/investain/">
-                          <img src="https://cdn-icons-png.flaticon.com/512/124/124011.png" alt="LinkedIn"
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
                   <td>
                       <a href="https://instagram.com">
-                          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram"
+                          <img src="cid:insta_logo" alt="Instagram"
                               style="width: 24px; height: 24px;">
                       </a>
                   </td>
