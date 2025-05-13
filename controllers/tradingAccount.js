@@ -55,9 +55,11 @@ module.exports = {
       const [rows] = await DB.execute(
         `SELECT 
              users.id, users.email, users.role,
-             personal_info.first_name
+             personal_info.first_name,
+             account_info.leverage
          FROM users
          LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+         LEFT JOIN account_info ON users.account_info_id = account_info.id
          WHERE users.id = ?`,
         [user_id]
       );
@@ -67,7 +69,7 @@ module.exports = {
       } else {
         link = "https://portal.investain.com/dashboard";
       }
-      sendTradingAccountEmail(rows[0].email, rows[0].first_name, account_type, account_number, link)
+      sendTradingAccountEmail(rows[0].email, rows[0].first_name, account_type, account_number, link, rows[0].leverage)
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",

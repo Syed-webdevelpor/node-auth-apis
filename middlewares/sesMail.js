@@ -186,7 +186,7 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 };
 
 // Function to send a trading account creation email
-const sendTradingAccountEmail = async (customerEmail, customerName, accountType, accountNumber, link) => {
+const sendTradingAccountEmail = async (customerEmail, customerName, accountType, accountNumber, link, leverage) => {
   try {
     // Email template
     const mailOptions = {
@@ -229,7 +229,7 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
                     <li>Trading Server: INVESTAiN SERVER</li>
                     <li>Login: ${accountNumber}</li>
                     <li>Password: Use the same password you created during your application</li>
-                    <li>Leverage: 1:400</li>
+                    <li>Leverage: ${leverage}</li>
                 </ul>
         <p style="font-family: Rajdhani, sans-serif; font-weight:bold;">How to Fund Your Account: </p>
                 <ul style="font-family: Rajdhani, sans-serif;">
