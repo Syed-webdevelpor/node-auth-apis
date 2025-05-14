@@ -47,6 +47,8 @@ module.exports = {
           status,
         ]
       );
+      console.log(result.insertId);
+      
       // Fetch inserted transaction details
       const [transactionRows] = await DB.execute(
         "SELECT * FROM `transaction_details` WHERE `transaction_id` = ?",
