@@ -1,8 +1,19 @@
 const axios = require('axios');
 const crypto = require('crypto');
+const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
 
+
+const fetchDocReqByUserId = async (id) => {
+  const sql = `
+    SELECT * 
+    FROM \`document_request\` 
+    WHERE \`userId\` = ? 
+  `;
+  const [rows] = await DB.execute(sql, [id]);
+  return rows; // Assuming rows will contain all matching records
+};
 // Configure AWS S3
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_KEY,
@@ -233,5 +244,159 @@ module.exports = {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+  },
+
+    sendDocReq: async (req, res, next) => {
+      try {
+        const {
+          userId,
+          title,
+          description,
+          dueDate,
+          isUrgent,
+          docType, 
+          status
+        } = req.body;
+        const [rows] = await DB.execute(
+          `SELECT 
+                 users.id, users.email, users.role, users.account_manager_id,
+                 personal_info.first_name
+             FROM users
+             LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+             WHERE users.id = ?`,
+          [userId]
+        );
+        if (rows.length === 0) {
+          return res.status(400).json({
+            status: 400,
+            message: "user not found",
+          })
+        }
+          const uuid = uuidv4();
+          await sendDocReqEmail(rows[0].email, rows[0].first_name, title, description, dueDate, isUrgent, docType);
+          const data = await DB.execute(
+          `INSERT INTO document_request (id, userId, title, description, dueDate, isUrgent, docType, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            uuid,
+            userId,
+            title,
+            description,
+            dueDate,
+            isUrgent,
+            docType, 
+            status
+          ]
+        );
+        res.status(201).json({
+          status: 201,
+          message: data,
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
+    getDocReqByUserId: async (req, res, next) => {
+    try {
+      const doc_request = await fetchDocReqByUserId(req.params.userId);
+      if (doc_request.length == 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Document Requests not found",
+        });
+      }
+      res.json({
+        status: 200,
+        doc_request: doc_request,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  updateDocReq: async (req, res, next) => {
+    try {
+        const { id } = req.params; // document request ID
+        const {
+            title,
+            description,
+            dueDate,
+            isUrgent,
+            docType,
+            status
+        } = req.body;
+
+        // First, check if the document request exists
+        const [existingDoc] = await DB.execute(
+            `SELECT * FROM document_request WHERE id = ?`,
+            [id]
+        );
+
+        if (existingDoc.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                message: "Document request not found",
+            });
+        }
+
+        // Update the document request with the provided fields
+        const updateFields = [];
+        const updateValues = [];
+
+        // Build the dynamic update query based on provided fields
+        if (title !== undefined) {
+            updateFields.push('title = ?');
+            updateValues.push(title);
+        }
+        if (description !== undefined) {
+            updateFields.push('description = ?');
+            updateValues.push(description);
+        }
+        if (dueDate !== undefined) {
+            updateFields.push('dueDate = ?');
+            updateValues.push(dueDate);
+        }
+        if (isUrgent !== undefined) {
+            updateFields.push('isUrgent = ?');
+            updateValues.push(isUrgent);
+        }
+        if (docType !== undefined) {
+            updateFields.push('docType = ?');
+            updateValues.push(docType);
+        }
+        if (status !== undefined) {
+            updateFields.push('status = ?');
+            updateValues.push(status);
+        }
+
+        // If no fields to update were provided
+        if (updateFields.length === 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "No fields provided for update",
+            });
+        }
+
+        // Add the ID at the end for the WHERE clause
+        updateValues.push(id);
+
+        const updateQuery = `UPDATE document_request SET ${updateFields.join(', ')} WHERE id = ?`;
+
+        await DB.execute(updateQuery, updateValues);
+
+        // Fetch the updated document request to return
+        const [updatedDoc] = await DB.execute(
+            `SELECT * FROM document_request WHERE id = ?`,
+            [id]
+        );
+
+        res.status(200).json({
+            status: 200,
+            message: "Document request updated successfully",
+            doc_request: updatedDoc[0]
+        });
+
+    } catch (err) {
+        next(err);
+    }
+},
 };
