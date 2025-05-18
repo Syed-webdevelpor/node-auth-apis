@@ -2214,10 +2214,10 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   
       // Send the email
       const info = await transporter.sendMail(mailOptions);
-      console.log('New Trading account request email sent: ' + info.response);
+      console.log('New Document request email sent: ' + info.response);
       return info.response;
     } catch (error) {
-      console.error('Error sending New Trading account request email:', error);
+      console.error('Error sending New Document request email:', error);
       return error;
     }
   }
