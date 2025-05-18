@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
+const { sendDocReqEmail } = require('../middlewares/sesMail.js')
 
 
 const fetchDocReqByUserId = async (id) => {
@@ -181,11 +182,16 @@ async function getUserFilesFromS3(userId, bucketName) {
           Key: file.Key
         };
         const metadata = await s3.headObject(headParams).promise();
-        
+
+        const signedUrl = await s3.getSignedUrlPromise('getObject', {
+          Bucket: bucketName,
+          Key: file.Key,
+          Expires: 3600 
+        });
         return {
           key: file.Key,
           filename: metadata.Metadata['original-filename'] || file.Key.split('/').pop(),
-          url: `https://${bucketName}.s3.amazonaws.com/${file.Key}`,
+          url: signedUrl,
           fileType: metadata.Metadata['file-type'] || 'unknown',
           size: file.Size,
           lastModified: file.LastModified,
