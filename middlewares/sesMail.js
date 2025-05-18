@@ -2134,7 +2134,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
                     <li>Is Urgent: ${isUrgent}</li>
                     <li>Due Date: ${dueDate}</li>
                 </ul>
-                <p style="font-family: Rajdhani, sans-serif;">Please upload this document through your account portal.</p>
+                <p style="font-family: Rajdhani, sans-serif;">Kindly upload this document via the INVESTAiN app or through the <a href="https://portal.investain.com/dashboard" style="color: red; font-weight: bold;">INVESTAiN portal</a> at your earliest convenience.</p>
   
   </div>
            <div
