@@ -5,7 +5,6 @@ const {
 } = require("../middlewares/authentication.js");
 const fetchUploadDoc = require("../controllers/fetchUploadDoc.js");
 const multer = require('multer');
-const { uploadImageController } = require('../controllers/uploadController');
 const router = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage() });
