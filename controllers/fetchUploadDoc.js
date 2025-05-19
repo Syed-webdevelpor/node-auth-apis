@@ -416,7 +416,7 @@ uploadFileController : async (req, res) => {
         const filename = req.file.originalname;
         const userId = req.body.userId || 'anonymous';
 
-        const s3Url = await uploadFileToS3(fileContent, filename, 'your-bucket-name', userId);
+        const s3Url = await uploadFileToS3(fileContent, filename, process.env.AWS_BUCKET_NAME, userId);
 
         res.status(200).json({ success: true, url: s3Url });
     } catch (error) {
