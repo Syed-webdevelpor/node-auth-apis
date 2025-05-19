@@ -405,4 +405,23 @@ module.exports = {
         next(err);
     }
 },
+
+uploadFileController : async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file provided' });
+        }
+
+        const fileContent = req.file.buffer;
+        const filename = req.file.originalname;
+        const userId = req.body.userId || 'anonymous';
+
+        const s3Url = await uploadFileToS3(fileContent, filename, 'your-bucket-name', userId);
+
+        res.status(200).json({ success: true, url: s3Url });
+    } catch (error) {
+        console.error('Upload error:', error);
+        res.status(500).json({ success: false, message: 'File upload failed' });
+    }
+}
 };
