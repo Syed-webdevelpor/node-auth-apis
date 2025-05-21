@@ -3,7 +3,8 @@ const crypto = require('crypto');
 const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
-const { sendDocReqEmail } = require('../middlewares/sesMail.js')
+const { DateTime } = require("luxon");
+const { sendDocReqEmail, sendDocUploadedEmail } = require('../middlewares/sesMail.js')
 
 
 const fetchDocReqByUserId = async (id) => {
@@ -323,6 +324,7 @@ module.exports = {
     try {
         const { id } = req.params; // document request ID
         const {
+            userId,
             title,
             description,
             dueDate,
@@ -394,7 +396,29 @@ module.exports = {
             `SELECT * FROM document_request WHERE id = ?`,
             [id]
         );
+        const [rows] = await DB.execute(
+          `SELECT 
+            users.id, 
+            users.email, 
+            users.role, 
+            personal_info.first_name AS user_first_name,
+            account_managers.name AS account_manager_name
+            account_managers.email AS account_manager_email
+          FROM users
+          LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+          LEFT JOIN account_managers ON users.account_manager_id = account_managers.id
+          WHERE users.id = ?`,
+          [userId]
+        );
 
+        if (rows.length === 0) {
+          return res.status(400).json({
+            status: 400,
+            message: "user not found",
+          });
+        }
+        const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+        sendDocUploadedEmail(rows[0].account_manager_email, userId, user_first_name, title, docType, dubaiTime)
         res.status(200).json({
             status: 200,
             message: "Document request updated successfully",

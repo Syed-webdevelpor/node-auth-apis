@@ -18,5 +18,11 @@ router.get(
     transactionDetail.getAllTransactionDetails
   );
 router.post("/update",tokenValidation(), validate,transactionDetail.updateTransactionDetail);
+router.get(
+    "/:accManId/getTransactionDetails",
+    tokenValidation(),
+    validate,
+    transactionDetail.getTransactionDetailsByAccManId
+  );
 
 module.exports = router;

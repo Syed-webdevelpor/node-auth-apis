@@ -248,4 +248,35 @@ module.exports = {
     }
   },
 
+  getTransactionDetailsByAccManId: async (req, res, next) => {
+    try {
+      const accManId = req.params.accManId;
+
+      // Get all transaction details for users managed by this account manager
+      const [transactionDetails] = await DB.execute(
+        `SELECT td.*, u.email, u.username
+        FROM transaction_details AS td
+        INNER JOIN users AS u ON td.user_id = u.id
+        WHERE u.account_manager_id = ?`,
+        [accManId]
+      );
+
+      if (transactionDetails.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "No transaction details found for this account manager's users",
+        });
+      }
+
+      res.json({
+        status: 200,
+        transaction_details: transactionDetails,
+        count: transactionDetails.length
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+
 };
