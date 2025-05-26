@@ -4,6 +4,8 @@ const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
 const { DateTime } = require("luxon");
+const { PDFDocument, rgb } = require('pdf-lib');
+const fontkit = require('@pdf-lib/fontkit');
 const { sendDocReqEmail, sendDocUploadedEmail } = require('../middlewares/sesMail.js')
 
 
@@ -253,56 +255,222 @@ module.exports = {
     }
   },
 
-    sendDocReq: async (req, res, next) => {
-      try {
+  sendMultipleDocReq: async (req, res, next) => {
+    try {
+      const {
+        userId,
+        title,
+        description,
+        dueDate,
+        isUrgent,
+        docType,
+        status = 'pending',
+        requestType = 'signature',
+        templates = [] // [{ templatePath, signatureX, signatureY, dateX, dateY }]
+      } = req.body;
+
+      if (!userId || !title || !dueDate || !Array.isArray(templates) || templates.length === 0) {
+        return res.status(400).json({ error: 'Missing required fields or empty templates array' });
+      }
+
+      const now = new Date().toISOString();
+      const id = uuidv4();
+
+      // 1. Download and load all PDFs
+      const mergedPdf = await PDFDocument.create();
+      const positions = [];
+
+      for (const [index, template] of templates.entries()) {
         const {
+          templatePath,
+          signatureX = 100,
+          signatureY = 150,
+          dateX = 100,
+          dateY = 135
+        } = template;
+
+        if (!templatePath) {
+          return res.status(400).json({ error: 'Missing templatePath in one of the templates' });
+        }
+
+        // Ensure the template exists
+        let s3Obj;
+        try {
+          s3Obj = await s3.getObject({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: templatePath
+          }).promise();
+        } catch (error) {
+          return res.status(400).json({ error: `Template not found: ${templatePath}` });
+        }
+
+        // Load and merge into mergedPdf
+        const pdf = await PDFDocument.load(s3Obj.Body);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+
+        for (const [i, page] of copiedPages.entries()) {
+          mergedPdf.addPage(page);
+
+          // Track positions per final page
+          positions.push({
+            page: mergedPdf.getPageCount() - 1,
+            signatureX,
+            signatureY,
+            dateX,
+            dateY
+          });
+        }
+      }
+
+      // 2. Upload merged PDF to S3
+      const mergedPdfBytes = await mergedPdf.save();
+      const mergedPath = `templates/merged/${id}-template.pdf`;
+
+      await s3.putObject({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: mergedPath,
+        Body: mergedPdfBytes,
+        ContentType: 'application/pdf'
+      }).promise();
+
+      // 3. Insert into DB
+      await DB.execute(
+        `INSERT INTO document_request 
+          (id, userId, title, description, dueDate, isUrgent, docType, status, requestType, templatePath, signatureX, signatureY, dateX, dateY, createdAt, updatedAt) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
           userId,
           title,
           description,
           dueDate,
           isUrgent,
-          docType, 
-          status
-        } = req.body;
-        const [rows] = await DB.execute(
-          `SELECT 
-                 users.id, users.email, users.role, users.account_manager_id,
-                 personal_info.first_name
-             FROM users
-             LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-             WHERE users.id = ?`,
-          [userId]
-        );
-        if (rows.length === 0) {
-          return res.status(400).json({
-            status: 400,
-            message: "user not found",
-          })
-        }
-          const uuid = uuidv4();
-          await sendDocReqEmail(rows[0].email, rows[0].first_name, title, description, dueDate, isUrgent, docType);
-          const data = await DB.execute(
-          `INSERT INTO document_request (id, userId, title, description, dueDate, isUrgent, docType, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            uuid,
-            userId,
-            title,
-            description,
-            dueDate,
-            isUrgent,
-            docType, 
-            status
-          ]
-        );
-        res.status(201).json({
-          status: 201,
-          message: data,
-        });
-      } catch (err) {
-        next(err);
+          docType,
+          status,
+          requestType,
+          mergedPath,
+          null,
+          null,
+          null,
+          null,
+          now,
+          now
+        ]
+      );
+
+      // Optional: Store `positions` JSON in a separate table or as a column
+      await DB.execute(
+        `INSERT INTO document_request_signatures (requestId, positions) VALUES (?, ?)`,
+        [id, JSON.stringify(positions)]
+      );
+
+      res.status(201).json({
+        status: 'success',
+        requestId: id,
+        templatePath: mergedPath
+      });
+
+    } catch (err) {
+      console.error('Error in sendMultipleDocReq:', err);
+      next(err);
+    }
+  },
+
+  signDocReq: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { fullName } = req.body;
+
+      if (!fullName) {
+        return res.status(400).json({ error: 'Full name is required' });
       }
-    },
-    getDocReqByUserId: async (req, res, next) => {
+
+      // Fetch main request
+      const [requests] = await DB.execute(`SELECT * FROM document_request WHERE id = ?`, [id]);
+      if (requests.length === 0) return res.status(404).json({ error: 'Request not found' });
+
+      const request = requests[0];
+      if (request.requestType !== 'signature') {
+        return res.status(400).json({ error: 'Not a signature request' });
+      }
+
+      if (request.status !== 'pending') {
+        return res.status(400).json({ error: 'Request already processed' });
+      }
+
+      // Fetch signature positions
+      const [positionRows] = await DB.execute(`SELECT positions FROM document_request_signatures WHERE requestId = ?`, [id]);
+      if (positionRows.length === 0) {
+        return res.status(400).json({ error: 'No signature positions found for this request' });
+      }
+
+      const positions = JSON.parse(positionRows[0].positions);
+
+      // Load PDF from S3
+      const templateObj = await s3.getObject({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: request.templatePath
+      }).promise();
+
+      const pdfDoc = await PDFDocument.load(templateObj.Body);
+      pdfDoc.registerFontkit(fontkit);
+
+      // Sign on all defined pages
+      for (const pos of positions) {
+        const page = pdfDoc.getPage(pos.page);
+        page.drawText(fullName, {
+          x: pos.signatureX,
+          y: pos.signatureY,
+          size: 12,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawText(new Date().toLocaleDateString(), {
+          x: pos.dateX,
+          y: pos.dateY,
+          size: 12,
+          color: rgb(0, 0, 0),
+        });
+      }
+
+      // Save and upload signed PDF
+      const signedPdfBytes = await pdfDoc.save();
+      const signedPath = `user/${request.userId}/${id}-signed.pdf`;
+
+      await s3.putObject({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: signedPath,
+        Body: signedPdfBytes,
+        ContentType: 'application/pdf'
+      }).promise();
+
+      // Update DB
+      await DB.execute(
+        `UPDATE document_request SET 
+          signedDocumentPath = ?, signerName = ?, signingDate = ?, status = ?, updatedAt = ? 
+        WHERE id = ?`,
+        [
+          signedPath,
+          fullName,
+          new Date().toISOString(),
+          'pending_review',
+          new Date().toISOString(),
+          id
+        ]
+      );
+
+      res.status(200).json({
+        status: 'success',
+        signedPath
+      });
+
+    } catch (err) {
+      console.error('Error signing document:', err);
+      next(err);
+    }
+  },
+
+  getDocReqByUserId: async (req, res, next) => {
     try {
       const doc_request = await fetchDocReqByUserId(req.params.userId);
       if (doc_request.length == 0) {
@@ -321,131 +489,131 @@ module.exports = {
   },
 
   updateDocReq: async (req, res, next) => {
-    try {
-        const { id } = req.params; // document request ID
-        const {
-            userId,
-            title,
-            description,
-            dueDate,
-            isUrgent,
-            docType,
-            status
-        } = req.body;
+      try {
+          const { id } = req.params; // document request ID
+          const {
+              userId,
+              title,
+              description,
+              dueDate,
+              isUrgent,
+              docType,
+              status
+          } = req.body;
 
-        // First, check if the document request exists
-        const [existingDoc] = await DB.execute(
-            `SELECT * FROM document_request WHERE id = ?`,
-            [id]
-        );
+          // First, check if the document request exists
+          const [existingDoc] = await DB.execute(
+              `SELECT * FROM document_request WHERE id = ?`,
+              [id]
+          );
 
-        if (existingDoc.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: "Document request not found",
-            });
-        }
+          if (existingDoc.length === 0) {
+              return res.status(404).json({
+                  status: 404,
+                  message: "Document request not found",
+              });
+          }
 
-        // Update the document request with the provided fields
-        const updateFields = [];
-        const updateValues = [];
+          // Update the document request with the provided fields
+          const updateFields = [];
+          const updateValues = [];
 
-        // Build the dynamic update query based on provided fields
-        if (title !== undefined) {
-            updateFields.push('title = ?');
-            updateValues.push(title);
-        }
-        if (description !== undefined) {
-            updateFields.push('description = ?');
-            updateValues.push(description);
-        }
-        if (dueDate !== undefined) {
-            updateFields.push('dueDate = ?');
-            updateValues.push(dueDate);
-        }
-        if (isUrgent !== undefined) {
-            updateFields.push('isUrgent = ?');
-            updateValues.push(isUrgent);
-        }
-        if (docType !== undefined) {
-            updateFields.push('docType = ?');
-            updateValues.push(docType);
-        }
-        if (status !== undefined) {
-            updateFields.push('status = ?');
-            updateValues.push(status);
-        }
+          // Build the dynamic update query based on provided fields
+          if (title !== undefined) {
+              updateFields.push('title = ?');
+              updateValues.push(title);
+          }
+          if (description !== undefined) {
+              updateFields.push('description = ?');
+              updateValues.push(description);
+          }
+          if (dueDate !== undefined) {
+              updateFields.push('dueDate = ?');
+              updateValues.push(dueDate);
+          }
+          if (isUrgent !== undefined) {
+              updateFields.push('isUrgent = ?');
+              updateValues.push(isUrgent);
+          }
+          if (docType !== undefined) {
+              updateFields.push('docType = ?');
+              updateValues.push(docType);
+          }
+          if (status !== undefined) {
+              updateFields.push('status = ?');
+              updateValues.push(status);
+          }
 
-        // If no fields to update were provided
-        if (updateFields.length === 0) {
+          // If no fields to update were provided
+          if (updateFields.length === 0) {
+              return res.status(400).json({
+                  status: 400,
+                  message: "No fields provided for update",
+              });
+          }
+
+          // Add the ID at the end for the WHERE clause
+          updateValues.push(id);
+
+          const updateQuery = `UPDATE document_request SET ${updateFields.join(', ')} WHERE id = ?`;
+
+          await DB.execute(updateQuery, updateValues);
+
+          // Fetch the updated document request to return
+          const [updatedDoc] = await DB.execute(
+              `SELECT * FROM document_request WHERE id = ?`,
+              [id]
+          );
+          const [rows] = await DB.execute(
+            `SELECT 
+              users.id, 
+              users.email, 
+              users.role, 
+              personal_info.first_name AS user_first_name,
+              account_managers.name AS account_manager_name
+              account_managers.email AS account_manager_email
+            FROM users
+            LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+            LEFT JOIN account_managers ON users.account_manager_id = account_managers.id
+            WHERE users.id = ?`,
+            [userId]
+          );
+
+          if (rows.length === 0) {
             return res.status(400).json({
-                status: 400,
-                message: "No fields provided for update",
+              status: 400,
+              message: "user not found",
             });
-        }
-
-        // Add the ID at the end for the WHERE clause
-        updateValues.push(id);
-
-        const updateQuery = `UPDATE document_request SET ${updateFields.join(', ')} WHERE id = ?`;
-
-        await DB.execute(updateQuery, updateValues);
-
-        // Fetch the updated document request to return
-        const [updatedDoc] = await DB.execute(
-            `SELECT * FROM document_request WHERE id = ?`,
-            [id]
-        );
-        const [rows] = await DB.execute(
-          `SELECT 
-            users.id, 
-            users.email, 
-            users.role, 
-            personal_info.first_name AS user_first_name,
-            account_managers.name AS account_manager_name
-            account_managers.email AS account_manager_email
-          FROM users
-          LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-          LEFT JOIN account_managers ON users.account_manager_id = account_managers.id
-          WHERE users.id = ?`,
-          [userId]
-        );
-
-        if (rows.length === 0) {
-          return res.status(400).json({
-            status: 400,
-            message: "user not found",
+          }
+          const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+          sendDocUploadedEmail(rows[0].account_manager_email, userId, user_first_name, title, docType, dubaiTime)
+          res.status(200).json({
+              status: 200,
+              message: "Document request updated successfully",
+              doc_request: updatedDoc[0]
           });
-        }
-        const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
-        sendDocUploadedEmail(rows[0].account_manager_email, userId, user_first_name, title, docType, dubaiTime)
-        res.status(200).json({
-            status: 200,
-            message: "Document request updated successfully",
-            doc_request: updatedDoc[0]
-        });
 
-    } catch (err) {
-        next(err);
-    }
-},
+      } catch (err) {
+          next(err);
+      }
+  },
 
-uploadFileController : async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No file provided' });
-        }
+  uploadFileController : async (req, res) => {
+      try {
+          if (!req.file) {
+              return res.status(400).json({ success: false, message: 'No file provided' });
+          }
 
-        const fileContent = req.file.buffer;
-        const filename = req.file.originalname;
-        const userId = req.body.userId || 'anonymous';
+          const fileContent = req.file.buffer;
+          const filename = req.file.originalname;
+          const userId = req.body.userId || 'anonymous';
 
-        const s3Url = await uploadFileToS3(fileContent, filename, process.env.AWS_BUCKET_NAME, userId);
+          const s3Url = await uploadFileToS3(fileContent, filename, process.env.AWS_BUCKET_NAME, userId);
 
-        res.status(200).json({ success: true, url: s3Url });
-    } catch (error) {
-        console.error('Upload error:', error);
-        res.status(500).json({ success: false, message: 'File upload failed' });
-    }
-}
+          res.status(200).json({ success: true, url: s3Url });
+      } catch (error) {
+          console.error('Upload error:', error);
+          res.status(500).json({ success: false, message: 'File upload failed' });
+      }
+  }
 };
