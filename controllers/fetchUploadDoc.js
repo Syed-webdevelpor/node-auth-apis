@@ -377,6 +377,24 @@ module.exports = {
         );
       }
 
+            const [rows] = await DB.execute(
+              `SELECT 
+                     users.id, users.email, users.role, users.account_manager_id,
+                     personal_info.first_name
+                 FROM users
+                 LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+                 WHERE users.id = ?`,
+              [userId]
+            );
+            if (rows.length === 0) {
+              return res.status(400).json({
+                status: 400,
+                message: "user not found",
+              })
+            }
+
+      sendDocReqEmail(rows[0].email, rows[0].first_name, title, description, dueDate, isUrgent, docType);
+
       res.status(201).json({
         status: 'success',
         requestId,
@@ -389,111 +407,88 @@ module.exports = {
     }
   },
 
-signDocReq: async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { fullName } = req.body;
+  signDocReq: async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-    if (!fullName) {
-      return res.status(400).json({ error: 'Full name is required' });
-    }
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: 'No signed documents uploaded' });
+      }
 
-    // 1. Fetch request
-    const [requests] = await DB.execute(`SELECT * FROM document_request WHERE id = ?`, [id]);
-    if (requests.length === 0) return res.status(404).json({ error: 'Request not found' });
+      // 1. Fetch document request
+      const [requests] = await DB.execute(`SELECT * FROM document_request WHERE id = ?`, [id]);
+      if (requests.length === 0) return res.status(404).json({ error: 'Request not found' });
 
-    const request = requests[0];
-    if (request.requestType !== 'signature') {
-      return res.status(400).json({ error: 'Not a signature request' });
-    }
-    if (request.status !== 'pending') {
-      return res.status(400).json({ error: 'Request already processed' });
-    }
+      const request = requests[0];
+      if (request.requestType !== 'signature') {
+        return res.status(400).json({ error: 'Not a signature request' });
+      }
 
-    // 2. Fetch template entries
-    const [templates] = await DB.execute(
-      `SELECT * FROM document_request_templates WHERE requestId = ?`,
-      [id]
-    );
-    if (templates.length === 0) {
-      return res.status(400).json({ error: 'No templates found for this request' });
-    }
+      if (request.status !== 'pending') {
+        return res.status(400).json({ error: 'Request already processed' });
+      }
 
-    const signedPaths = [];
-    const signingDate = new Date().toISOString();
+      // 2. Fetch templates
+      const [templates] = await DB.execute(
+        `SELECT id FROM document_request_templates WHERE requestId = ?`,
+        [id]
+      );
+      if (templates.length === 0) {
+        return res.status(400).json({ error: 'No templates found for this request' });
+      }
 
-    for (const template of templates) {
-      const { id: templateId, templatePath, signatureX, signatureY, dateX, dateY } = template;
+      if (req.files.length !== templates.length) {
+        return res.status(400).json({ error: `Expected ${templates.length} signed files, but got ${req.files.length}` });
+      }
 
-      // Fetch template PDF from S3
-      const s3Obj = await s3.getObject({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: templatePath
-      }).promise();
+      const signedPaths = [];
+      const signingDate = new Date().toISOString();
 
-      const pdfDoc = await PDFDocument.load(s3Obj.Body);
-      pdfDoc.registerFontkit(fontkit);
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const template = templates[i];
+        const s3Key = `user/${id}-${request.userId}-${template.id}-signed.pdf`;
 
-      const page = pdfDoc.getPage(0); // assuming single-page PDFs
+        await s3.putObject({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: s3Key,
+          Body: file.buffer,
+          ContentType: file.mimetype
+        }).promise();
 
-      page.drawText(fullName, {
-        x: signatureX || 100,
-        y: signatureY || 150,
-        size: 12,
-        color: rgb(0, 0, 0),
+        signedPaths.push(s3Key);
+
+        // Optional: Save per-template signed path (if column exists)
+        // await DB.execute(
+        //   `UPDATE document_request_templates SET signedPath = ? WHERE id = ?`,
+        //   [s3Key, template.id]
+        // );
+      }
+
+      // 3. Update request status
+      await DB.execute(
+        `UPDATE document_request SET 
+          signingDate = ?, status = ?, updatedAt = ?
+        WHERE id = ?`,
+        [
+          signingDate,
+          'pending_review',
+          signingDate,
+          id
+        ]
+      );
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Signed documents uploaded successfully',
+        signedPaths
       });
 
-      page.drawText(new Date().toLocaleDateString(), {
-        x: dateX || 100,
-        y: dateY || 135,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-
-      const signedPdfBytes = await pdfDoc.save();
-
-      const signedPath = `user/${id}-${request.userId}-${templateId}-signed.pdf`;
-      signedPaths.push(signedPath);
-
-      await s3.putObject({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: signedPath,
-        Body: signedPdfBytes,
-        ContentType: 'application/pdf'
-      }).promise();
-
-      // Optional: If you want to store signed path in DB per template, you can ALTER the template table and update like this:
-      // await DB.execute(
-      //   `UPDATE document_request_templates SET signedPath = ? WHERE id = ?`,
-      //   [signedPath, templateId]
-      // );
+    } catch (err) {
+      console.error('Error uploading signed documents:', err);
+      next(err);
     }
-
-    // 3. Update main request
-    await DB.execute(
-      `UPDATE document_request SET 
-        signerName = ?, signingDate = ?, status = ?, updatedAt = ?
-      WHERE id = ?`,
-      [
-        fullName,
-        signingDate,
-        'pending_review',
-        signingDate,
-        id
-      ]
-    );
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Documents signed successfully',
-      signedPaths
-    });
-
-  } catch (err) {
-    console.error('Error signing document:', err);
-    next(err);
-  }
-},
+  },
 
 
   getDocReqByUserId: async (req, res, next) => {
