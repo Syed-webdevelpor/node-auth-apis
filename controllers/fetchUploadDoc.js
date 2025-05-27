@@ -9,15 +9,42 @@ const fontkit = require('@pdf-lib/fontkit');
 const { sendDocReqEmail, sendDocUploadedEmail } = require('../middlewares/sesMail.js')
 
 
-const fetchDocReqByUserId = async (id) => {
-  const sql = `
-    SELECT * 
-    FROM \`document_request\` 
-    WHERE \`userId\` = ? 
-  `;
-  const [rows] = await DB.execute(sql, [id]);
-  return rows; // Assuming rows will contain all matching records
+const fetchDocReqByUserId = async (userId) => {
+  // Fetch document requests
+  const [requests] = await DB.execute(
+    `SELECT * FROM document_request WHERE userId = ?`,
+    [userId]
+  );
+
+  if (!requests.length) return [];
+
+  // Extract all request IDs
+  const requestIds = requests.map(req => req.id);
+  const placeholders = requestIds.map(() => '?').join(',');
+
+  // Fetch all template paths for these requests
+  const [templates] = await DB.execute(
+    `SELECT requestId, templatePath FROM document_request_templates WHERE requestId IN (${placeholders})`,
+    requestIds
+  );
+
+  // Group template paths by requestId
+  const templatesMap = {};
+  for (const tpl of templates) {
+    if (!templatesMap[tpl.requestId]) {
+      templatesMap[tpl.requestId] = [];
+    }
+    templatesMap[tpl.requestId].push(tpl.templatePath);
+  }
+
+  // Merge template paths into each request
+  for (const req of requests) {
+    req.templatePaths = templatesMap[req.id] || [];
+  }
+
+  return requests;
 };
+
 // Configure AWS S3
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_KEY,
