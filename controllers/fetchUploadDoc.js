@@ -9,8 +9,9 @@ const fontkit = require('@pdf-lib/fontkit');
 const { sendDocReqEmail, sendDocUploadedEmail } = require('../middlewares/sesMail.js')
 
 
+
 const fetchDocReqByUserId = async (userId) => {
-  // Fetch document requests
+  // 1. Get all document requests by user
   const [requests] = await DB.execute(
     `SELECT * FROM document_request WHERE userId = ?`,
     [userId]
@@ -18,32 +19,43 @@ const fetchDocReqByUserId = async (userId) => {
 
   if (!requests.length) return [];
 
-  // Extract all request IDs
-  const requestIds = requests.map(req => req.id);
+  // 2. Get all template entries associated with those requests
+  const requestIds = requests.map(r => r.id);
   const placeholders = requestIds.map(() => '?').join(',');
 
-  // Fetch all template paths for these requests
-  const [templates] = await DB.execute(
+  const [templateRows] = await DB.execute(
     `SELECT requestId, templatePath FROM document_request_templates WHERE requestId IN (${placeholders})`,
     requestIds
   );
 
-  // Group template paths by requestId
+  // 3. Map templates to their respective request
   const templatesMap = {};
-  for (const tpl of templates) {
+  for (const tpl of templateRows) {
     if (!templatesMap[tpl.requestId]) {
       templatesMap[tpl.requestId] = [];
     }
-    templatesMap[tpl.requestId].push(tpl.templatePath);
+
+    // Generate signed URL
+    const signedUrl = await s3.getSignedUrlPromise('getObject', {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: tpl.templatePath,
+      Expires: 60 * 60 // 1 hour
+    });
+
+    templatesMap[tpl.requestId].push({
+      originalPath: tpl.templatePath,
+      signedUrl
+    });
   }
 
-  // Merge template paths into each request
+  // 4. Attach signed URLs to the corresponding document request
   for (const req of requests) {
     req.templatePaths = templatesMap[req.id] || [];
   }
 
   return requests;
 };
+
 
 // Configure AWS S3
 const s3 = new AWS.S3({
