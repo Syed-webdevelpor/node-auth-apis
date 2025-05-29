@@ -446,8 +446,8 @@ module.exports = {
 
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-        const template = templates[i];
-        const s3Key = `user/${id}-${request.userId}-${template.id}-signed.pdf`;
+        const filename= file.originalname;
+        const s3Key = `user/${request.userId}/${filename}-signed.pdf`;
 
         await s3.putObject({
           Bucket: process.env.AWS_BUCKET_NAME,
