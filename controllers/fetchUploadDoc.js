@@ -468,10 +468,9 @@ module.exports = {
       // 3. Update request status
       await DB.execute(
         `UPDATE document_request SET 
-          signingDate = ?, status = ?, updatedAt = ?
+         status = ?, updatedAt = ?
         WHERE id = ?`,
         [
-          signingDate,
           'pending_review',
           signingDate,
           id
