@@ -606,7 +606,7 @@ module.exports = {
             });
           }
           const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
-          sendDocUploadedEmail(rows[0].account_manager_email, userId, user_first_name, title, docType, dubaiTime)
+          sendDocUploadedEmail(rows[0].account_manager_email, userId, rows[0].user_first_name, title, docType, dubaiTime)
           res.status(200).json({
               status: 200,
               message: "Document request updated successfully",
