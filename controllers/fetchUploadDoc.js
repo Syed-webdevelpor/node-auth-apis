@@ -590,7 +590,7 @@ module.exports = {
               users.email, 
               users.role, 
               personal_info.first_name AS user_first_name,
-              account_managers.name AS account_manager_name
+              account_managers.name AS account_manager_name,
               account_managers.email AS account_manager_email
             FROM users
             LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
