@@ -25,6 +25,7 @@ const fetchUploadDocRoutes = require("./routers/fetchUploadDoc.js");
 const withdrawalRoutes = require("./routers/withdrawal.js");
 const accountManagerRoutes = require("./routers/accountManager.js");
 const notificationRoutes = require("./routers/notification.js");
+const ticketRoutes = require("./routers/supportTicket.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -84,6 +85,7 @@ app.use("/api/accountManagers", accountManagerRoutes);
 app.use("/api/fetchAndUploadDoc", fetchUploadDocRoutes);
 app.use("/api/withDrawalEmail", withdrawalRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/tickets", ticketRoutes);
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
