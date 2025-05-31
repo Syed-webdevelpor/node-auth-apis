@@ -6,11 +6,17 @@ exports.createTicket = async (req, res) => {
   const { user_id, subject, message, category, priority } = req.body;
 
   try {
-const accountManagerResult = await DB.query(
-      `SELECT am.id, am.email, am.name AS manager_name, u.name AS user_name, u.email AS user_email
-       FROM account_managers am
-       JOIN users u ON u.account_manager_id = am.id
-       WHERE u.id = $1`,
+    const accountManagerResult = await DB.query(
+      `SELECT 
+        am.id AS manager_id,
+        am.email AS manager_email,
+        am.name AS manager_name,
+        pi.first_name AS user_name,
+        u.email AS user_email
+      FROM users u
+      JOIN account_managers am ON u.account_manager_id = am.id
+      LEFT JOIN personal_info pi ON u.personal_info_id = pi.id
+      WHERE u.id = $1`,
       [user_id]
     );
 
