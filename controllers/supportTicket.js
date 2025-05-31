@@ -1,4 +1,6 @@
 const DB = require("../dbConnection.js");
+const { DateTime } = require("luxon");
+const { v4: uuidv4 } = require("uuid");
 const { sendSupportTicketEmail } = require('../middlewares/sesMail.js');
 
 // Create ticket
@@ -33,12 +35,13 @@ exports.createTicket = async (req, res) => {
       user_email
     } = accountManagerRows[0];
 
+    const uuid = uuidv4();
     // Create the support ticket
     const [result] = await DB.execute(
       `INSERT INTO support_tickets 
-        (user_id, assigned_to, subject, message, category, priority) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [user_id, assigned_to, subject, message, category, priority]
+        (id, user_id, assigned_to, subject, message, category, priority) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [uuid, user_id, assigned_to, subject, message, category, priority]
     );
 
     const [ticketRow] = await DB.execute(`SELECT * FROM support_tickets WHERE id = LAST_INSERT_ID()`);
@@ -47,7 +50,8 @@ exports.createTicket = async (req, res) => {
 
     // Send notification email
     if (email) {
-      await sendSupportTicketEmail(email, ticket.id, subject, manager_name, user_name, category, priority, message, user_email);
+      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      await sendSupportTicketEmail(email, ticket.id, subject, manager_name, user_name, category, priority, message, user_email, dubaiTime);
       console.log(`Email sent to: ${email}`);
     }
 

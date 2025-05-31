@@ -4,8 +4,6 @@ const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
 const { DateTime } = require("luxon");
-const { PDFDocument, rgb } = require('pdf-lib');
-const fontkit = require('@pdf-lib/fontkit');
 const { sendDocReqEmail, sendDocUploadedEmail } = require('../middlewares/sesMail.js')
 
 

@@ -2355,7 +2355,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
     }
   }
 
-    async function sendSupportTicketEmail(email, ticketId, subject, manager_name, user_name, category, priority, message, user_email) {
+    async function sendSupportTicketEmail(email, ticketId, subject, manager_name, user_name, category, priority, message, user_email, submittedAt) {
     try {
   
       // Email template
