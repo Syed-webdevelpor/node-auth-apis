@@ -3,66 +3,66 @@ const AWS = require('aws-sdk');
 
 // Set up Nodemailer transporter with SES
 const transporter = nodemailer.createTransport({
-  SES: new AWS.SES({
-    region: process.env.AWS_REGION, // Specify your SES region
-    credentials: new AWS.Credentials({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
-      secretAccessKey: process.env.AWS_SES_SECRET, // AWS Secret Key
+    SES: new AWS.SES({
+        region: process.env.AWS_REGION, // Specify your SES region
+        credentials: new AWS.Credentials({
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
+            secretAccessKey: process.env.AWS_SES_SECRET, // AWS Secret Key
+        }),
     }),
-  }),
 });
 
 const attachments = [
-  {
-    filename: 'logo.png',
-    path: './public/images/logo.png',
-    cid: 'investain_logo', // This will reference the image in HTML
-  },
-  {
-    filename: 'app_gallery.png',
-    path: './public/images/app_gallery.png',
-    cid: 'app_gallery', // This will reference the image in HTML
-  },
-  {
-    filename: 'play_store.png',
-    path: './public/images/play_store.png',
-    cid: 'play_store', // This will reference the image in HTML
-  },
-  {
-    filename: 'app_store.png',
-    path: './public/images/app_store.png',
-    cid: 'app_store', // This will reference the image in HTML
-  },
-  {
-    filename: 'fb.png',
-    path: './public/images/fb.png',
-    cid: 'fb_logo', // This will reference the image in HTML
-  },
-  {
-    filename: 'insta.png',
-    path: './public/images/insta.png',
-    cid: 'insta_logo', // This will reference the image in HTML
-  },
-  {
-    filename: 'linkdin.png',
-    path: './public/images/linkdin.png',
-    cid: 'linkdin_logo', // This will reference the image in HTML
-  },
-  {
-    filename: 'twitter.png',
-    path: './public/images/twitter.png',
-    cid: 'twitter_logo', // This will reference the image in HTML
-  },
+    {
+        filename: 'logo.png',
+        path: './public/images/logo.png',
+        cid: 'investain_logo', // This will reference the image in HTML
+    },
+    {
+        filename: 'app_gallery.png',
+        path: './public/images/app_gallery.png',
+        cid: 'app_gallery', // This will reference the image in HTML
+    },
+    {
+        filename: 'play_store.png',
+        path: './public/images/play_store.png',
+        cid: 'play_store', // This will reference the image in HTML
+    },
+    {
+        filename: 'app_store.png',
+        path: './public/images/app_store.png',
+        cid: 'app_store', // This will reference the image in HTML
+    },
+    {
+        filename: 'fb.png',
+        path: './public/images/fb.png',
+        cid: 'fb_logo', // This will reference the image in HTML
+    },
+    {
+        filename: 'insta.png',
+        path: './public/images/insta.png',
+        cid: 'insta_logo', // This will reference the image in HTML
+    },
+    {
+        filename: 'linkdin.png',
+        path: './public/images/linkdin.png',
+        cid: 'linkdin_logo', // This will reference the image in HTML
+    },
+    {
+        filename: 'twitter.png',
+        path: './public/images/twitter.png',
+        cid: 'twitter_logo', // This will reference the image in HTML
+    },
 
 ];
 
 // Function to send a verification email
 const sendVerificationEmail = async (recipientEmail, verificationLink, customerName) => {
-  const mailOptions = {
-    from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
-    to: recipientEmail, // Verified recipient email
-    subject: 'Please Verify Your Email Address',
-    html: `<html>
+    const mailOptions = {
+        from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+        to: recipientEmail, // Verified recipient email
+        subject: 'Please Verify Your Email Address',
+        html: `<html>
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
@@ -172,28 +172,28 @@ const sendVerificationEmail = async (recipientEmail, verificationLink, customerN
 </body>
 
 </html>`,
-    attachments: attachments,
-  };
+        attachments: attachments,
+    };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Verification email sent!', info);
-    return { success: true, info };
-  } catch (error) {
-    console.error('Error sending email of verification user: ', error);
-    return { success: false, error };
-  }
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Verification email sent!', info);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending email of verification user: ', error);
+        return { success: false, error };
+    }
 };
 
 // Function to send a trading account creation email
 const sendTradingAccountEmail = async (customerEmail, customerName, accountType, accountNumber, link, leverage) => {
-  try {
-    // Email template
-    const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-      to: customerEmail,
-      subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
-      html: `<html>
+    try {
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: customerEmail,
+            subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
+            html: `<html>
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
@@ -314,26 +314,26 @@ const sendTradingAccountEmail = async (customerEmail, customerName, accountType,
     </div> 
     </body>
 </html>`,
-      attachments: attachments,
-    };
+            attachments: attachments,
+        };
 
-    // Send the email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Trading Account Email sent: ' + info.response);
-  } catch (error) {
-    console.error('Error sending email of trading account:', error);
-  }
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Trading Account Email sent: ' + info.response);
+    } catch (error) {
+        console.error('Error sending email of trading account:', error);
+    }
 }
 
 const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) => {
-  try {
+    try {
 
-    // Email template
-    const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-      to: customerEmail,
-      subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
-      html: `<html>
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: customerEmail,
+            subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
+            html: `<html>
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
@@ -456,24 +456,24 @@ const sendDemoAccountEmail = async (customerEmail, customerName, accountNumber) 
     </div> 
     </body>
 </html> `,
-      attachments: attachments,
-    };
+            attachments: attachments,
+        };
 
-    // Send the email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Demo Account Email sent: ' + info.response);
-  } catch (error) {
-    console.error('Error sending email of demo account:', error);
-  }
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Demo Account Email sent: ' + info.response);
+    } catch (error) {
+        console.error('Error sending email of demo account:', error);
+    }
 }
 
 const forgetPasswordEmail = async (email, resetLink, customerName) => {
-  try {
-    const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`,
-      to: email,
-      subject: 'Reset Your Password – INVESTAiN',
-      html: `<html>
+    try {
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`,
+            to: email,
+            subject: 'Reset Your Password – INVESTAiN',
+            html: `<html>
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
@@ -586,35 +586,35 @@ const forgetPasswordEmail = async (email, resetLink, customerName) => {
     </body>
 </html>
       `,
-      attachments: attachments,
-    };
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Forget Password Email sent: ' + info.response);
-    return info.response;
-  } catch (error) {
-    console.error('Error sending email of Forget Password:', error);
-  }
+            attachments: attachments,
+        };
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Forget Password Email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending email of Forget Password:', error);
+    }
 }
 
 async function sendTransactionNotificationEmail(customerEmail, customerName, transactionType, transactionAmount, transactionDate, accountNumber, transactionId, sourceWallet = '', destinationWallet = '') {
-  try {
+    try {
 
-    // Determine transaction details message
-    let transactionDetails = '';
-    if (transactionType === 'Deposit') {
-      transactionDetails = 'Your deposit has been successfully processed, and the funds have been credited to your account. You can now use the available balance for trading.';
-    } else if (transactionType === 'Withdrawal') {
-      transactionDetails = 'Your withdrawal request has been successfully processed. Please check your bank/wallet account for the transferred amount.';
-    } else if (transactionType === 'Transfer') {
-      transactionDetails = `A transfer between your wallets has been successfully completed. The funds have been moved from ${sourceWallet} to ${destinationWallet}.`;
-    }
+        // Determine transaction details message
+        let transactionDetails = '';
+        if (transactionType === 'Deposit') {
+            transactionDetails = 'Your deposit has been successfully processed, and the funds have been credited to your account. You can now use the available balance for trading.';
+        } else if (transactionType === 'Withdrawal') {
+            transactionDetails = 'Your withdrawal request has been successfully processed. Please check your bank/wallet account for the transferred amount.';
+        } else if (transactionType === 'Transfer') {
+            transactionDetails = `A transfer between your wallets has been successfully completed. The funds have been moved from ${sourceWallet} to ${destinationWallet}.`;
+        }
 
-    // Email template
-    const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-      to: customerEmail,
-      subject: `Transaction Notification – ${transactionType} for Your Account`,
-      html: `<html>
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: customerEmail,
+            subject: `Transaction Notification – ${transactionType} for Your Account`,
+            html: `<html>
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
@@ -734,23 +734,23 @@ async function sendTransactionNotificationEmail(customerEmail, customerName, tra
     </body>
 </html>
           `,
-      attachments: attachments,
-    };
+            attachments: attachments,
+        };
 
-    // Send the email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Transaction notification email sent: ' + info.response);
-  } catch (error) {
-    console.error('Error sending transaction notification email:', error);
-  }
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Transaction notification email sent: ' + info.response);
+    } catch (error) {
+        console.error('Error sending transaction notification email:', error);
+    }
 }
 
 const sendOtpEmail = async (recipientEmail, otp, customerName) => {
-  const mailOptions = {
-    from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
-    to: recipientEmail, // Verified recipient email
-    subject: 'Your OTP for Account Verification',
-    html: `<html>
+    const mailOptions = {
+        from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+        to: recipientEmail, // Verified recipient email
+        subject: 'Your OTP for Account Verification',
+        html: `<html>
             <head>
                 <style>
                     @media screen and (max-width: 600px) {
@@ -855,28 +855,28 @@ const sendOtpEmail = async (recipientEmail, otp, customerName) => {
     </div> 
     </body>
 </html>`,
-    attachments: attachments,
-  };
+        attachments: attachments,
+    };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('OTP email sent!', info);
-    return { success: true, info };
-  } catch (error) {
-    console.error('Error sending OTP email: ', error);
-    return { success: false, error };
-  }
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('OTP email sent!', info);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending OTP email: ', error);
+        return { success: false, error };
+    }
 };
 
 async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName, bankName, branchName, swiftBic, iban, date) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: 'withdrawl@investain.com',
-        subject: `Withdrawal Request Details`,
-        html: `<html>
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: 'withdrawl@investain.com',
+            subject: `Withdrawal Request Details`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -998,25 +998,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Transaction notification email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending transaction notification email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  const newAccountRegister = async (id,username,email,phoneNumber,account_type,account_nature,referredBy,date) => {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Transaction notification email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending transaction notification email:', error);
+        return error;
+    }
+}
+
+const newAccountRegister = async (id, username, email, phoneNumber, account_type, account_nature, referredBy, date) => {
     const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
-      to: 'accounts@investain.com', // Verified recipient email
-      subject: 'New Account Creation',
-      html: `<html>
+        from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+        to: 'accounts@investain.com', // Verified recipient email
+        subject: 'New Account Creation',
+        html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1132,25 +1132,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   </body>
   
   </html>`,
-      attachments: attachments,
+        attachments: attachments,
     };
-  
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log('new account creation email sent!', info);
-      return { success: true, info };
-    } catch (error) {
-      console.error('Error sending email of verification user: ', error);
-      return { success: false, error };
-    }
-  };
 
-  const demoAccountCreation = async (id,firstName,lastName,email,phoneNumber,country,experience,expectedInvestment) => {
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('new account creation email sent!', info);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending email of verification user: ', error);
+        return { success: false, error };
+    }
+};
+
+const demoAccountCreation = async (id, firstName, lastName, email, phoneNumber, country, experience, expectedInvestment) => {
     const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
-      to: 'demo@investain.com', // Verified recipient email
-      subject: 'New Demo Account Creation',
-      html: `<html>
+        from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+        to: 'demo@investain.com', // Verified recipient email
+        subject: 'New Demo Account Creation',
+        html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1266,25 +1266,25 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   </body>
   
   </html>`,
-      attachments: attachments,
+        attachments: attachments,
     };
-  
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log('new demo account creation email sent!', info);
-      return { success: true, info };
-    } catch (error) {
-      console.error('Error sending email of verification user: ', error);
-      return { success: false, error };
-    }
-  };
 
-  const applicationSubmissionEmail = async (email, link, customerName) => {
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('new demo account creation email sent!', info);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending email of verification user: ', error);
+        return { success: false, error };
+    }
+};
+
+const applicationSubmissionEmail = async (email, link, customerName) => {
     const mailOptions = {
-      from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
-      to: email, // Verified recipient email
-      subject: 'Your INVESTAiN account application has been submitted',
-      html: `<html>
+        from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+        to: email, // Verified recipient email
+        subject: 'Your INVESTAiN account application has been submitted',
+        html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1416,28 +1416,28 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
   </body>
   
   </html>`,
-      attachments: attachments,
+        attachments: attachments,
     };
-  
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log('application success email sent!', info);
-      return { success: true, info };
-    } catch (error) {
-      console.error('Error sending email of verification user: ', error);
-      return { success: false, error };
-    }
-  };
 
-  async function sendNewTradingAccountReqEmail(user_id, platform, currency, account_type, reason) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: 'accounts@investain.com',
-        subject: `New Additional Trading Account Request – User ID: ${user_id}`,
-        html: `<html>
+        const info = await transporter.sendMail(mailOptions);
+        console.log('application success email sent!', info);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending email of verification user: ', error);
+        return { success: false, error };
+    }
+};
+
+async function sendNewTradingAccountReqEmail(user_id, platform, currency, account_type, reason) {
+    try {
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: 'accounts@investain.com',
+            subject: `New Additional Trading Account Request – User ID: ${user_id}`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1551,28 +1551,28 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('New Trading account request email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending New Trading account request email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  async function sendNewTradingAccountReqToAccManagerEmail(email, user_id, platform, currency, account_type, reason) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('New Trading account request email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending New Trading account request email:', error);
+        return error;
+    }
+}
+
+async function sendNewTradingAccountReqToAccManagerEmail(email, user_id, platform, currency, account_type, reason) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: email,
-        subject: `New Additional Trading Account Request – User ID: ${user_id}`,
-        html: `<html>
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `New Additional Trading Account Request – User ID: ${user_id}`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1686,28 +1686,28 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('New Trading account request email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending New Trading account request email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  async function sendNewTradingAccountEmail(name, email) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('New Trading account request email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending New Trading account request email:', error);
+        return error;
+    }
+}
+
+async function sendNewTradingAccountEmail(name, email) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: email,
-        subject: `Trading Account Request Received`,
-        html: `<html>
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `Trading Account Request Received`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1813,28 +1813,28 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('New Trading account request email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending New Trading account request email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  async function sendNewIbEmail(name, email) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('New Trading account request email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending New Trading account request email:', error);
+        return error;
+    }
+}
+
+async function sendNewIbEmail(name, email) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: email,
-        subject: `Your Request to Become an IB Has Been Received`,
-        html: `<html>
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `Your Request to Become an IB Has Been Received`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -1940,28 +1940,28 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('New IB request email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending New IB request email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  async function sendIbReqEmail(username, email, phoneNumber, country) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('New IB request email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending New IB request email:', error);
+        return error;
+    }
+}
+
+async function sendIbReqEmail(username, email, phoneNumber, country) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: 'ib@investain.com',
-        subject: `New Request to Become an IB`,
-        html: `<html>
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: 'ib@investain.com',
+            subject: `New Request to Become an IB`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -2074,31 +2074,31 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('New IB request email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending New IB request email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  async function sendDocReqEmail(email, name, title, description, dueDate, isUrgent, docType, requestType) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('New IB request email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending New IB request email:', error);
+        return error;
+    }
+}
+
+async function sendDocReqEmail(email, name, title, description, dueDate, isUrgent, docType, requestType) {
     try {
-      const docRequirementText =
-      requestType === 'upload'
-        ? 'Our compliance team requires additional documentation:'
-        : 'Our compliance team requires legal documentation:';
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: email,
-        subject: `Action Required: Document Submission`,
-        html: `<html>
+        const docRequirementText =
+            requestType === 'upload'
+                ? 'Our compliance team requires additional documentation:'
+                : 'Our compliance team requires legal documentation:';
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `Action Required: Document Submission`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -2212,28 +2212,28 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('New Document request email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending New Document request email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-  async function sendDocUploadedEmail(email, userId, name, title, docType, date) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('New Document request email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending New Document request email:', error);
+        return error;
+    }
+}
+
+async function sendDocUploadedEmail(email, managerName, userId, name, title, docType, date) {
     try {
-  
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: email,
-        subject: `Document uploaded by ${userId}`,
-        html: `<html>
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `Document uploaded by ${userId}`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -2261,10 +2261,10 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           </div>    
           </div>
           <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
-                <p style="font-family: Rajdhani, sans-serif;">Dear ${name},</p>
+                <p style="font-family: Rajdhani, sans-serif;">Dear ${managerName},</p>
   
                 <p style="font-family: Rajdhani, sans-serif;">I hope this message finds you well.</p>
-                <p style="font-family: Rajdhani, sans-serif;">This is to inform you that [User’s Full Name] (User ID: [user_id]) has successfully fulfilled the requested document submission. The required document has been uploaded to the system and is now available for your review.p>
+                <p style="font-family: Rajdhani, sans-serif;">This is to inform you that ${name} (User ID: ${userId}) has successfully fulfilled the requested document submission. The required document has been uploaded to the system and is now available for your review.</p>
                                 <p style="font-family: Rajdhani, sans-serif;">Document Details:</p>
                 <ul style="font-family: Rajdhani, sans-serif;">
                     <li>Document Title: ${title}</li>
@@ -2345,28 +2345,296 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Document upload email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending Document upload email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-    async function sendSupportTicketEmail(email, ticketId, subject, manager_name, user_name, category, priority, message, user_email, submittedAt) {
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Document upload email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending Document upload email:', error);
+        return error;
+    }
+}
+
+async function sendDocSignatureUploadedEmail(email, managerName, userId, name, title, date) {
     try {
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `Signature Document Uploaded by User ${userId}`,
+            html: `<html>
+              <head>
+                  <style>
+                      @media screen and (max-width: 600px) {
+                          .download-app-container td {
+                          display: block;
+                          width: 100% !important;
+                          text-align: center !important;
+                          }
+                          .download-img {
+                          width: 135px !important;
+                          margin-bottom: 5px !important; /* Adds spacing between images */
+                          }
+                      }
+                  </style>
+              </head>
+  <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+      <!-- Main Container -->
+      <div
+          style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+          <!-- Logo Section (Header) -->
+          <div style="text-align: center; padding: 20px;">
+          <a href="https://investain.com"
+                  style="text-decoration: none;">
+              <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
+          </div>    
+          </div>
+          <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
+                <p style="font-family: Rajdhani, sans-serif;">Dear ${managerName},</p>
   
-      // Email template
-      const mailOptions = {
-        from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
-        to: email,
-        subject: `New Support Ticket Assigned to You: #${ticketId} - ${subject}`,
-        html: `<html>
+                <p style="font-family: Rajdhani, sans-serif;">I hope this message finds you well.</p>
+                <p style="font-family: Rajdhani, sans-serif;">This is to notify you that the following user has uploaded their signed document(s) as required:</p>
+                <ul style="font-family: Rajdhani, sans-serif;">
+                    <li>User Name: ${name}</li>
+                    <li>User ID/Account #: ${userId}</li>
+                    <li>Uploaded On: ${date}</li>
+                    <li>Document Title: ${title}</li>
+                    <li>Date & Time of Upload: ${date}</li>
+                    <li>Status: Completed</li>
+                </ul>
+            <p style="font-family: Rajdhani, sans-serif;">The documents are now available in  <a href="https://am.investain.com" style="background-color: red; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px;">Portal</a></p>
+            <p style="font-family: Rajdhani, sans-serif;">Next Steps:</p>
+            <p style="font-family: Rajdhani, sans-serif;">Kindly review the documents and approve or reject them at your earliest convenience.</p>
+            </div>
+           <div
+          style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <div style="text-align: center; padding-top: 40px;">
+            <h3 style="style="font-family: Rajdhani, sans-serif;" color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
+        </div>
+      <table align="center" role="presentation" style="width: 100%; text-align: center;">
+          <tr class="download-app-container">
+              <td>
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
+                  <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                  </a>
+              </td>
+              <td>
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
+                  <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                  </a>
+              </td>
+              <td>
+                  <a href="https://appgallery.huawei.com">
+                  <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                  </a>
+              </td>
+          </tr>
+      </table>
+  
+          <!-- Social Media Icons -->
+   <table align="center" cellpadding="10">
+              <tr>
+                  <td>
+                      <a href="https://facebook.com">
+                          <img src="cid:fb_logo" alt="Facebook"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://x.com/investain_com">
+                          <img src="cid:twitter_logo" alt="Twitter"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://www.linkedin.com/company/investain/">
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://instagram.com">
+                          <img src="cid:insta_logo" alt="Instagram"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+              </tr>
+          </table>
+  
+          <!-- Contact Us Section -->
+          <div style="text-align: center; padding: 20px;">
+              <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+              <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                  <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
+              </p>
+          </div>
+  
+          <!-- Footer -->
+          <div
+              style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+              <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+          </div>
+      </div> 
+      </body>
+  </html>
+            `,
+            attachments: attachments,
+        };
+
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Document signature upload email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending Document signature upload email:', error);
+        return error;
+    }
+}
+
+async function sendDocUploadedEmailToUser(email, name, title, requestType) {
+    try {
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `Your Document Request Has Been Submitted`,
+            html: `<html>
+              <head>
+                  <style>
+                      @media screen and (max-width: 600px) {
+                          .download-app-container td {
+                          display: block;
+                          width: 100% !important;
+                          text-align: center !important;
+                          }
+                          .download-img {
+                          width: 135px !important;
+                          margin-bottom: 5px !important; /* Adds spacing between images */
+                          }
+                      }
+                  </style>
+              </head>
+  <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+      <!-- Main Container -->
+      <div
+          style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+          <!-- Logo Section (Header) -->
+          <div style="text-align: center; padding: 20px;">
+          <a href="https://investain.com"
+                  style="text-decoration: none;">
+              <img src="cid:investain_logo" alt="" style="width: 100px; height: 100px;" /></a>
+          </div>    
+          </div>
+          <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
+                <p style="font-family: Rajdhani, sans-serif;">Dear ${name},</p>
+                <p style="font-family: Rajdhani, sans-serif;">Thank you for submitting your document ${title} via our platform. We have received your request and it is now under review.</p>
+                <p style="font-family: Rajdhani, sans-serif;">Next Steps:</p>
+                <p style="font-family: Rajdhani, sans-serif;">Our team will carefully verify the document for completeness and accuracy.</p>
+                <p style="font-family: Rajdhani, sans-serif;">You will receive another notification once the review is complete, along with the approval status or any required next steps.</p>
+                <p style="font-family: Rajdhani, sans-serif;">Processing time may vary depending on the request type ${requestType}.</p>
+                <p style="font-family: Rajdhani, sans-serif;">Need Help?</p>
+            <p style="font-family: Rajdhani, sans-serif;">If you have any questions or need to make changes to your submission, please reply to this email or contact our support team at
+                  <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong></p>
+            </div>
+           <div
+          style=" max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        <div style="text-align: center; padding-top: 40px;">
+            <h3 style="style="font-family: Rajdhani, sans-serif;" color: #333; margin: 0 0 10px 0; font-size:16px;">Download our App</h3>
+        </div>
+      <table align="center" role="presentation" style="width: 100%; text-align: center;">
+          <tr class="download-app-container">
+              <td>
+                  <a href="https://apps.apple.com/ae/app/investain/id6475628015">
+                  <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                  </a>
+              </td>
+              <td>
+                  <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
+                  <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                  </a>
+              </td>
+              <td>
+                  <a href="https://appgallery.huawei.com">
+                  <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 120px; width: 100%;">
+                  </a>
+              </td>
+          </tr>
+      </table>
+  
+          <!-- Social Media Icons -->
+   <table align="center" cellpadding="10">
+              <tr>
+                  <td>
+                      <a href="https://facebook.com">
+                          <img src="cid:fb_logo" alt="Facebook"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://x.com/investain_com">
+                          <img src="cid:twitter_logo" alt="Twitter"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://www.linkedin.com/company/investain/">
+                          <img src="cid:linkdin_logo" alt="LinkedIn"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+                  <td>
+                      <a href="https://instagram.com">
+                          <img src="cid:insta_logo" alt="Instagram"
+                              style="width: 24px; height: 24px;">
+                      </a>
+                  </td>
+              </tr>
+          </table>
+  
+          <!-- Contact Us Section -->
+          <div style="text-align: center; padding: 20px;">
+              <h3 style="font-family: Rajdhani, sans-serif; color: #333; margin: 0 0 10px 0; font-size:20px;">Contact us</h3>
+              <p style="font-family: Rajdhani, sans-serif; font-size: 16px; margin: 0;">For any inquiries please reach us at
+                  <strong style="font-family: Rajdhani, sans-serif; color: red;">support@investain.com</strong>
+              </p>
+          </div>
+  
+          <!-- Footer -->
+          <div
+              style="text-align: center; padding: 10px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+              <p style="font-family: Rajdhani, sans-serif; font-size: 14px; color: #888; margin: 0;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+          </div>
+      </div> 
+      </body>
+  </html>
+            `,
+            attachments: attachments,
+        };
+
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Document upload by user email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending Document upload by user email:', error);
+        return error;
+    }
+}
+
+async function sendSupportTicketEmail(email, ticketId, subject, manager_name, user_name, category, priority, message, user_email, submittedAt) {
+    try {
+
+        // Email template
+        const mailOptions = {
+            from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+            to: email,
+            subject: `New Support Ticket Assigned to You: #${ticketId} - ${subject}`,
+            html: `<html>
               <head>
                   <style>
                       @media screen and (max-width: 600px) {
@@ -2401,11 +2669,10 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
               <li><strong>Submitted by:</strong> ${user_name}</li>
               <li><strong>Subject:</strong> ${subject}</li>
               <li><strong>Category:</strong> ${category}</li>
-              <li><strong>Priority:</strong> <span style="color: ${
-                priority === 'critical' ? 'red' :
-                priority === 'high' ? 'orange' :
-                priority === 'medium' ? 'blue' : 'green'
-              }; font-weight: bold;">${priority}</span></li>
+              <li><strong>Priority:</strong> <span style="color: ${priority === 'critical' ? 'red' :
+                    priority === 'high' ? 'orange' :
+                        priority === 'medium' ? 'blue' : 'green'
+                }; font-weight: bold;">${priority}</span></li>
               <li><strong>Date Submitted:</strong> ${submittedAt}</li>
             </ul>
             <p><strong>Customer's Message:</strong></p>
@@ -2492,17 +2759,17 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
       </body>
   </html>
             `,
-        attachments: attachments,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-      console.log('support ticket email sent: ' + info.response);
-      return info.response;
-    } catch (error) {
-      console.error('Error sending support ticket email:', error);
-      return error;
-    }
-  }
+            attachments: attachments,
+        };
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail, sendDocReqEmail, sendDocUploadedEmail, sendSupportTicketEmail };
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('support ticket email sent: ' + info.response);
+        return info.response;
+    } catch (error) {
+        console.error('Error sending support ticket email:', error);
+        return error;
+    }
+}
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail, sendDocReqEmail, sendDocUploadedEmail, sendSupportTicketEmail, sendDocSignatureUploadedEmail, sendDocUploadedEmailToUser };
