@@ -1,45 +1,54 @@
 const DB = require("../dbConnection.js");
-const { sendSupportTicketEmail } = require('../middlewares/sesMail.js')
+const { sendSupportTicketEmail } = require('../middlewares/sesMail.js');
 
 // Create ticket
 exports.createTicket = async (req, res) => {
   const { user_id, subject, message, category, priority } = req.body;
 
   try {
-    const accountManagerResult = await DB.query(
+    // Get account manager info and user's name
+    const [accountManagerRows] = await DB.execute(
       `SELECT 
         am.id AS manager_id,
         am.email AS manager_email,
         am.name AS manager_name,
         pi.first_name AS user_name,
         u.email AS user_email
-      FROM users u
-      JOIN account_managers am ON u.account_manager_id = am.id
-      LEFT JOIN personal_info pi ON u.personal_info_id = pi.id
-      WHERE u.id = $1`,
+       FROM users u
+       JOIN account_managers am ON u.account_manager_id = am.id
+       LEFT JOIN personal_info pi ON u.personal_info_id = pi.id
+       WHERE u.id = ?`,
       [user_id]
     );
 
-    if (accountManagerResult.rows.length === 0) {
+    if (accountManagerRows.length === 0) {
       return res.status(404).json({ error: 'Account manager not found for this user' });
     }
 
-    const { id: assigned_to, email, manager_name, user_name, user_email } = accountManagerResult.rows[0];
+    const {
+      manager_id: assigned_to,
+      manager_email: email,
+      manager_name,
+      user_name,
+      user_email
+    } = accountManagerRows[0];
 
-    // 2. Create the support ticket
-    const result = await DB.query(
+    // Create the support ticket
+    const [result] = await DB.execute(
       `INSERT INTO support_tickets 
-      (user_id, assigned_to, subject, message, category, priority) 
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        (user_id, assigned_to, subject, message, category, priority) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [user_id, assigned_to, subject, message, category, priority]
     );
 
-    const ticket = result.rows[0];
+    const [ticketRow] = await DB.execute(`SELECT * FROM support_tickets WHERE id = LAST_INSERT_ID()`);
 
-    // Example email send
+    const ticket = ticketRow[0];
+
+    // Send notification email
     if (email) {
-      sendSupportTicketEmail(email, ticket.id, subject, manager_name, user_name, category, priority, message, user_email);
-      console.log(`Email would be sent to: ${email}`);
+      await sendSupportTicketEmail(email, ticket.id, subject, manager_name, user_name, category, priority, message, user_email);
+      console.log(`Email sent to: ${email}`);
     }
 
     res.status(201).json(ticket);
@@ -49,30 +58,30 @@ exports.createTicket = async (req, res) => {
   }
 };
 
-// Get by account manager id
+// Get tickets by account manager ID
 exports.getTicketsByManagerId = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await DB.query(
-      `SELECT * FROM support_tickets WHERE assigned_to = $1 ORDER BY created_at DESC`,
+    const [rows] = await DB.execute(
+      `SELECT * FROM support_tickets WHERE assigned_to = ? ORDER BY created_at DESC`,
       [id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-// Get by user id
+// Get tickets by user ID
 exports.getTicketsByUserId = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await db.query(
-      `SELECT * FROM support_tickets WHERE user_id = $1 ORDER BY created_at DESC`,
+    const [rows] = await DB.execute(
+      `SELECT * FROM support_tickets WHERE user_id = ? ORDER BY created_at DESC`,
       [id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -82,24 +91,22 @@ exports.getTicketsByUserId = async (req, res) => {
 // Get ticket by ticket ID
 exports.getTicketById = async (req, res) => {
   const { id } = req.params;
-
   try {
-    const result = await DB.query(
-      `SELECT * FROM support_tickets WHERE id = $1`,
+    const [rows] = await DB.execute(
+      `SELECT * FROM support_tickets WHERE id = ?`,
       [id]
     );
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return res.status(404).json({ error: 'Ticket not found' });
     }
 
-    res.json(result.rows[0]);
+    res.json(rows[0]);
   } catch (err) {
     console.error('Error fetching ticket by ID:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 
 // Update ticket
 exports.updateTicket = async (req, res) => {
@@ -111,22 +118,30 @@ exports.updateTicket = async (req, res) => {
     const params = [];
 
     if (status) {
+      query += `, status = ?`;
       params.push(status);
-      query += `, status = $${params.length}`;
     }
+
     if (priority) {
+      query += `, priority = ?`;
       params.push(priority);
-      query += `, priority = $${params.length}`;
     }
+
     if (status === 'resolved') {
       query += `, closed_at = NOW()`;
     }
 
+    query += ` WHERE id = ?`;
     params.push(id);
-    query += ` WHERE id = $${params.length} RETURNING *`;
 
-    const result = await DB.query(query, params);
-    res.json(result.rows[0]);
+    await DB.execute(query, params);
+
+    const [updatedTicketRows] = await DB.execute(
+      `SELECT * FROM support_tickets WHERE id = ?`,
+      [id]
+    );
+
+    res.json(updatedTicketRows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
