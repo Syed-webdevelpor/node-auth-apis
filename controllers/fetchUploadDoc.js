@@ -447,7 +447,7 @@ module.exports = {
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
         const filename= file.originalname;
-        const s3Key = `user/${request.userId}/${filename}-signed.pdf`;
+        const s3Key = `user/${request.userId}/${filename}`;
 
         await s3.putObject({
           Bucket: process.env.AWS_BUCKET_NAME,
@@ -606,7 +606,9 @@ module.exports = {
             });
           }
           const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
-          sendDocUploadedEmail(rows[0].account_manager_email, userId, rows[0].user_first_name, title, docType, dubaiTime)
+          if (updatedDoc[0].docType === "upload") {
+            sendDocUploadedEmail(rows[0].account_manager_email, updatedDoc[0].userId, rows[0].user_first_name, updatedDoc[0].title, updatedDoc[0].docType, dubaiTime)
+          }
           res.status(200).json({
               status: 200,
               message: "Document request updated successfully",
