@@ -2087,9 +2087,12 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
     }
   }
 
-  async function sendDocReqEmail(email, name, title, description, dueDate, isUrgent, docType) {
+  async function sendDocReqEmail(email, name, title, description, dueDate, isUrgent, docType, requestType) {
     try {
-  
+      const docRequirementText =
+      requestType === 'upload'
+        ? 'Our compliance team requires additional documentation:'
+        : 'Our compliance team requires legal documentation:';
       // Email template
       const mailOptions = {
         from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
@@ -2125,7 +2128,7 @@ async function sendWithdrawalEmail(userId, selectedAccount, amount, accountName,
           <div style="padding: 20px; padding-top:50px; padding-bottom:50px; max-width: 600px; margin: 0 auto;">
                 <p style="font-family: Rajdhani, sans-serif;">Dear ${name},</p>
   
-                <p style="font-family: Rajdhani, sans-serif;">Our compliance team requires additional documentation:</p>
+                <p style="font-family: Rajdhani, sans-serif;">${docRequirementText}</p>
   
                 <ul style="font-family: Rajdhani, sans-serif;">
                     <li>Document Title: ${title}</li>

@@ -299,13 +299,15 @@ module.exports = {
         title,
         description,
         dueDate,
-        isUrgent = false,
+        isUrgent,
         docType,
         status = 'pending',
-        requestType = 'signature',
+        requestType,
         templates = [] // [{ templatePath, signatureX, signatureY, dateX, dateY }]
       } = req.body;
 
+      if(requestType !== "upload"){
+        
       if (!userId || !title || !dueDate || templates.length === 0) {
         return res.status(400).json({ error: 'Missing required fields or empty templates array' });
       }
@@ -391,13 +393,60 @@ module.exports = {
               })
             }
 
-      sendDocReqEmail(rows[0].email, rows[0].first_name, title, description, dueDate, isUrgent, docType);
+      sendDocReqEmail(rows[0].email, rows[0].first_name, title, description, dueDate, isUrgent, docType, requestType);
 
       res.status(201).json({
         status: 'success',
         requestId,
         message: 'Document request created with multiple templates'
       });
+      }else{
+      const now = new Date().toISOString();
+      const requestId = uuidv4();
+      // Insert into parent table
+      await DB.execute(
+        `INSERT INTO document_request 
+          (id, userId, title, description, dueDate, isUrgent, docType, status, requestType, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          requestId,
+          userId,
+          title,
+          description || null,
+          dueDate,
+          isUrgent,
+          docType || null,
+          status,
+          requestType,
+          now,
+          now
+        ]
+      );
+            const [rows] = await DB.execute(
+              `SELECT 
+                     users.id, users.email, users.role, users.account_manager_id,
+                     personal_info.first_name
+                 FROM users
+                 LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+                 WHERE users.id = ?`,
+              [userId]
+            );
+            if (rows.length === 0) {
+              return res.status(400).json({
+                status: 400,
+                message: "user not found",
+              })
+            }
+
+      sendDocReqEmail(rows[0].email, rows[0].first_name, title, description, dueDate, isUrgent, docType, requestType);
+
+      res.status(201).json({
+        status: 'success',
+        requestId,
+        message: 'Document request created'
+      });
+      }
+
 
     } catch (err) {
       console.error('Error in sendMultipleDocReq:', err);
