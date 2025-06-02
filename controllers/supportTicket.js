@@ -1,7 +1,7 @@
 const DB = require("../dbConnection.js");
 const { DateTime } = require("luxon");
 const { v4: uuidv4 } = require("uuid");
-const { sendSupportTicketEmail } = require('../middlewares/sesMail.js');
+const { sendSupportTicketEmail, sendReplyTicketEmail } = require('../middlewares/sesMail.js');
 
 // Create ticket
 exports.createTicket = async (req, res) => {
@@ -146,6 +146,27 @@ exports.updateTicket = async (req, res) => {
     );
 
     res.json(updatedTicketRows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.replyTicket = async (req, res) => {
+  const { user_id, subject, reply } = req.body;
+
+  try {
+      const [rows] = await DB.execute(
+        `SELECT 
+         users.email,
+         FROM users
+         WHERE users.id = ?`,
+        [user_id]
+      );
+     const info = await sendReplyTicketEmail(rows[0].email, subject, reply);
+      console.log(`Email sent to: ${email}`);
+
+    res.status(201).json(info);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

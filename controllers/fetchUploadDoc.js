@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
 const { DateTime } = require("luxon");
-const { sendDocReqEmail, sendDocUploadedEmail, sendDocSignatureUploadedEmail, sendDocUploadedEmailToUser } = require('../middlewares/sesMail.js')
+const { sendDocReqEmail, sendDocUploadedEmail, sendDocSignatureUploadedEmail, sendDocUploadedEmailToUser, sendDocApproveEmail, sendDocRejectEmail } = require('../middlewares/sesMail.js')
 
 const fetchDocReqByUserId = async (userId) => {
   // 1. Get all document requests by user
@@ -563,7 +563,8 @@ module.exports = {
               dueDate,
               isUrgent,
               docType,
-              status
+              status,
+              reason
           } = req.body;
 
           // First, check if the document request exists
@@ -651,13 +652,21 @@ module.exports = {
             });
           }
           const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
-          if (updatedDoc[0].docType === "upload") {
-            sendDocUploadedEmail(rows[0].account_manager_email, rows[0].account_manager_name, updatedDoc[0].userId, rows[0].user_first_name, updatedDoc[0].title, updatedDoc[0].docType, dubaiTime);
-          }else{
-            sendDocSignatureUploadedEmail(rows[0].account_manager_email, rows[0].account_manager_name, updatedDoc[0].userId, rows[0].user_first_name, updatedDoc[0].title, dubaiTime)
+          if (updatedDoc[0].status === "approved") {
+            sendDocApproveEmail(rows[0].email,rows[0].name);
+          } else if (updatedDoc[0].status === "rejected") {
+            sendDocRejectEmail(rows[0].email,rows[0].name, reason);
           }
+          else {
+            if (updatedDoc[0].requestType === "upload") {
+              sendDocUploadedEmail(rows[0].account_manager_email, rows[0].account_manager_name, updatedDoc[0].userId, rows[0].user_first_name, updatedDoc[0].title, updatedDoc[0].docType, dubaiTime);
+            }else{
+              sendDocSignatureUploadedEmail(rows[0].account_manager_email, rows[0].account_manager_name, updatedDoc[0].userId, rows[0].user_first_name, updatedDoc[0].title, dubaiTime)
+            }
 
-          sendDocUploadedEmailToUser(rows[0].email,rows[0].name, updatedDoc[0].title, updatedDoc[0].requestType);
+            sendDocUploadedEmailToUser(rows[0].email,rows[0].name, updatedDoc[0].title, updatedDoc[0].requestType);
+          }
+         
           res.status(200).json({
               status: 200,
               message: "Document request updated successfully",

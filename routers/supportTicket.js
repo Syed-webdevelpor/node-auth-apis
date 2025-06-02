@@ -21,4 +21,6 @@ router.get('/:id', tokenValidation(), validate, supportTicketController.getTicke
 // 🔹 Update a ticket (status, priority, etc.)
 router.put('/:id', tokenValidation(), validate, supportTicketController.updateTicket);
 
+router.post('/reply', tokenValidation(), validate, supportTicketController.replyTicket);
+
 module.exports = router;
