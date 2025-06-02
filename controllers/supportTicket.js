@@ -164,7 +164,6 @@ exports.replyTicket = async (req, res) => {
         [user_id]
       );
      const info = await sendReplyTicketEmail(rows[0].email, subject, reply);
-      console.log(`Email sent to: ${email}`);
 
     res.status(201).json(info);
   } catch (err) {
