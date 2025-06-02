@@ -158,7 +158,7 @@ exports.replyTicket = async (req, res) => {
   try {
       const [rows] = await DB.execute(
         `SELECT 
-         users.email,
+         users.email
          FROM users
          WHERE users.id = ?`,
         [user_id]
