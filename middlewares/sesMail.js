@@ -2940,14 +2940,16 @@ const attachments = [
     
                     <p style="font-family: Rajdhani, sans-serif;">I hope this message finds you well.</p>
                     <p style="font-family: Rajdhani, sans-serif;">We wanted to inform you that the document you submitted related to your account with INVESTAiN has been rejected due to the following reason(s):</p>
-                    <p style="font-family: Rajdhani, sans-serif;">${reason}</p>
+                    <p style="font-family: Rajdhani, sans-serif; font-weight:bold;">${reason}</p>
                     <p style="font-family: Rajdhani, sans-serif;">To ensure the timely processing of your account and maintain compliance, we kindly ask you to review the feedback and upload the corrected document at your earliest convenience.</p>
                     <p style="font-family: Rajdhani, sans-serif;">Please follow these steps to re-submit your document:</p>
-                    <p style="font-family: Rajdhani, sans-serif;">Log in to your secure portal.</p>
-                    <p style="font-family: Rajdhani, sans-serif;">Navigate to the "MyDocuments" section.</p>
-                    <p style="font-family: Rajdhani, sans-serif;">Locate the item marked "Signature Required/upload document" or the relevant document title.</p>
-                    <p style="font-family: Rajdhani, sans-serif;">Upload the corrected document.</p>
-                    <p style="font-family: Rajdhani, sans-serif;">Submit it directly through the portal.</p>
+                    <ul style="font-size: 16px; line-height: 1.5;">
+                        <li>Log in to your secure portal.</li>
+                        <li>Navigate to the <strong>"MyDocuments"</strong> section.</li>
+                        <li>Locate the item marked <strong>"Signature Required/upload document"</strong> or the relevant document title.</li>
+                        <li>Upload the corrected document.</li>
+                        <li>Submit it directly through the portal.</li>
+                    </ul>
                     <p style="font-family: Rajdhani, sans-serif;">If you need any assistance or have questions about the required corrections, please don’t hesitate to reply to this email — we’re here to help.</p>
                     <p style="font-family: Rajdhani, sans-serif;">Thank you for your prompt attention to this matter.</p>
                     </div>

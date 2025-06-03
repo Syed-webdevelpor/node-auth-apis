@@ -653,9 +653,9 @@ module.exports = {
           }
           const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
           if (updatedDoc[0].status === "approved") {
-            sendDocApproveEmail(rows[0].email,rows[0].name);
+            sendDocApproveEmail(rows[0].email,rows[0].user_first_name);
           } else if (updatedDoc[0].status === "rejected") {
-            sendDocRejectEmail(rows[0].email,rows[0].name, reason);
+            sendDocRejectEmail(rows[0].email,rows[0].user_first_name, reason);
           }
           else {
             if (updatedDoc[0].requestType === "upload") {
@@ -664,7 +664,7 @@ module.exports = {
               sendDocSignatureUploadedEmail(rows[0].account_manager_email, rows[0].account_manager_name, updatedDoc[0].userId, rows[0].user_first_name, updatedDoc[0].title, dubaiTime)
             }
 
-            sendDocUploadedEmailToUser(rows[0].email,rows[0].name, updatedDoc[0].title, updatedDoc[0].requestType);
+            sendDocUploadedEmailToUser(rows[0].email,rows[0].user_first_name, updatedDoc[0].title, updatedDoc[0].requestType);
           }
          
           res.status(200).json({
