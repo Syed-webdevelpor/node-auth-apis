@@ -67,6 +67,7 @@ router.post("/forget_password", user.forgetPassword);
 router.post("/reset_password", user.resetPassword);
 router.post("/kyc_access_token", user.kycAccessToken);
 router.post("/change_password", tokenValidation(), validate, user.changePassword);
+router.post("/send_email_to_all_users", tokenValidation(), validate, user.sendToAllUsers);
 
 // Biometric routers
 // Device Registration
@@ -79,5 +80,6 @@ router.post('/auth/local/verify', biometricController.verifyLocalAuth);
 router.get('/devices/:userId', tokenValidation(), validate, biometricController.getUserDevices);
 router.post('/devices/toggle-local-auth', tokenValidation(), validate, biometricController.toggleLocalAuth);
 router.post('/revoke-device', tokenValidation(), validate, biometricController.revokeDevice);
+
 
 module.exports = router;

@@ -695,5 +695,56 @@ module.exports = {
           console.error('Upload error:', error);
           res.status(500).json({ success: false, message: 'File upload failed' });
       }
+  },
+
+  getFilesFromS3Folder: async (req, res) => {
+  const bucketName = process.env.AWS_BUCKET_NAME;
+  const params = {
+    Bucket: bucketName,
+    Prefix: 'legalDocuments/'
+  };
+
+  try {
+    const data = await s3.listObjectsV2(params).promise();
+
+    if (!data.Contents || data.Contents.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const files = await Promise.all(
+      data.Contents.map(async (file) => {
+        if (file.Key.endsWith('/')) return null; // skip folders
+
+        const headParams = {
+          Bucket: bucketName,
+          Key: file.Key
+        };
+
+        const metadata = await s3.headObject(headParams).promise();
+
+        const signedUrl = await s3.getSignedUrlPromise('getObject', {
+          Bucket: bucketName,
+          Key: file.Key,
+          Expires: 3600
+        });
+
+        return {
+          key: file.Key,
+          filename: metadata.Metadata['original-filename'] || file.Key.split('/').pop(),
+          url: signedUrl,
+          fileType: metadata.Metadata['file-type'] || 'unknown',
+          size: file.Size,
+          lastModified: file.LastModified,
+          metadata: metadata.Metadata
+        };
+      })
+    );
+
+    const filteredFiles = files.filter(Boolean); // remove nulls
+    return res.status(200).json(filteredFiles);
+  } catch (error) {
+    console.error('Error fetching files from S3:', error);
+    return res.status(500).json({ message: 'Failed to retrieve documents', error: error.message });
+  }
   }
 };

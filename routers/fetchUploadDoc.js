@@ -17,5 +17,6 @@ router.get("/get_doc_req/:userId", tokenValidation(), validate, fetchUploadDoc.g
 router.patch('/update_doc_req/:id', tokenValidation(), validate, fetchUploadDoc.updateDocReq);
 
 router.post('/upload', upload.single('file'), tokenValidation(), validate, fetchUploadDoc.uploadFileController);
+router.get('/legal_documents', tokenValidation(), validate, fetchUploadDoc.getFilesFromS3Folder);
 
 module.exports = router;
