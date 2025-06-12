@@ -6,7 +6,7 @@ const axios = require('axios');
 const { DateTime } = require("luxon");
 const { createHash } = crypto;
 const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
-const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister } = require('../middlewares/sesMail.js')
+const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister, sendEmailToAllUsers } = require('../middlewares/sesMail.js')
 
 
 axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
@@ -799,7 +799,7 @@ module.exports = {
 
     // Loop and send email to each user
     const sendResults = await Promise.all(
-      rows.map(user => sendReplyTicketEmail(user.email, subject, reply))
+      rows.map(user => sendEmailToAllUsers(user.email, subject, reply))
     );
 
     res.status(201).json({ message: 'Emails sent successfully', results: sendResults });
