@@ -790,25 +790,23 @@ module.exports = {
     }
   },
 
-  sendToAllUsers : async (req, res) => {
-  const { subject, reply } = req.body;
+  sendToAllUsers: async (req, res) => {
+    const { subject, reply } = req.body;
 
-  try {
-    // Get all users
-    const [rows] = await DB.execute(`SELECT email FROM users`);
+    try {
+      // Get users where role = 'User'
+      const [rows] = await DB.execute(`SELECT email FROM users WHERE role = 'User'`);
 
-    // Loop and send email to each user
-    const sendResults = await Promise.all(
-      rows.map(user => sendEmailToAllUsers(user.email, subject, reply))
-    );
+      // Loop and send email to each user
+      const sendResults = await Promise.all(
+        rows.map(user => sendEmailToAllUsers(user.email, subject, reply))
+      );
 
-    res.status(201).json({ message: 'Emails sent successfully', results: sendResults });
-  } catch (err) {
-    console.error('Error in replyTicket:', err);
-    res.status(500).json({ error: 'Internal server error' });
+      res.status(201).json({ message: 'Emails sent successfully', results: sendResults });
+    } catch (err) {
+      console.error('Error in sendToAllUsers:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-}
-
-
 
 };

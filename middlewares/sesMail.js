@@ -3238,48 +3238,7 @@ const attachments = [
                 </div>
             </body>
             </html>`,
-        attachments: [
-            {
-            filename: 'logo.png',
-            path: 'path_to/investain_logo.png',
-            cid: 'investain_logo'
-            },
-            {
-            filename: 'appstore.png',
-            path: 'path_to/app_store.png',
-            cid: 'app_store'
-            },
-            {
-            filename: 'playstore.png',
-            path: 'path_to/play_store.png',
-            cid: 'play_store'
-            },
-            {
-            filename: 'appgallery.png',
-            path: 'path_to/app_gallery.png',
-            cid: 'app_gallery'
-            },
-            {
-            filename: 'facebook.png',
-            path: 'path_to/fb_logo.png',
-            cid: 'fb_logo'
-            },
-            {
-            filename: 'twitter.png',
-            path: 'path_to/twitter_logo.png',
-            cid: 'twitter_logo'
-            },
-            {
-            filename: 'linkedin.png',
-            path: 'path_to/linkdin_logo.png',
-            cid: 'linkdin_logo'
-            },
-            {
-            filename: 'instagram.png',
-            path: 'path_to/insta_logo.png',
-            cid: 'insta_logo'
-            }
-        ]
+                attachments: attachments,
         };
 
         const info = await transporter.sendMail(mailOptions);
