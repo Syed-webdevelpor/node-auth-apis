@@ -155,10 +155,10 @@ module.exports = {
       const timestamp = createdAtLuxon.setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       let account_number = '';
       if (transaction_type === 'Deposit') {
-        account_number = from_id;
+        account_number = to_id;
         await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id)
       } else if (transaction_type === 'Withdrawal') {
-        account_number = to_id;
+        account_number = from_id;
         await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id)
       } else if (transaction_type === 'Transfer') {
         account_number = `${from_id} to ${to_id}.`;
