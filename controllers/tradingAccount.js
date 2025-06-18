@@ -193,7 +193,7 @@ module.exports = {
       await sendNewTradingAccountEmail(rows[0].first_name, rows[0].email);
       await sendNewTradingAccountReqToAccManagerEmail(accountManager.email, user_id, platform, currency, account_type, reason);
       // Send Notification
-      const timestamp = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      const timestamp = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       const notificationId = `notif_${timestamp}_${crypto.randomBytes(4).toString("hex")}`;
 
       const notificationMessage = `${rows[0].id} requested a new trading account (${currency}, ${account_type})`;

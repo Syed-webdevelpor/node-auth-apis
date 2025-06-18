@@ -50,7 +50,7 @@ exports.createTicket = async (req, res) => {
 
     // Send notification email
     if (email) {
-      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       await sendSupportTicketEmail(email, ticket.id, subject, manager_name, user_name, category, priority, message, user_email, dubaiTime);
       console.log(`Email sent to: ${email}`);
     }

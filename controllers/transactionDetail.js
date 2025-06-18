@@ -142,17 +142,17 @@ module.exports = {
       if (!user) {
         throw new Error("User not found");
       }
-
+      const timestamp = transaction.created_at.setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       let account_number = '';
       if (transaction_type === 'Deposit') {
         account_number = from_id;
-        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, transaction.created_at, account_number, transaction_id)
+        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id)
       } else if (transaction_type === 'Withdrawal') {
         account_number = to_id;
-        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, transaction.created_at, account_number, transaction_id)
+        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id)
       } else if (transaction_type === 'Transfer') {
         account_number = `${from_id} to ${to_id}.`;
-        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, transaction.created_at, account_number, transaction_id, from_id, to_id)
+        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id, from_id, to_id)
       }
 
       res.status(201).json({

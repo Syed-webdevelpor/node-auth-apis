@@ -651,7 +651,7 @@ module.exports = {
               message: "user not found",
             });
           }
-          const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+          const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
           if (updatedDoc[0].status === "approved") {
             sendDocApproveEmail(rows[0].email,rows[0].user_first_name);
           } else if (updatedDoc[0].status === "rejected") {

@@ -186,7 +186,7 @@ module.exports = {
         await sendOtpEmail(email, otp, username);
       }
   
-      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyyMMddHHmmss");
+      const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,dubaiTime)
       const notificationId = `notif_${dubaiTime}_${crypto.randomBytes(4).toString('hex')}`;
   
