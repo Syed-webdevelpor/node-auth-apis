@@ -1,6 +1,7 @@
 const DB = require("../dbConnection.js");
 const { verifyToken } = require("../tokenHandler.js");
-const { sendTransactionNotificationEmail } = require('../middlewares/sesMail.js')
+const { sendTransactionNotificationEmail } = require('../middlewares/sesMail.js');
+const { DateTime } = require("luxon");
 
 const fetchTransactionDetailByUserID = async (id) => {
   const sql = `
@@ -142,7 +143,16 @@ module.exports = {
       if (!user) {
         throw new Error("User not found");
       }
-      const timestamp = transaction.created_at.setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
+      let createdAtLuxon;
+      if (transaction.created_at instanceof Date) {
+        // SQL driver returned a JS Date object
+        createdAtLuxon = DateTime.fromJSDate(transaction.created_at);
+      } else {
+        // Assume it's a string (ISO format)
+        createdAtLuxon = DateTime.fromISO(transaction.created_at);
+      }
+
+      const timestamp = createdAtLuxon.setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       let account_number = '';
       if (transaction_type === 'Deposit') {
         account_number = from_id;
