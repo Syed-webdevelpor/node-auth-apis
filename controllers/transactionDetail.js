@@ -143,16 +143,10 @@ module.exports = {
       if (!user) {
         throw new Error("User not found");
       }
-      let createdAtLuxon;
-      if (transaction.created_at instanceof Date) {
-        // SQL driver returned a JS Date object
-        createdAtLuxon = DateTime.fromJSDate(transaction.created_at);
-      } else {
-        // Assume it's a string (ISO format)
-        createdAtLuxon = DateTime.fromISO(transaction.created_at);
-      }
-
-      const timestamp = createdAtLuxon.setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
+      const timestamp = DateTime
+        .fromJSDate(transaction.created_at, { zone: 'utc' })
+        .setZone("Asia/Dubai")
+        .toFormat("yyyy/MM/dd HH:mm:ss");
       let account_number = '';
       if (transaction_type === 'Deposit') {
         account_number = to_id;
