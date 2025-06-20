@@ -80,46 +80,61 @@ module.exports = {
     }
   },
 
-  updateAccount: async (req, res, next) => {
-    try {
-      const data = verifyToken(req.headers.access_token);
-      if (data && data.status) return res.status(data.status).json(data);
-      const {
-        id,
-        user_id,
-        account_type,
-        account_number,
-        account_status,
-        account_mode
-      } = req.body;
+updateAccount: async (req, res, next) => {
+  try {
+    const data = verifyToken(req.headers.access_token);
+    if (data && data.status) return res.status(data.status).json(data);
 
-      const [result] = await DB.execute(
-        "UPDATE `trading_accounts` SET `user_id` = ?, `account_type` = ?, `account_number` = ?, `account_status` = ?, `account_mode` = ? WHERE `id` = ?",
-        [
-          user_id,
-          account_type,
-          account_number,
-          account_status,
-          account_mode,
-          id
-        ]
-      );
+    const { id, ...fields } = req.body;
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          status: 404,
-          message: "Account not found",
-        });
-      }
-
-      res.status(200).json({
-        status: 200,
-        message: "Account updated successfully",
+    if (!id) {
+      return res.status(400).json({
+        status: 400,
+        message: "Account ID is required",
       });
-    } catch (err) {
-      next(err);
     }
-  },
+
+    const allowedFields = [
+      "user_id",
+      "account_type",
+      "account_number",
+      "account_status",
+      "account_mode"
+    ];
+
+    const keys = Object.keys(fields).filter(key => allowedFields.includes(key));
+
+    if (keys.length === 0) {
+      return res.status(400).json({
+        status: 400,
+        message: "No valid fields provided for update",
+      });
+    }
+
+    const setClause = keys.map(key => `\`${key}\` = ?`).join(", ");
+    const values = keys.map(key => fields[key]);
+
+    const [result] = await DB.execute(
+      `UPDATE trading_accounts SET ${setClause} WHERE id = ?`,
+      [...values, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 404,
+        message: "Account not found",
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: "Account updated successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+},
+
 
   getAllTradingAccount: async (req, res, next) => {
     try {
