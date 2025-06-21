@@ -4,6 +4,7 @@ const { fetchUserByEmailOrID } = require("../controllers/user.js");
 const {
   tokenValidation,
   validate,
+  verifyRecaptcha
 } = require("../middlewares/authentication.js");
 const user = require("../controllers/user.js");
 const biometricController = require('../controllers/biometric.js');
@@ -28,6 +29,7 @@ router.post(
       .withMessage("Password must be at least 4 characters long"),
   ],
   validate,
+  verifyRecaptcha,
   user.signup
 );
 

@@ -40,7 +40,60 @@ const validate = (req, res, next) => {
   next();
 };
 
+async function verifyRecaptcha(req, res, next) {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ status: 'error', message: 'Missing reCAPTCHA token.' });
+    }
+
+    // 1. Verify token with Google using axios
+    const response = await axios.post(
+      'https://www.google.com/recaptcha/api/siteverify',
+      new URLSearchParams({
+        secret: RECAPTCHA_SECRET_KEY,
+        response: token,
+        remoteip: req.ip,
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
+
+    const data = response.data;
+
+    if (!data.success) {
+      return res.status(403).json({ status: 'error', message: 'reCAPTCHA verification failed.' });
+    }
+
+    // 2. Optional: Check action if you're using reCAPTCHA with action
+    if (data.action && data.action !== 'signup') {
+      return res.status(403).json({ status: 'error', message: 'Invalid reCAPTCHA action.' });
+    }
+
+    // 3. Score-based logic
+    const score = data.score || 0;
+
+    if (score >= 0.9) {
+      req.recaptcha = { status: 'ok' }; // Very safe
+    } else if (score >= 0.5) {
+      req.recaptcha = { status: 'ok' };
+    } else {
+      return res.status(403).json({ status: 'blocked', message: 'Suspicious activity detected.' });
+    }
+
+    next();
+  } catch (error) {
+    console.error("reCAPTCHA verification error:", error.message);
+    return res.status(500).json({ status: 'error', message: 'Server error during reCAPTCHA verification.' });
+  }
+}
+
 module.exports = {
   tokenValidation,
   validate,
+  verifyRecaptcha
 };
