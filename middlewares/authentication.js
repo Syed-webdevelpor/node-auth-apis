@@ -79,11 +79,11 @@ async function verifyRecaptcha(req, res, next) {
     const score = data.score || 0;
 
     if (score >= 0.9) {
-      req.recaptcha = { status: 'ok' }; // Very safe
+      req.recaptcha = { status: 'ok', score }; // Very safe
     } else if (score >= 0.5) {
-      req.recaptcha = { status: 'ok' };
+      req.recaptcha = { status: 'ok', score };
     } else {
-      return res.status(403).json({ status: 'blocked', message: 'Suspicious activity detected.' });
+      return res.status(403).json({ status: 'blocked', message: 'Suspicious activity detected.', score });
     }
 
     next();

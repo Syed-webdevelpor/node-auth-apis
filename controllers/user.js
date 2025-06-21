@@ -278,7 +278,8 @@ module.exports = {
         account_nature: user.account_nature,
         is_verified: user.is_verified,
         kyc_completed:user.kyc_completed,
-        current_step : user.current_step
+        current_step : user.current_step,
+        recaptcha: req.recaptcha
       });
     } catch (err) {
       next(err);
