@@ -42,9 +42,9 @@ const validate = (req, res, next) => {
 
 async function verifyRecaptcha(req, res, next) {
   try {
-    const { token } = req.body;
+    const { recaptchaToken } = req.body;
 
-    if (!token) {
+    if (!recaptchaToken) {
       return res.status(400).json({ status: 'error', message: 'Missing reCAPTCHA token.' });
     }
 
@@ -53,7 +53,7 @@ async function verifyRecaptcha(req, res, next) {
       'https://www.google.com/recaptcha/api/siteverify',
       new URLSearchParams({
         secret: RECAPTCHA_SECRET_KEY,
-        response: token,
+        response: recaptchaToken,
         remoteip: req.ip,
       }),
       {
