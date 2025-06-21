@@ -8,21 +8,29 @@ const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAc
 
 const fetchAllTradingAccount = async () => {
   sql = `
-  SELECT ta.*, af.* 
-  FROM trading_accounts AS ta
-  LEFT JOIN account_financials AS af 
-  ON ta.account_number = af.account_id`;
+    SELECT 
+      ta.id AS trading_account_id,
+      ta.*, 
+      af.id AS financial_id,
+      af.* 
+    FROM trading_accounts AS ta
+    LEFT JOIN account_financials AS af 
+    ON ta.account_number = af.account_id `;
   const [row] = await DB.execute(sql);
   return row;
 };
 
 const fetchTradingAccountByUserID = async (id) => {
   const sql = `
-    SELECT ta.*, af.* 
-    FROM trading_accounts AS ta
-    LEFT JOIN account_financials AS af 
-    ON ta.account_number = af.account_id 
-    WHERE ta.user_id = ?`;
+        SELECT 
+          ta.id AS trading_account_id,
+          ta.*, 
+          af.id AS financial_id,
+          af.* 
+        FROM trading_accounts AS ta
+        LEFT JOIN account_financials AS af 
+        ON ta.account_number = af.account_id 
+        WHERE ta.user_id = ?`;
 
   const [rows] = await DB.execute(sql, [id]);
   return rows;
