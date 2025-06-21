@@ -53,7 +53,7 @@ async function verifyRecaptcha(req, res, next) {
     const response = await axios.post(
       'https://www.google.com/recaptcha/api/siteverify',
       new URLSearchParams({
-        secret: RECAPTCHA_SECRET_KEY,
+        secret: process.env.RECAPTCHA_SECRET_KEY,
         response: recaptchaToken,
         remoteip: req.ip,
       }),
