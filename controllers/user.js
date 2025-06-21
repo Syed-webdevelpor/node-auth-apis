@@ -215,7 +215,8 @@ module.exports = {
         access_token,
         refresh_token,
         referral_code: referralCode,
-        account_nature
+        account_nature,
+        recaptcha: req.recaptcha
       });
     } catch (err) {
       console.error(err);
@@ -279,7 +280,6 @@ module.exports = {
         is_verified: user.is_verified,
         kyc_completed:user.kyc_completed,
         current_step : user.current_step,
-        recaptcha: req.recaptcha
       });
     } catch (err) {
       next(err);
