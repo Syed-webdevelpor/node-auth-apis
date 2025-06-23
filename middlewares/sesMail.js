@@ -1337,7 +1337,7 @@ const attachments = [
                 What’s Next?
             </p>
             <p style="font-family: Rajdhani, sans-serif; font-size: 16px; text-align: left; margin: 0;">
-                Once uploaded, our onboarding team will review and verify your documents within one working day.
+                Once uploaded, our onboarding team will review and verify your documents.
             </p>
             <p style="font-family: Rajdhani, sans-serif; font-size: 16px; text-align: left; margin: 0;">
                 If you have any questions or need assistance, feel free to reach out to our support team.

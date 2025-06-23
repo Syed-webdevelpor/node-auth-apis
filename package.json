@@ -33,6 +33,7 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.5.0",
+    "mime-types": "^3.0.1",
     "multer": "^2.0.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.7",

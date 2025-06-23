@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const AWS = require('aws-sdk');
 const DB = require("../dbConnection.js");
 const { DateTime } = require("luxon");
+const mime = require('mime-types');
 const { sendDocReqEmail, sendDocUploadedEmail, sendDocSignatureUploadedEmail, sendDocUploadedEmailToUser, sendDocApproveEmail, sendDocRejectEmail } = require('../middlewares/sesMail.js')
 
 const fetchDocReqByUserId = async (userId) => {
@@ -141,7 +142,11 @@ async function downloadImage(inspectionId, imageId) {
       },
       responseType: 'arraybuffer', // To handle binary data (images)
     });
-    return response.data;
+    const contentType = response.headers['content-type'];
+    return {
+      data: response.data,
+      contentType,
+    };
   } catch (error) {
     console.error('Error downloading image:', error.response?.data || error.message);
     throw error;
@@ -266,8 +271,9 @@ module.exports = {
 
       // Step 3: Download and upload each image
       for (const imageId of imageIds) {
-        const imageContent = await downloadImage(inspectionId, imageId);
-        const filename = `document_${imageId}.jpg`; // Adjust file extension as needed
+        const { data: imageContent, contentType } = await downloadImage(inspectionId, imageId);
+        const fileExtension = mime.extension(contentType) || 'bin';
+        const filename = `document_${imageId}.${fileExtension}`;
         const s3Url = await uploadFileToS3(imageContent, filename, bucketName,userId);
         console.log('Uploaded to S3:', s3Url);
       }
