@@ -69,12 +69,9 @@ async function verifyRecaptcha(req, res, next) {
     if (!data.success) {
       return res.status(403).json({ status: 'error', message: 'reCAPTCHA verification failed.' });
     }
-
-    console.log(data.action);
     
-
     // 2. Optional: Check action if you're using reCAPTCHA with action
-    if (data.action && data.action !== 'signup') {
+    if (data.action && data.action !== 'signup' || data.action !== 'demoAccountForm') {
       return res.status(403).json({ status: 'error', message: 'Invalid reCAPTCHA action.' });
     }
 
