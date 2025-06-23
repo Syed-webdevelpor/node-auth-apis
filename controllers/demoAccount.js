@@ -44,6 +44,7 @@ module.exports = {
         status: 201,
         message: "Your Demo Account has been created",
         demo_account_id: uuid,
+        recaptcha: req.recaptcha
       });
     } catch (err) {
       next(err);
