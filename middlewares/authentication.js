@@ -45,7 +45,7 @@ async function verifyRecaptcha(req, res, next) {
   try {
     const { recaptchaToken , platform } = req.body;
     if(platform === 'mobile'){
-      next();
+      return next();
     }
 
     if (!recaptchaToken) {
