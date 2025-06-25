@@ -43,7 +43,10 @@ const validate = (req, res, next) => {
 
 async function verifyRecaptcha(req, res, next) {
   try {
-    const { recaptchaToken } = req.body;
+    const { recaptchaToken , platform } = req.body;
+    if(platform === 'mobile'){
+      next();
+    }
 
     if (!recaptchaToken) {
       return res.status(400).json({ status: 'error', message: 'Missing reCAPTCHA token.' });

@@ -216,7 +216,7 @@ module.exports = {
         refresh_token,
         referral_code: referralCode,
         account_nature,
-        recaptcha: req.recaptcha
+        recaptcha: req.recaptcha ? req.recaptcha : null
       });
     } catch (err) {
       console.error(err);
