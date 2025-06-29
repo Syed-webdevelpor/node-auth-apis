@@ -1,5 +1,5 @@
 const db = require("../dbConnection.js");
-const { sendSMS } = require('../sns');
+const { sendSMS } = require('../middlewares/sns.js');
 
 // Request OTP
 exports.requestOtp = async (req, res) => {
