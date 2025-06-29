@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require("../dbConnection.js");
 const { sendSMS } = require('../sns');
 
 // Request OTP
