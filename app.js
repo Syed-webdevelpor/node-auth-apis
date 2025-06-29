@@ -28,6 +28,7 @@ const notificationRoutes = require("./routers/notification.js");
 const ticketRoutes = require("./routers/supportTicket.js");
 const notesRoutes = require("./routers/notes.js");
 const versionRoutes = require("./routers/version.js");
+const otpRoutes = require('./routers/otpVerification.js');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -90,6 +91,7 @@ app.use("/api/notification", notificationRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/version", versionRoutes);
+app.use('/api/otp', otpRoutes);
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";

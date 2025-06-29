@@ -20,13 +20,17 @@ module.exports = {
         is_shareholder,
         is_beneficial_owner,
         objective_of_investment,
+        bank_name,
+        controlling_person_first_name,
+        controlling_person_last_name,
+        controlling_person_phone_number,
         userId
       } = req.body;
       
       const uuid = uuidv4();
 
       const [result] = await DB.execute(
-        "INSERT INTO `orgFinancialInfo` (`id`, `annual_revenue`, `net_worth`, `other_assets`, `source_of_funds`, `is_shareholder`, `is_beneficial_owner`, `objective_of_investment`, `userId`) VALUES (?,?,?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO `orgFinancialInfo` (`id`, `annual_revenue`, `net_worth`, `other_assets`, `source_of_funds`, `is_shareholder`, `is_beneficial_owner`, `objective_of_investment`, `userId`, `bank_name`, `controlling_person_first_name`, `controlling_person_last_name`, `controlling_person_phone_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           uuid,
           annual_revenue,
@@ -36,6 +40,10 @@ module.exports = {
           is_shareholder,
           is_beneficial_owner,
           objective_of_investment,
+          bank_name,
+          controlling_person_first_name,
+          controlling_person_last_name,
+          controlling_person_phone_number,
           userId
         ]
       );
@@ -86,11 +94,15 @@ module.exports = {
         is_shareholder,
         is_beneficial_owner,
         objective_of_investment,
+        bank_name,
+        controlling_person_first_name,
+        controlling_person_last_name,
+        controlling_person_phone_number,
         userId
       } = req.body;
   
       const [result] = await DB.execute(
-        "UPDATE `orgFinancialInfo` SET `annual_revenue` = ?, `net_worth` = ?, `other_assets` = ?, `source_of_funds` = ?, `is_shareholder` = ?, `is_beneficial_owner` = ?, `objective_of_investment` = ? WHERE `userId` = ?",
+        "UPDATE `orgFinancialInfo` SET `annual_revenue` = ?, `net_worth` = ?, `other_assets` = ?, `source_of_funds` = ?, `is_shareholder` = ?, `is_beneficial_owner` = ?, `objective_of_investment` = ?, `bank_name`= ?, `controlling_person_first_name`= ?, `controlling_person_last_name`= ?, `controlling_person_phone_number`= ? WHERE `userId` = ?",
         [
             annual_revenue,
             net_worth,
@@ -99,6 +111,10 @@ module.exports = {
             is_shareholder,
             is_beneficial_owner,
             objective_of_investment,
+            bank_name,
+            controlling_person_first_name,
+            controlling_person_last_name,
+            controlling_person_phone_number,
             userId
         ]
       );

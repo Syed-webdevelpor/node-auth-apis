@@ -27,18 +27,11 @@ module.exports = {
             county,
             director_info, // Array of directors
             shareholder_info, // Array of shareholders
-            bank_title,
-            authorizer_person,
-            bank_first_name,
-            bank_last_name,
-            mobile_number,
-            job_title,
-            relationship_with_corporate,
             userId, // Assuming you still want to associate this with a user
           } = req.body;
       
           // Validate director_info structure
-          if (!Array.isArray(director_info) || director_info.some(dir => !dir.director_first_name || !dir.director_last_name)) {
+          if (!Array.isArray(director_info) || director_info.some(dir => !dir.director_first_name || !dir.director_last_name || !dir.director_email || !dir.director_phone_number)) {
             return res.status(400).json({
               status: 400,
               message: "Invalid director information format.",
@@ -48,7 +41,7 @@ module.exports = {
           // Validate shareholder_info structure
           if (
             !Array.isArray(shareholder_info) ||
-            shareholder_info.some(sh => !sh.shareholder_first_name || !sh.shareholder_last_name || sh.percentage_of_shares == null)
+            shareholder_info.some(sh => !sh.shareholder_first_name || !sh.shareholder_last_name || sh.percentage_of_shares == null || !sh.director_email || !sh.director_phone_number)
           ) {
             return res.status(400).json({
               status: 400,
@@ -77,15 +70,8 @@ module.exports = {
               county,
               director_info,
               shareholder_info,
-              bank_title,
-              authorizer_person,
-              bank_first_name,
-              bank_last_name,
-              mobile_number,
-              job_title,
-              relationship_with_corporate,
               user_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               uuid,
               company_name,
@@ -105,7 +91,8 @@ module.exports = {
                 director_info.map(dir => ({
                   director_first_name: dir.director_first_name,
                   director_last_name: dir.director_last_name,
-                  director_ssn: dir.director_ssn || null,
+                  director_email: dir.director_email,
+                  director_phone_number: dir.director_phone_number,
                 }))
               ),
               JSON.stringify(
@@ -113,16 +100,10 @@ module.exports = {
                   shareholder_first_name: sh.shareholder_first_name,
                   shareholder_last_name: sh.shareholder_last_name,
                   percentage_of_shares: parseFloat(sh.percentage_of_shares).toFixed(2),
-                  shareholder_ssn: sh.shareholder_ssn || null,
+                  shareholder_email: dir.shareholder_email,
+                  shareholder_phone_number: dir.shareholder_phone_number,
                 }))
               ),
-              bank_title,
-              authorizer_person,
-              bank_first_name,
-              bank_last_name,
-              mobile_number,
-              job_title,
-              relationship_with_corporate,
               userId
             ]
           );
@@ -182,19 +163,12 @@ module.exports = {
         county,
         director_info, // Array of directors
         shareholder_info, // Array of shareholders
-        bank_title,
-        authorizer_person,
-        bank_first_name,
-        bank_last_name,
-        mobile_number,
-        job_title,
-        relationship_with_corporate,
       } = req.body;
   
       // Validate director_info structure
       if (
         director_info &&
-        (!Array.isArray(director_info) || director_info.some(dir => !dir.director_first_name || !dir.director_last_name))
+        (!Array.isArray(director_info) || director_info.some(dir => !dir.director_first_name || !dir.director_last_name|| !dir.director_email || !dir.director_phone_number ))
       ) {
         return res.status(400).json({
           status: 400,
@@ -206,7 +180,7 @@ module.exports = {
       if (
         shareholder_info &&
         (!Array.isArray(shareholder_info) ||
-          shareholder_info.some(sh => !sh.shareholder_first_name || !sh.shareholder_last_name || sh.percentage_of_shares == null))
+          shareholder_info.some(sh => !sh.shareholder_first_name || !sh.shareholder_last_name || sh.percentage_of_shares == null || !sh.director_email || !sh.director_phone_number))
       ) {
         return res.status(400).json({
           status: 400,
@@ -278,51 +252,25 @@ module.exports = {
             director_info.map(dir => ({
               director_first_name: dir.director_first_name,
               director_last_name: dir.director_last_name,
-              director_ssn: dir.director_ssn || null,
+              director_email: dir.director_email,
+              director_phone_number: dir.director_phone_number,
             }))
-          )
+          ),
         );
       }
       if (shareholder_info) {
         updates.push("shareholder_info = ?");
         params.push(
-          JSON.stringify(
+            JSON.stringify(
             shareholder_info.map(sh => ({
               shareholder_first_name: sh.shareholder_first_name,
               shareholder_last_name: sh.shareholder_last_name,
               percentage_of_shares: parseFloat(sh.percentage_of_shares).toFixed(2),
-              shareholder_ssn: sh.shareholder_ssn || null,
+              shareholder_email: dir.shareholder_email,
+              shareholder_phone_number: dir.shareholder_phone_number,
             }))
-          )
+          ),
         );
-      }
-      if (bank_title) {
-        updates.push("bank_title = ?");
-        params.push(bank_title);
-      }
-      if (authorizer_person) {
-        updates.push("authorizer_person = ?");
-        params.push(authorizer_person);
-      }
-      if (bank_first_name) {
-        updates.push("bank_first_name = ?");
-        params.push(bank_first_name);
-      }
-      if (bank_last_name) {
-        updates.push("bank_last_name = ?");
-        params.push(bank_last_name);
-      }
-      if (mobile_number) {
-        updates.push("mobile_number = ?");
-        params.push(mobile_number);
-      }
-      if (job_title) {
-        updates.push("job_title = ?");
-        params.push(job_title);
-      }
-      if (relationship_with_corporate) {
-        updates.push("relationship_with_corporate = ?");
-        params.push(relationship_with_corporate);
       }
   
       if (updates.length === 0) {
