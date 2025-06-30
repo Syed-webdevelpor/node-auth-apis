@@ -83,7 +83,7 @@ async function verifyRecaptcha(req, res, next) {
 
     if (score >= 0.9) {
       req.recaptcha = { status: 'ok', score }; // Very safe
-    } else if (score >= 0.5) {
+    } else if (score >= 0.7) {
       req.recaptcha = { status: 'ok', score };
     } else {
       return res.status(403).json({ status: 'blocked', message: 'Suspicious activity detected.', score });

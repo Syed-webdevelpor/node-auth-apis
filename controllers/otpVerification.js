@@ -15,7 +15,8 @@ exports.requestOtp = async (req, res) => {
       [phoneNumber, otp, expiresAt]
     );
 
-    await sendSMS(phoneNumber, `Your verification code is: ${otp}`);
+   let message = await sendSMS(phoneNumber, `Your verification code is: ${otp}`);
+   console.log(message);
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
