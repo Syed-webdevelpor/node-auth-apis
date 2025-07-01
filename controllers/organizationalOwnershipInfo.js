@@ -87,7 +87,7 @@ module.exports = {
       }
       res.json({
         status: 200,
-        organizationalOwnershipInfo: user[0],
+        organizationalOwnershipInfo: user,
       });
     } catch (err) {
       next(err);
