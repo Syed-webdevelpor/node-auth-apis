@@ -25,29 +25,8 @@ module.exports = {
             city,
             post_code,
             county,
-            director_info, // Array of directors
-            shareholder_info, // Array of shareholders
             userId, // Assuming you still want to associate this with a user
           } = req.body;
-      
-          // Validate director_info structure
-          if (!Array.isArray(director_info) || director_info.some(dir => !dir.director_first_name || !dir.director_last_name || !dir.director_email || !dir.director_phone_number)) {
-            return res.status(400).json({
-              status: 400,
-              message: "Invalid director information format.",
-            });
-          }
-      
-          // Validate shareholder_info structure
-          if (
-            !Array.isArray(shareholder_info) ||
-            shareholder_info.some(sh => !sh.shareholder_first_name || !sh.shareholder_last_name || sh.percentage_of_shares == null || !sh.director_email || !sh.director_phone_number)
-          ) {
-            return res.status(400).json({
-              status: 400,
-              message: "Invalid shareholder information format.",
-            });
-          }
       
           const uuid = uuidv4();
       
@@ -68,10 +47,8 @@ module.exports = {
               city,
               post_code,
               county,
-              director_info,
-              shareholder_info,
               user_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               uuid,
               company_name,
@@ -87,23 +64,6 @@ module.exports = {
               city,
               post_code,
               county,
-              JSON.stringify(
-                director_info.map(dir => ({
-                  director_first_name: dir.director_first_name,
-                  director_last_name: dir.director_last_name,
-                  director_email: dir.director_email,
-                  director_phone_number: dir.director_phone_number,
-                }))
-              ),
-              JSON.stringify(
-                shareholder_info.map(sh => ({
-                  shareholder_first_name: sh.shareholder_first_name,
-                  shareholder_last_name: sh.shareholder_last_name,
-                  percentage_of_shares: parseFloat(sh.percentage_of_shares).toFixed(2),
-                  shareholder_email: dir.shareholder_email,
-                  shareholder_phone_number: dir.shareholder_phone_number,
-                }))
-              ),
               userId
             ]
           );
@@ -160,33 +120,8 @@ module.exports = {
         address,
         city,
         post_code,
-        county,
-        director_info, // Array of directors
-        shareholder_info, // Array of shareholders
+        county
       } = req.body;
-  
-      // Validate director_info structure
-      if (
-        director_info &&
-        (!Array.isArray(director_info) || director_info.some(dir => !dir.director_first_name || !dir.director_last_name|| !dir.director_email || !dir.director_phone_number ))
-      ) {
-        return res.status(400).json({
-          status: 400,
-          message: "Invalid director information format.",
-        });
-      }
-  
-      // Validate shareholder_info structure
-      if (
-        shareholder_info &&
-        (!Array.isArray(shareholder_info) ||
-          shareholder_info.some(sh => !sh.shareholder_first_name || !sh.shareholder_last_name || sh.percentage_of_shares == null || !sh.director_email || !sh.director_phone_number))
-      ) {
-        return res.status(400).json({
-          status: 400,
-          message: "Invalid shareholder information format.",
-        });
-      }
   
       // Build the update query dynamically
       const updates = [];
@@ -244,33 +179,6 @@ module.exports = {
       if (county) {
         updates.push("county = ?");
         params.push(county);
-      }
-      if (director_info) {
-        updates.push("director_info = ?");
-        params.push(
-          JSON.stringify(
-            director_info.map(dir => ({
-              director_first_name: dir.director_first_name,
-              director_last_name: dir.director_last_name,
-              director_email: dir.director_email,
-              director_phone_number: dir.director_phone_number,
-            }))
-          ),
-        );
-      }
-      if (shareholder_info) {
-        updates.push("shareholder_info = ?");
-        params.push(
-            JSON.stringify(
-            shareholder_info.map(sh => ({
-              shareholder_first_name: sh.shareholder_first_name,
-              shareholder_last_name: sh.shareholder_last_name,
-              percentage_of_shares: parseFloat(sh.percentage_of_shares).toFixed(2),
-              shareholder_email: dir.shareholder_email,
-              shareholder_phone_number: dir.shareholder_phone_number,
-            }))
-          ),
-        );
       }
   
       if (updates.length === 0) {
