@@ -79,7 +79,7 @@ module.exports = {
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
       const user = await fetchOrganizationaOwnershiplInfoByID(req.params.id);
-      if (user.length !== 1) {
+      if (user.length === 0) {
         return res.status(404).json({
           status: 404,
           message: "organizational Ownership info not found",
