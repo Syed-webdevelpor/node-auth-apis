@@ -49,7 +49,7 @@ const fetchUsersByAccManID = async (id) => {
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-       LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
+       LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
@@ -68,7 +68,7 @@ const fetchAllUsers = async () => {
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-       LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
+       LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id`
@@ -86,7 +86,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
          account_info.trading_experience, account_info.account_type,account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-       LEFT JOIN organizational_info ON users.organizational_info_id = organizational_info.id
+       LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id

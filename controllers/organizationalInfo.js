@@ -3,7 +3,7 @@ const DB = require("../dbConnection.js");
 const { verifyToken } = require("../tokenHandler.js");
 
 const fetchOrganizationalInfoByID = async (id) => {
-  sql = "SELECT * FROM `organizational_info` WHERE `user_id`=?";
+  sql = "SELECT * FROM `organizationalInfo` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
@@ -32,7 +32,7 @@ module.exports = {
       
           // Insert the new organizational info
           const [result] = await DB.execute(
-            `INSERT INTO organizational_info (
+            `INSERT INTO organizationalInfo (
               id,
               company_name,
               register_number,
@@ -70,7 +70,7 @@ module.exports = {
       
           // Update the user's organizational info ID
           await DB.execute(
-            "UPDATE users SET organizational_info_id = ? WHERE id = ?",
+            "UPDATE users SET organizationalInfo = ? WHERE id = ?",
             [uuid, userId]
           );
       
@@ -193,7 +193,7 @@ module.exports = {
   
       // Execute the update query
       const [result] = await DB.execute(
-        `UPDATE organizational_info SET ${updates.join(", ")} WHERE id = ?`,
+        `UPDATE organizationalInfo SET ${updates.join(", ")} WHERE id = ?`,
         params
       );
   
