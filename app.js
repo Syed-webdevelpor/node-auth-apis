@@ -30,6 +30,7 @@ const notesRoutes = require("./routers/notes.js");
 const versionRoutes = require("./routers/version.js");
 const otpRoutes = require('./routers/otpVerification.js');
 const organizationalOwnershipInfo = require("./routers/organizationalOwnershipInfo.js");
+const orgInfoDoc = require("./routers/orgInfoDoc.js");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -94,6 +95,7 @@ app.use("/api/notes", notesRoutes);
 app.use("/api/version", versionRoutes);
 app.use('/api/otp', otpRoutes);
 app.use("/api/organizationalOwnershipInfo", organizationalOwnershipInfo);
+app.use("/api/orgInfoDoc", orgInfoDoc);
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
