@@ -40,14 +40,13 @@ module.exports = {
           is_shareholder,
           is_beneficial_owner,
           objective_of_investment,
+          userId,
           bank_name,
           controlling_person_first_name,
           controlling_person_last_name,
-          controlling_person_phone_number,
-          userId
+          controlling_person_phone_number
         ]
       );
-      console.log(uuid);
       await DB.execute(
         "UPDATE `users` SET `org_financial_info_id` = ? WHERE `id` = ?",
         [uuid, userId]
