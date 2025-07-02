@@ -10,9 +10,17 @@ axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
 // Function to create the signature for Sumsub API requests
 function createSignature(config) {
   const ts = Math.floor(Date.now() / 1000);
+  const stringToSign = ts + config.method.toUpperCase() + config.url;
   const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
-    .update(ts + config.method.toUpperCase() + config.url)
+    .update(stringToSign)
     .digest('hex');
+
+  console.log('Signature generation details:');
+  console.log('Timestamp:', ts);
+  console.log('Method:', config.method.toUpperCase());
+  console.log('URL:', config.url);
+  console.log('String to sign:', stringToSign);
+  console.log('Generated signature:', signature);
 
   config.headers['X-App-Access-Ts'] = ts;
   config.headers['X-App-Access-Sig'] = signature;
@@ -153,7 +161,7 @@ async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   }
 }
 
-async function createWebSdkLink(levelName, userId, ttlInSecs = 1800, token) {
+async function createWebSdkLink(levelName, userId, ttlInSecs = 1800) {
   const url = '/resources/sdkIntegrations/levels/-/websdkLink';
 
   const body = {
@@ -165,7 +173,7 @@ async function createWebSdkLink(levelName, userId, ttlInSecs = 1800, token) {
   let config = {
     headers: {
       'Content-Type': 'application/json',
-      'X-App-Token': token,
+      'X-App-Token': process.env.SUMSUB_APP_TOKEN,
     },
     url: url,
     method: 'POST',
@@ -212,7 +220,7 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
         const tokenData = await createAccessToken(ownershipInfo.id, levelName, ttlInSecs);
 
         // Create websdk link
-        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 1800, tokenData.token);
+        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 1800);
 
         // Send email with link to ownershipInfo email
         if (ownershipInfo.email) {
