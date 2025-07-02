@@ -1,10 +1,28 @@
 const s3 = require('../middlewares/s3Client');
 const axios = require('axios');
 const DB = require("../dbConnection.js");
-const { createSignature } = require('./user');
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+
+axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
+// Function to create the signature for Sumsub API requests
+function createSignature(config) {
+  const ts = Math.floor(Date.now() / 1000);
+  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
+    .update(ts + config.method.toUpperCase() + config.url)
+    .digest('hex');
+
+  config.headers['X-App-Access-Ts'] = ts;
+  config.headers['X-App-Access-Sig'] = signature;
+
+  return config;
+}
+
+// Intercept all requests to add the signature
+axios.interceptors.request.use(createSignature, function (error) {
+  return Promise.reject(error);
+});
 
 const fetchOrganizationalInfoByID = async (id) => {
   sql = "SELECT * FROM `organizationalInfo` WHERE `user_id`=?";
@@ -152,9 +170,6 @@ async function createWebSdkLink(levelName, userId, ttlInSecs = 1800) {
     method: 'POST',
     data: body
   };
-
-  // Use createSignature to add signature headers
-  config = createSignature(config);
 
   try {
     const response = await axios(config);
