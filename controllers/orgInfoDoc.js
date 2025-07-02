@@ -16,7 +16,24 @@ const fetchOrganizationaOwnershiplInfoByID = async (id) => {
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
+axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
+// Function to create the signature for Sumsub API requests
+function createSignature(config) {
+  const ts = Math.floor(Date.now() / 1000);
+  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
+    .update(ts + config.method.toUpperCase() + config.url)
+    .digest('hex');
 
+  config.headers['X-App-Access-Ts'] = ts;
+  config.headers['X-App-Access-Sig'] = signature;
+
+  return config;
+}
+
+// Intercept all requests to add the signature
+axios.interceptors.request.use(createSignature, function (error) {
+  return Promise.reject(error);
+});
 // controllers/orgInfoDoc.js (add better error handling)
 exports.uploadFiles = async (req, res) => {
   try {
@@ -114,48 +131,23 @@ exports.getUserDocuments = async (req, res) => {
   }
 };
 
-async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
-  const url = `/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
 
-  const headers = {
-    'Accept': 'application/json',
+async function createWebSdkLink(levelName, userId, ttlInSecs = 600, email = '', phone = '') {
+  const url = '/resources/sdkIntegrations/levels/-/websdkLink';
+
+ const headers = {
+    'Content-Type': 'application/json',
     'X-App-Token': process.env.SUMSUB_APP_TOKEN
   };
-
-  try {
-    const response = await axios.post(url, null, { headers });
-    return response.data;
-  } catch (error) {
-    console.error('Error creating access token:', error.response ? error.response.data : error.message);
-    throw error;
-  }
-}
-
-async function createWebSdkLink(levelName, userId, ttlInSecs = 1800, email = '', phone = '') {
-  const url = '/resources/sdkIntegrations/levels/-/websdkLink';
 
   const body = {
     levelName,
     userId,
-    ttlInSecs,
-    applicantIdentifiers: {
-      email,
-      phone
-    }
-  };
-
-  let config = {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-    },
-    url: url,
-    method: 'POST',
-    data: body
+    ttlInSecs // You can get this from req.body if needed
   };
 
   try {
-    const response = await axios(config);
+    const response = await axios.post(url, body, { headers });
     return response.data;
   } catch (error) {
     console.error('Error creating websdk link:', error.response ? error.response.data : error.message);
@@ -190,11 +182,9 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
 
     for (const ownershipInfo of ownershipInfos) {
       try {
-        // Create access token
-        const tokenData = await createAccessToken(ownershipInfo.id, levelName, ttlInSecs);
 
         // Create websdk link
-        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 1800);
+        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, ttlInSecs);
 
         // Send email with link to ownershipInfo email
         if (ownershipInfo.email) {
@@ -204,7 +194,6 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
         results.push({
           ownershipInfoId: ownershipInfo.id,
           email: ownershipInfo.email,
-          tokenData,
           linkData
         });
       } catch (error) {
