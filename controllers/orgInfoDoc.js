@@ -1,4 +1,4 @@
-const { axios } = require('./user');
+const axios = require('axios');
 const DB = require("../dbConnection.js");
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
 const s3 = require('../middlewares/s3Client');
