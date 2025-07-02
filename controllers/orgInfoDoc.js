@@ -18,23 +18,24 @@ const fetchOrganizationaOwnershiplInfoByID = async (id) => {
   return row;
 };
 axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
+
 // Function to create the signature for Sumsub API requests
-function createSignature(config) {
-  const ts = Math.floor(Date.now() / 1000);
-  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
-    .update(ts + config.method.toUpperCase() + config.url)
-    .digest('hex');
+// function createSignature(config) {
+//   const ts = Math.floor(Date.now() / 1000);
+//   const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
+//     .update(ts + config.method.toUpperCase() + config.url)
+//     .digest('hex');
 
-  config.headers['X-App-Access-Ts'] = ts;
-  config.headers['X-App-Access-Sig'] = signature;
+//   config.headers['X-App-Access-Ts'] = ts;
+//   config.headers['X-App-Access-Sig'] = signature;
 
-  return config;
-}
+//   return config;
+// }
 
-// Intercept all requests to add the signature
-axios.interceptors.request.use(createSignature, function (error) {
-  return Promise.reject(error);
-});
+// // Intercept all requests to add the signature
+// axios.interceptors.request.use(createSignature, function (error) {
+//   return Promise.reject(error);
+// });
 // controllers/orgInfoDoc.js (add better error handling)
 exports.uploadFiles = async (req, res) => {
   try {
@@ -131,20 +132,26 @@ exports.getUserDocuments = async (req, res) => {
     res.status(500).json({ error: 'Failed to list user documents' });
   }
 };
+// Generate HMAC-SHA256 signature
+function generateSignature(secretKey, httpMethod, requestPath, requestBody, timestamp) {
+  const message = `${timestamp}${httpMethod.toUpperCase()}${requestPath}${requestBody}`;
+  return crypto.createHmac('sha256', secretKey).update(message).digest('hex');
+}
 
-
-async function createWebSdkLink(levelName, userId, ttlInSecs = 600, email = '', phone = '') {
+async function createWebSdkLink(levelName, userId, ttlInSecs = 600) {
   const url = '/resources/sdkIntegrations/levels/-/websdkLink';
-
- const headers = {
-    'Content-Type': 'application/json',
-    'X-App-Token': process.env.SUMSUB_APP_TOKEN
-  };
-
   const body = {
     levelName,
     userId,
     ttlInSecs // You can get this from req.body if needed
+  };
+    const timestamp = Math.floor(Date.now() / 1000);
+    const signature = generateSignature(SECRET_KEY, 'POST', url, body, timestamp);
+ const headers = {
+    'Content-Type': 'application/json',
+    'X-App-Token': process.env.SUMSUB_APP_TOKEN,
+    'X-App-Access-Sig': signature,
+    'X-App-Access-Ts': timestamp
   };
 
   try {
