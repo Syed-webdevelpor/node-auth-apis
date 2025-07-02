@@ -1,5 +1,6 @@
 const s3 = require('../middlewares/s3Client');
 const axios = require('axios');
+const DB = require("../dbConnection.js");
 const { createSignature } = require('./user');
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
 
