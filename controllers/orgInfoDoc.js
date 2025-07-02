@@ -1,6 +1,7 @@
 const s3 = require('../middlewares/s3Client');
 const axios = require('axios');
 const DB = require("../dbConnection.js");
+const crypto = require("crypto");
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
