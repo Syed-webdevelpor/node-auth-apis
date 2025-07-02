@@ -1,46 +1,18 @@
-const s3 = require('../middlewares/s3Client');
-const axios = require('axios');
+const { axios } = require('./user');
 const DB = require("../dbConnection.js");
-const crypto = require("crypto");
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
+const s3 = require('../middlewares/s3Client');
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
 
-axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
-// Function to create the signature for Sumsub API requests
-function createSignature(config) {
-  const ts = Math.floor(Date.now() / 1000);
-  const stringToSign = ts + config.method.toUpperCase() + config.url;
-  const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
-    .update(stringToSign)
-    .digest('hex');
-
-  console.log('Signature generation details:');
-  console.log('Timestamp:', ts);
-  console.log('Method:', config.method.toUpperCase());
-  console.log('URL:', config.url);
-  console.log('String to sign:', stringToSign);
-  console.log('Generated signature:', signature);
-
-  config.headers['X-App-Access-Ts'] = ts;
-  config.headers['X-App-Access-Sig'] = signature;
-
-  return config;
-}
-
-// Intercept all requests to add the signature
-axios.interceptors.request.use(createSignature, function (error) {
-  return Promise.reject(error);
-});
-
 const fetchOrganizationalInfoByID = async (id) => {
-  sql = "SELECT * FROM `organizationalInfo` WHERE `user_id`=?";
+  const sql = "SELECT * FROM `organizationalInfo` WHERE `user_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
 
 const fetchOrganizationaOwnershiplInfoByID = async (id) => {
-  sql = "SELECT * FROM `organizationOwnershipInfo` WHERE `organizational_info_id`=?";
+  const sql = "SELECT * FROM `organizationOwnershipInfo` WHERE `organizational_info_id`=?";
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
@@ -142,8 +114,6 @@ exports.getUserDocuments = async (req, res) => {
   }
 };
 
-axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
-
 async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   const url = `/resources/accessTokens?userId=${encodeURIComponent(externalUserId)}&ttlInSecs=${ttlInSecs}&levelName=${encodeURIComponent(levelName)}`;
 
@@ -161,13 +131,17 @@ async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   }
 }
 
-async function createWebSdkLink(levelName, userId, ttlInSecs = 1800) {
+async function createWebSdkLink(levelName, userId, ttlInSecs = 1800, email = '', phone = '') {
   const url = '/resources/sdkIntegrations/levels/-/websdkLink';
 
   const body = {
     levelName,
     userId,
-    ttlInSecs
+    ttlInSecs,
+    applicantIdentifiers: {
+      email,
+      phone
+    }
   };
 
   let config = {
@@ -250,4 +224,3 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
     next(error);
   }
 };
-
