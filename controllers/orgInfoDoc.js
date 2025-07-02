@@ -153,7 +153,7 @@ async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   }
 }
 
-async function createWebSdkLink(levelName, userId, ttlInSecs = 1800) {
+async function createWebSdkLink(levelName, userId, ttlInSecs = 1800, token) {
   const url = '/resources/sdkIntegrations/levels/-/websdkLink';
 
   const body = {
@@ -165,7 +165,7 @@ async function createWebSdkLink(levelName, userId, ttlInSecs = 1800) {
   let config = {
     headers: {
       'Content-Type': 'application/json',
-      'X-App-Token': process.env.SUMSUB_APP_TOKEN,
+      'X-App-Token': token,
     },
     url: url,
     method: 'POST',
@@ -212,7 +212,7 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
         const tokenData = await createAccessToken(ownershipInfo.id, levelName, ttlInSecs);
 
         // Create websdk link
-        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 1800);
+        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 1800, tokenData.token);
 
         // Send email with link to ownershipInfo email
         if (ownershipInfo.email) {
