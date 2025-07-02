@@ -2,10 +2,20 @@ const s3 = require('../middlewares/s3Client');
 const axios = require('axios');
 const { createSignature } = require('./user');
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
-const { fetchOrganizationalInfoByID } = require('./organizationalInfo');
-const { fetchOrganizationaOwnershiplInfoByID } = require('./organizationalOwnershipInfo');
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+
+const fetchOrganizationalInfoByID = async (id) => {
+  sql = "SELECT * FROM `organizationalInfo` WHERE `user_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+
+const fetchOrganizationaOwnershiplInfoByID = async (id) => {
+  sql = "SELECT * FROM `organizationOwnershipInfo` WHERE `organizational_info_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
 
 // controllers/orgInfoDoc.js (add better error handling)
 exports.uploadFiles = async (req, res) => {
