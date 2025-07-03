@@ -14,6 +14,7 @@ module.exports = {
           const {
             organizational_info_id,
             role,
+            title,
             first_name,
             last_name,
             email,
@@ -34,6 +35,7 @@ module.exports = {
             id,
             organizational_info_id,
             role,
+            title,
             first_name,
             last_name,
             email,
@@ -49,6 +51,7 @@ module.exports = {
             uuid,
             organizational_info_id,
             role,
+            title,
             first_name,
             last_name,
             email,
@@ -99,6 +102,7 @@ module.exports = {
       const {
         id, // ID of the organizational info to update
         role,
+        title,
         first_name,
         last_name,
         email,
@@ -119,6 +123,10 @@ module.exports = {
       if (role) {
         updates.push("role = ?");
         params.push(role);
+      }
+      if (title) {
+        updates.push("title = ?");
+        params.push(title);
       }
       if (first_name) {
         updates.push("first_name = ?");
