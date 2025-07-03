@@ -178,31 +178,34 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
       return res.status(400).json({ error: 'userId is required in request body' });
     }
 
-    // Fetch organizationalInfo by userId
     const organizationalInfo = await fetchOrganizationalInfoByID(userId);
     if (!organizationalInfo || organizationalInfo.length === 0) {
       return res.status(404).json({ error: 'Organizational info not found for userId' });
     }
     const organizationalInfoId = organizationalInfo[0].id;
 
-    // Fetch organizationOwnershipInfo by organizational_info_id
     const ownershipInfos = await fetchOrganizationaOwnershiplInfoByID(organizationalInfoId);
     if (!ownershipInfos || ownershipInfos.length === 0) {
       return res.status(404).json({ error: 'Organization ownership info not found for organizationalInfoId' });
     }
 
     const levelName = 'Live account verification';
-
     const results = [];
+    const sentEmails = new Set(); // Track sent emails
 
     for (const ownershipInfo of ownershipInfos) {
       try {
         // Create websdk link
         const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 600);
 
-        // Send email with link to ownershipInfo email
-        if (ownershipInfo.email) {
-          await sendVerificationKycDocsEmail(ownershipInfo.email, linkData.url, `${ownershipInfo.first_name || ''} ${ownershipInfo.last_name || ''}`.trim());
+        // Send email only if it hasn't already been sent
+        if (ownershipInfo.email && !sentEmails.has(ownershipInfo.email)) {
+          await sendVerificationKycDocsEmail(
+            ownershipInfo.email,
+            linkData.url,
+            `${ownershipInfo.first_name || ''} ${ownershipInfo.last_name || ''}`.trim()
+          );
+          sentEmails.add(ownershipInfo.email); // Mark email as sent
         }
 
         results.push({
@@ -213,6 +216,7 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
         console.error(`Error processing ownershipInfo id ${ownershipInfo.id}:`, error);
         results.push({
           ownershipInfoId: ownershipInfo.id,
+          email: ownershipInfo.email,
           error: error.message || 'Error occurred'
         });
       }
