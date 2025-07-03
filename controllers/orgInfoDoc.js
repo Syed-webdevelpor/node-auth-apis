@@ -1,6 +1,9 @@
 const axios = require('axios');
-const crypto = require("crypto");
+const sumsubAxios = axios.create({
+  baseURL: 'https://api.sumsub.com'
+});
 const DB = require("../dbConnection.js");
+const crypto = require('crypto');
 const { sendVerificationKycDocsEmail } = require('../middlewares/sesMail');
 const s3 = require('../middlewares/s3Client');
 
@@ -17,25 +20,34 @@ const fetchOrganizationaOwnershiplInfoByID = async (id) => {
   const [row] = await DB.execute(sql, [id]);
   return row;
 };
-axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
 
-// Function to create the signature for Sumsub API requests
-// function createSignature(config) {
-//   const ts = Math.floor(Date.now() / 1000);
-//   const signature = crypto.createHmac('sha256', process.env.SUMSUB_SECRET_KEY)
-//     .update(ts + config.method.toUpperCase() + config.url)
-//     .digest('hex');
+const SUMSUB_SECRET_KEY = process.env.SUMSUB_SECRET_KEY;
+const SUMSUB_APP_TOKEN = process.env.SUMSUB_APP_TOKEN;
+const SUMSUB_BASE_URL = process.env.SUMSUB_BASE_URL;
+var config = {};
+config.baseURL= SUMSUB_BASE_URL;
 
-//   config.headers['X-App-Access-Ts'] = ts;
-//   config.headers['X-App-Access-Sig'] = signature;
+sumsubAxios.interceptors.request.use(createSignature, function (error) {
+  return Promise.reject(error);
+})
+function createSignature(config) {
 
-//   return config;
-// }
+  var ts = Math.floor(Date.now() / 1000);
+  const signature = crypto.createHmac('sha256',  SUMSUB_SECRET_KEY);
+  signature.update(ts + config.method.toUpperCase() + config.url);
 
-// // Intercept all requests to add the signature
-// axios.interceptors.request.use(createSignature, function (error) {
-//   return Promise.reject(error);
-// });
+  if (config.data instanceof FormData) {
+    signature.update(config.data.getBuffer());
+  } else if (config.data) {
+    signature.update(config.data);
+  }
+
+  config.headers['X-App-Access-Ts'] = ts;
+  config.headers['X-App-Access-Sig'] = signature.digest('hex');
+
+  return config;
+}
+
 // controllers/orgInfoDoc.js (add better error handling)
 exports.uploadFiles = async (req, res) => {
   try {
@@ -132,30 +144,26 @@ exports.getUserDocuments = async (req, res) => {
     res.status(500).json({ error: 'Failed to list user documents' });
   }
 };
-// Generate HMAC-SHA256 signature
-function generateSignature(secretKey, httpMethod, requestPath, requestBody, timestamp) {
-  const message = `${timestamp}${httpMethod.toUpperCase()}${requestPath}${requestBody}`;
-  return crypto.createHmac('sha256', secretKey).update(message).digest('hex');
-}
 
-async function createWebSdkLink(levelName, userId, ttlInSecs = 600) {
-  const url = '/resources/sdkIntegrations/levels/-/websdkLink';
-  const body = {
-    levelName,
-    userId,
-    ttlInSecs // You can get this from req.body if needed
-  };
-    const timestamp = Math.floor(Date.now() / 1000);
-    const signature = generateSignature(SECRET_KEY, 'POST', url, body, timestamp);
- const headers = {
-    'Content-Type': 'application/json',
-    'X-App-Token': process.env.SUMSUB_APP_TOKEN,
-    'X-App-Access-Sig': signature,
-    'X-App-Access-Ts': timestamp
+async function createWebSdkLink(levelName, userId, ttlInSecs = 1800) {
+  const data = {
+      ttlInSecs,
+      levelName,
+      userId
+    }
+  const options = {
+    method: 'POST',
+    url: '/resources/sdkIntegrations/levels/-/websdkLink',
+    headers : {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-App-Token': SUMSUB_APP_TOKEN
+    },
+    data: JSON.stringify(data)
   };
 
   try {
-    const response = await axios.post(url, body, { headers });
+    const response = await sumsubAxios.request(options);
     return response.data;
   } catch (error) {
     console.error('Error creating websdk link:', error.response ? error.response.data : error.message);
@@ -183,26 +191,23 @@ exports.createAccessTokensAndSendLinks = async (req, res, next) => {
       return res.status(404).json({ error: 'Organization ownership info not found for organizationalInfoId' });
     }
 
-    const levelName = 'basic-kyc-level';
-    const ttlInSecs = 600;
+    const levelName = 'Live account verification';
 
     const results = [];
 
     for (const ownershipInfo of ownershipInfos) {
       try {
-
         // Create websdk link
-        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, ttlInSecs);
+        const linkData = await createWebSdkLink(levelName, ownershipInfo.id, 600);
 
         // Send email with link to ownershipInfo email
         if (ownershipInfo.email) {
-          await sendVerificationKycDocsEmail(ownershipInfo.email, linkData.link, `${ownershipInfo.first_name || ''} ${ownershipInfo.last_name || ''}`.trim());
+          await sendVerificationKycDocsEmail(ownershipInfo.email, linkData.url, `${ownershipInfo.first_name || ''} ${ownershipInfo.last_name || ''}`.trim());
         }
 
         results.push({
           ownershipInfoId: ownershipInfo.id,
           email: ownershipInfo.email,
-          linkData
         });
       } catch (error) {
         console.error(`Error processing ownershipInfo id ${ownershipInfo.id}:`, error);
