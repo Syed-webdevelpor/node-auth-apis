@@ -46,7 +46,7 @@ module.exports = {
             percentage_of_shares,
             city,
             post_code
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
             uuid,
             organizational_info_id,
