@@ -228,13 +228,64 @@ module.exports = {
   login: async (req, res, next) => {
     try {
       const { user, password } = req.body;
+
+      // Check if user is locked out
+      const [lockData] = await DB.execute(
+        "SELECT failed_login_attempts, lock_until FROM users WHERE id = ?",
+        [user.id]
+      );
+
+      if (lockData.length > 0) {
+        const { failed_login_attempts, lock_until } = lockData[0];
+        const now = new Date();
+
+        if (lock_until && new Date(lock_until) > now) {
+          return res.status(423).json({
+            status: 423,
+            message: "Account locked due to too many failed login attempts. Please reset your password.",
+          });
+        }
+      }
+
       const verifyPassword = await bcrypt.compare(password, user.password);
+
       if (!verifyPassword) {
+        // Increment failed login attempts
+        await DB.execute(
+          "UPDATE users SET failed_login_attempts = failed_login_attempts + 1 WHERE id = ?",
+          [user.id]
+        );
+
+        // Check if failed attempts reached 5
+        const [attemptData] = await DB.execute(
+          "SELECT failed_login_attempts FROM users WHERE id = ?",
+          [user.id]
+        );
+
+        if (attemptData.length > 0 && attemptData[0].failed_login_attempts >= 5) {
+          // Lock account indefinitely until password reset
+          await DB.execute(
+            "UPDATE users SET lock_until = ? WHERE id = ?",
+            [new Date('9999-12-31T23:59:59Z'), user.id]
+          );
+
+          return res.status(423).json({
+            status: 423,
+            message: "Account locked due to too many failed login attempts. Please reset your password.",
+          });
+        }
+
         return res.status(422).json({
           status: 422,
           message: "Incorrect password!",
         });
       }
+
+      // Reset failed login attempts and lock_until on successful login
+      await DB.execute(
+        "UPDATE users SET failed_login_attempts = 0, lock_until = NULL WHERE id = ?",
+        [user.id]
+      );
 
       const access_token = generateToken({ id: user.id });
       const refresh_token = generateToken({ id: user.id }, false);
@@ -249,27 +300,29 @@ module.exports = {
       if (!result.affectedRows) {
         throw new Error("Failed to whitelist the refresh token.");
       }
+
       const [userdata] = await DB.execute(
         "SELECT id, is_verified,username,email,account_nature,kyc_completed, current_step FROM users WHERE id = ?",
         [user.id]
       );
-      
+
       if (userdata[0].is_verified === 0) {
-              // Generate a new verification token
-      const verificationToken = crypto.randomBytes(32).toString("hex");
-      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+        // Generate a new verification token
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+        const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
 
-      // Update the user's verification token in the database
-      const [result] = await DB.execute(
-        "UPDATE users SET verification_token = ? WHERE id = ?",
-        [verificationToken, userdata[0].id]
-      );
+        // Update the user's verification token in the database
+        const [result] = await DB.execute(
+          "UPDATE users SET verification_token = ? WHERE id = ?",
+          [verificationToken, userdata[0].id]
+        );
 
-      if (!result.affectedRows) {
-        throw new Error("Failed to update verification token.");
+        if (!result.affectedRows) {
+          throw new Error("Failed to update verification token.");
+        }
+        await sendVerificationEmail(userdata[0].email, verificationLink, userdata[0].username);
       }
-      await sendVerificationEmail(userdata[0].email, verificationLink,userdata[0].username);
-      }
+
       res.json({
         status: 200,
         access_token,
@@ -278,8 +331,8 @@ module.exports = {
         role: user.role,
         account_nature: user.account_nature,
         is_verified: user.is_verified,
-        kyc_completed:user.kyc_completed,
-        current_step : user.current_step,
+        kyc_completed: user.kyc_completed,
+        current_step: user.current_step,
       });
     } catch (err) {
       next(err);
@@ -638,9 +691,9 @@ module.exports = {
       // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-      // Update user's password and clear reset fields
+      // Update user's password and clear reset fields, reset failed login attempts and lock
       await DB.execute(
-        'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL WHERE id = ?',
+        'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL, failed_login_attempts = 0, lock_until = NULL WHERE id = ?',
         [hashedPassword, user[0].id]
       );
 
