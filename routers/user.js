@@ -51,6 +51,7 @@ router.post(
     body("password", "Incorrect Password").trim().isLength({ min: 4 }),
   ],
   validate,
+  verifyRecaptcha,
   user.login
 );
 
