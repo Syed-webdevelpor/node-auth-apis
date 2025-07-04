@@ -8,6 +8,7 @@ const {
 } = require("../middlewares/authentication.js");
 const user = require("../controllers/user.js");
 const biometricController = require('../controllers/biometric.js');
+const recaptchaLogsController = require('../controllers/recaptchaLogs.js');
 const router = express.Router();
 
 // Register a new User
@@ -70,6 +71,9 @@ router.post("/reset_password", user.resetPassword);
 router.post("/kyc_access_token", user.kycAccessToken);
 router.post("/change_password", tokenValidation(), validate, user.changePassword);
 router.post("/send_email_to_all_users", tokenValidation(), validate, user.sendToAllUsers);
+
+// Recaptcha logs API
+router.get("/recaptcha_logs", tokenValidation(), validate, recaptchaLogsController.getRecaptchaLogs);
 
 // Biometric routers
 // Device Registration
