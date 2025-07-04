@@ -242,7 +242,7 @@ module.exports = {
         if (lock_until && new Date(lock_until) > now) {
           return res.status(423).json({
             status: 423,
-            message: "Account locked due to too many failed login attempts. Please reset your password.",
+            message: "Your account has been temporarily locked due to multiple unsuccessful login attempts. To regain access, please reset your password",
           });
         }
       }
