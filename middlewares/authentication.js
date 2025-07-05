@@ -104,7 +104,7 @@ async function verifyRecaptcha(req, res, next) {
     }
 
     // 2. Optional: Check action if you're using reCAPTCHA with action
-    if (data.action !== 'signup' && data.action !== 'demoAccountForm') {
+    if (data.action !== 'signup' && data.action !== 'demoAccountForm' && data.action !== 'login') {
       await logRecaptcha({
         ip_address: req.ip,
         user_agent: req.headers['user-agent'] || '',
