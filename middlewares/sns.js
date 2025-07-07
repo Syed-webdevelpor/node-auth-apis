@@ -1,18 +1,22 @@
-const AWS = require('aws-sdk');
+const twilio = require("twilio");
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-});
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
-const sns = new AWS.SNS();
+const client = twilio(accountSid, authToken);
 
-exports.sendSMS = async (phoneNumber, message) => {
-  const params = {
-    Message: message,
-    PhoneNumber: phoneNumber,
-  };
-
-  return await sns.publish(params).promise();
+exports.sendSMS = async (phoneNumber) => {
+  try {
+    const verification = await client.verify.v2
+      .services(verifyServiceSid)
+      .verifications.create({
+        to: phoneNumber,
+        channel: "sms",
+      });
+    return verification;
+  } catch (error) {
+    console.error("Twilio Verify Error:", error);
+    throw error;
+  }
 };

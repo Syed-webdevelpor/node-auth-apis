@@ -1,22 +1,20 @@
-const db = require("../dbConnection.js");
+const twilio = require("twilio");
 const { sendSMS } = require('../middlewares/sns.js');
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+
+const client = twilio(accountSid, authToken);
 
 // Request OTP
 exports.requestOtp = async (req, res) => {
   const { phoneNumber } = req.body;
   if (!phoneNumber) return res.status(400).json({ error: 'Phone number is required' });
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
-
   try {
-    await db.query(
-      'INSERT INTO otp_verification (phone_number, otp_code, expires_at) VALUES (?, ?, ?)',
-      [phoneNumber, otp, expiresAt]
-    );
-
-   let message = await sendSMS(phoneNumber, `Your verification code is: ${otp}`);
-   console.log(message);
+    let message = await sendSMS(phoneNumber);
+    console.log(message);
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
@@ -33,21 +31,15 @@ exports.verifyOtp = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query(
-      'SELECT * FROM otp_verification WHERE phone_number = ? AND otp_code = ? AND expires_at > NOW() AND is_verified = 0 ORDER BY id DESC LIMIT 1',
-      [phoneNumber, code]
-    );
+    const verification_check = await client.verify.v2
+      .services(verifyServiceSid)
+      .verificationChecks.create({ to: phoneNumber, code: code });
 
-    if (rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    if (verification_check.status === 'approved') {
+      res.status(200).json({ message: 'Phone number verified successfully' });
+    } else {
+      res.status(400).json({ error: 'Invalid or expired OTP' });
     }
-
-    await db.query(
-      'UPDATE otp_verification SET is_verified = 1 WHERE id = ?',
-      [rows[0].id]
-    );
-
-    res.status(200).json({ message: 'Phone number verified successfully' });
   } catch (error) {
     console.error('OTP Verify Error:', error);
     res.status(500).json({ error: 'Failed to verify OTP' });
