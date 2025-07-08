@@ -47,7 +47,7 @@ const fetchOrganizationaOwnershiplInfoByID = async (id) => {
 };
 
 const fetchUsersByAccManID = async (id) => {
-  // First fetch all users with account_manager_id and their account_nature and organizational_info_id
+  // Step 1: Fetch all users by account_manager_id
   const [users] = await DB.execute(
     `SELECT id, account_nature, organizational_info_id FROM users WHERE account_manager_id = ?`,
     [id]
@@ -57,16 +57,17 @@ const fetchUsersByAccManID = async (id) => {
     return [];
   }
 
-  // Separate user ids by account_nature
+  // Step 2: Separate organizational and non-organizational users
   const organizationalUsers = users.filter(u => u.account_nature === 'Organizational');
   const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'Organizational').map(u => u.id);
 
   let organizationalUsersData = [];
   let nonOrganizationalUsersData = [];
 
-  // Fetch organizational users data with joins to organizationalInfo, orgFinancialInfo
+  // Step 3: Fetch data for organizational users
   if (organizationalUsers.length > 0) {
     const organizationalUserIds = organizationalUsers.map(u => u.id);
+
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at, users.support_enable,
@@ -77,12 +78,12 @@ const fetchUsersByAccManID = async (id) => {
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
-       WHERE users.id IN (?)
+       WHERE users.id IN (${organizationalUserIds.map(() => '?').join(',')})
       `,
-      [organizationalUserIds]
+      organizationalUserIds
     );
 
-    // For each organizational user, fetch organizationOwnershipInfo separately and attach
+    // Step 4: Attach ownership info to each organizational user
     for (const user of organizationalUsers) {
       const ownershipInfos = await fetchOrganizationaOwnershiplInfoByID(user.organizational_info_id);
       const userData = orgRows.find(u => u.id === user.id);
@@ -94,7 +95,7 @@ const fetchUsersByAccManID = async (id) => {
     organizationalUsersData = orgRows;
   }
 
-  // Fetch non-organizational users data with join to personal_info only
+  // Step 5: Fetch data for non-organizational users
   if (nonOrganizationalUserIds.length > 0) {
     const [nonOrgRows] = await DB.execute(
       `SELECT 
@@ -106,21 +107,20 @@ const fetchUsersByAccManID = async (id) => {
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
-       WHERE users.id IN (?)
+       WHERE users.id IN (${nonOrganizationalUserIds.map(() => '?').join(',')})
       `,
-      [nonOrganizationalUserIds]
+      nonOrganizationalUserIds
     );
     nonOrganizationalUsersData = nonOrgRows;
   }
 
-  // Combine both arrays
+  // Step 6: Combine and return all user data
   const combinedResults = [...organizationalUsersData, ...nonOrganizationalUsersData];
-
   return combinedResults;
 };
 
 const fetchAllUsers = async () => {
-  // Fetch all users with their account_nature and organizational_info_id
+  // Step 1: Fetch all users with necessary fields
   const [users] = await DB.execute(
     `SELECT id, account_nature, organizational_info_id FROM users`
   );
@@ -129,16 +129,16 @@ const fetchAllUsers = async () => {
     return [];
   }
 
-  // Separate user ids by account_nature
+  // Step 2: Separate user IDs
   const organizationalUsers = users.filter(u => u.account_nature === 'Organizational');
+  const organizationalUserIds = organizationalUsers.map(u => u.id);
   const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'Organizational').map(u => u.id);
 
   let organizationalUsersData = [];
   let nonOrganizationalUsersData = [];
 
-  // Fetch organizational users data with joins to organizationalInfo, orgFinancialInfo
-  if (organizationalUsers.length > 0) {
-    const organizationalUserIds = organizationalUsers.map(u => u.id);
+  // Step 3: Fetch organizational users data
+  if (organizationalUserIds.length > 0) {
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
@@ -148,12 +148,12 @@ const fetchAllUsers = async () => {
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
-       LEFT JOIN account_info ON users.account_info_id = account_info.id`
-      + ` WHERE users.id IN (?)`,
-      [organizationalUserIds]
+       LEFT JOIN account_info ON users.account_info_id = account_info.id
+       WHERE users.id IN (${organizationalUserIds.map(() => '?').join(',')})`,
+      organizationalUserIds
     );
 
-    // For each organizational user, fetch organizationOwnershipInfo separately and attach
+    // Step 4: Attach ownership info
     for (const user of organizationalUsers) {
       const ownershipInfos = await fetchOrganizationaOwnershiplInfoByID(user.organizational_info_id);
       const userData = orgRows.find(u => u.id === user.id);
@@ -165,7 +165,7 @@ const fetchAllUsers = async () => {
     organizationalUsersData = orgRows;
   }
 
-  // Fetch non-organizational users data with join to personal_info only
+  // Step 5: Fetch non-organizational users data
   if (nonOrganizationalUserIds.length > 0) {
     const [nonOrgRows] = await DB.execute(
       `SELECT 
@@ -176,18 +176,19 @@ const fetchAllUsers = async () => {
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
-       LEFT JOIN account_info ON users.account_info_id = account_info.id`
-      + ` WHERE users.id IN (?)`,
-      [nonOrganizationalUserIds]
+       LEFT JOIN account_info ON users.account_info_id = account_info.id
+       WHERE users.id IN (${nonOrganizationalUserIds.map(() => '?').join(',')})`,
+      nonOrganizationalUserIds
     );
+
     nonOrganizationalUsersData = nonOrgRows;
   }
 
-  // Combine both arrays
+  // Step 6: Combine and return all results
   const combinedResults = [...organizationalUsersData, ...nonOrganizationalUsersData];
-
   return combinedResults;
 };
+
 
 const fetchUserByEmailOrID = async (data, isEmail) => {
   const column = isEmail ? "email" : "id";
