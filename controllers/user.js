@@ -40,10 +40,16 @@ async function createAccessToken(externalUserId, levelName, ttlInSecs = 600) {
   return axios.post(url, null, { headers });
 }
 
+const fetchOrganizationaOwnershiplInfoByID = async (id) => {
+  const sql = "SELECT * FROM `organizationOwnershipInfo` WHERE `organizational_info_id`=?";
+  const [row] = await DB.execute(sql, [id]);
+  return row;
+};
+
 const fetchUsersByAccManID = async (id) => {
-  // First fetch all users with account_manager_id and their account_nature
+  // First fetch all users with account_manager_id and their account_nature and organizational_info_id
   const [users] = await DB.execute(
-    `SELECT id, account_nature FROM users WHERE account_manager_id = ?`,
+    `SELECT id, account_nature, organizational_info_id FROM users WHERE account_manager_id = ?`,
     [id]
   );
 
@@ -52,25 +58,24 @@ const fetchUsersByAccManID = async (id) => {
   }
 
   // Separate user ids by account_nature
-  const organizationalUserIds = users.filter(u => u.account_nature === 'Organizational').map(u => u.id);
+  const organizationalUsers = users.filter(u => u.account_nature === 'Organizational');
   const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'Organizational').map(u => u.id);
 
   let organizationalUsersData = [];
   let nonOrganizationalUsersData = [];
 
-  // Fetch organizational users data with joins to organizationalInfo, organizationOwnershipInfo, orgFinancialInfo
-  if (organizationalUserIds.length > 0) {
+  // Fetch organizational users data with joins to organizationalInfo, orgFinancialInfo
+  if (organizationalUsers.length > 0) {
+    const organizationalUserIds = organizationalUsers.map(u => u.id);
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at, users.support_enable,
          organizationalInfo.*, 
-         organizationOwnershipInfo.*,
          orgFinancialInfo.*,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
-       LEFT JOIN organizationOwnershipInfo ON organizationalInfo.id = organizationOwnershipInfo.organizational_info_id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
@@ -78,6 +83,16 @@ const fetchUsersByAccManID = async (id) => {
       `,
       [organizationalUserIds]
     );
+
+    // For each organizational user, fetch organizationOwnershipInfo separately and attach
+    for (const user of organizationalUsers) {
+      const ownershipInfos = await fetchOrganizationaOwnershiplInfoByID(user.organizational_info_id);
+      const userData = orgRows.find(u => u.id === user.id);
+      if (userData) {
+        userData.organizationOwnershipInfo = ownershipInfos;
+      }
+    }
+
     organizationalUsersData = orgRows;
   }
 
@@ -107,9 +122,9 @@ const fetchUsersByAccManID = async (id) => {
 };
 
 const fetchAllUsers = async () => {
-  // Fetch all users with their account_nature
+  // Fetch all users with their account_nature and organizational_info_id
   const [users] = await DB.execute(
-    `SELECT id, account_nature FROM users`
+    `SELECT id, account_nature, organizational_info_id FROM users`
   );
 
   if (users.length === 0) {
@@ -117,31 +132,40 @@ const fetchAllUsers = async () => {
   }
 
   // Separate user ids by account_nature
-  const organizationalUserIds = users.filter(u => u.account_nature === 'Organizational').map(u => u.id);
+  const organizationalUsers = users.filter(u => u.account_nature === 'Organizational');
   const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'Organizational').map(u => u.id);
 
   let organizationalUsersData = [];
   let nonOrganizationalUsersData = [];
 
-  // Fetch organizational users data with joins to organizationalInfo, organizationOwnershipInfo, orgFinancialInfo
-  if (organizationalUserIds.length > 0) {
+  // Fetch organizational users data with joins to organizationalInfo, orgFinancialInfo
+  if (organizationalUsers.length > 0) {
+    const organizationalUserIds = organizationalUsers.map(u => u.id);
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
          organizationalInfo.*, 
-         organizationOwnershipInfo.*,
          orgFinancialInfo.*,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
-       LEFT JOIN organizationOwnershipInfo ON organizationalInfo.id = organizationOwnershipInfo.organizational_info_id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id`
       + ` WHERE users.id IN (?)`,
       [organizationalUserIds]
     );
+
+    // For each organizational user, fetch organizationOwnershipInfo separately and attach
+    for (const user of organizationalUsers) {
+      const ownershipInfos = await fetchOrganizationaOwnershiplInfoByID(user.organizational_info_id);
+      const userData = orgRows.find(u => u.id === user.id);
+      if (userData) {
+        userData.organizationOwnershipInfo = ownershipInfos;
+      }
+    }
+
     organizationalUsersData = orgRows;
   }
 
@@ -174,7 +198,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
 
   // First fetch the user with the given column
   const [users] = await DB.execute(
-    `SELECT id, account_nature FROM users WHERE ${column} = ?`,
+    `SELECT id, account_nature, organizational_info_id FROM users WHERE ${column} = ?`,
     [data]
   );
 
@@ -185,24 +209,31 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   const user = users[0];
 
   if (user.account_nature === 'Organizational') {
-    // Fetch organizational user data with joins to organizationalInfo, organizationOwnershipInfo, orgFinancialInfo
+    // Fetch organizational user data with joins to organizationalInfo, orgFinancialInfo
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.password, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
          organizationalInfo.*, 
-         organizationOwnershipInfo.*,
          orgFinancialInfo.*,
          financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
-       LEFT JOIN organizationOwnershipInfo ON organizationalInfo.id = organizationOwnershipInfo.organizational_info_id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
        WHERE users.${column} = ?`,
       [data]
     );
+
+    // Fetch organizationOwnershipInfo separately
+    const ownershipInfos = await fetchOrganizationaOwnershiplInfoByID(user.organizational_info_id);
+
+    // Attach ownershipInfos array to user object(s)
+    if (orgRows.length > 0) {
+      orgRows[0].organizationOwnershipInfo = ownershipInfos;
+    }
+
     return orgRows;
   } else {
     // Fetch non-organizational user data with join to personal_info only
