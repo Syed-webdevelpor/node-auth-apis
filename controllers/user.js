@@ -72,12 +72,10 @@ const fetchUsersByAccManID = async (id) => {
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at, users.support_enable,
          organizationalInfo.*, 
          orgFinancialInfo.*,
-         financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
-       LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
        WHERE users.id IN (?)
       `,
@@ -146,12 +144,10 @@ const fetchAllUsers = async () => {
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
          organizationalInfo.*, 
          orgFinancialInfo.*,
-         financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
-       LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id`
       + ` WHERE users.id IN (?)`,
       [organizationalUserIds]
@@ -215,12 +211,10 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
          users.id, users.email, users.password, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
          organizationalInfo.*, 
          orgFinancialInfo.*,
-         financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
-       LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
        LEFT JOIN account_info ON users.account_info_id = account_info.id
        WHERE users.${column} = ?`,
       [data]
