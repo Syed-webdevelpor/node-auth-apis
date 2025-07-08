@@ -52,8 +52,8 @@ const fetchUsersByAccManID = async (id) => {
   }
 
   // Separate user ids by account_nature
-  const organizationalUserIds = users.filter(u => u.account_nature === 'organizational').map(u => u.id);
-  const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'organizational').map(u => u.id);
+  const organizationalUserIds = users.filter(u => u.account_nature === 'Organizational').map(u => u.id);
+  const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'Organizational').map(u => u.id);
 
   let organizationalUsersData = [];
   let nonOrganizationalUsersData = [];
@@ -117,8 +117,8 @@ const fetchAllUsers = async () => {
   }
 
   // Separate user ids by account_nature
-  const organizationalUserIds = users.filter(u => u.account_nature === 'organizational').map(u => u.id);
-  const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'organizational').map(u => u.id);
+  const organizationalUserIds = users.filter(u => u.account_nature === 'Organizational').map(u => u.id);
+  const nonOrganizationalUserIds = users.filter(u => u.account_nature !== 'Organizational').map(u => u.id);
 
   let organizationalUsersData = [];
   let nonOrganizationalUsersData = [];
@@ -184,7 +184,7 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
 
   const user = users[0];
 
-  if (user.account_nature === 'organizational') {
+  if (user.account_nature === 'Organizational') {
     // Fetch organizational user data with joins to organizationalInfo, organizationOwnershipInfo, orgFinancialInfo
     const [orgRows] = await DB.execute(
       `SELECT 
