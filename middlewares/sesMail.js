@@ -59,7 +59,7 @@ const attachments = [
 // Function to send a verification email
     const sendVerificationEmail = async (recipientEmail, verificationLink, customerName) => {
         const mailOptions = {
-            from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+            from: `"INVESTAiN" <no-reply@investain.com>`, // Verified sender email
             to: recipientEmail, // Verified recipient email
             subject: 'Please Verify Your Email Address',
             html: `<html>
@@ -190,7 +190,7 @@ const attachments = [
         try {
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: customerEmail,
                 subject: 'Welcome to INVESTAiN – Your Trading Account is Ready!',
                 html: `<html>
@@ -330,7 +330,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: customerEmail,
                 subject: 'Welcome to INVESTAiN – Your Demo Account is Ready!',
                 html: `<html>
@@ -470,7 +470,7 @@ const attachments = [
     const forgetPasswordEmail = async (email, resetLink, customerName) => {
         try {
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`,
+                from: `"INVESTAiN" <no-reply@investain.com>`,
                 to: email,
                 subject: 'Reset Your Password – INVESTAiN',
                 html: `<html>
@@ -611,7 +611,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: customerEmail,
                 subject: `Transaction Notification – ${transactionType} for Your Account`,
                 html: `<html>
@@ -747,7 +747,7 @@ const attachments = [
 
     const sendOtpEmail = async (recipientEmail, otp, customerName) => {
         const mailOptions = {
-            from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+            from: `"INVESTAiN" <no-reply@investain.com>`, // Verified sender email
             to: recipientEmail, // Verified recipient email
             subject: 'Your OTP for Account Verification',
             html: `<html>
@@ -873,7 +873,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: 'withdrawl@investain.com',
                 subject: `Withdrawal Request Details`,
                 html: `<html>
@@ -1013,7 +1013,7 @@ const attachments = [
 
     const newAccountRegister = async (id, username, email, phoneNumber, account_type, account_nature, referredBy, date) => {
         const mailOptions = {
-            from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+            from: `"INVESTAiN" <no-reply@investain.com>`, // Verified sender email
             to: 'accounts@investain.com', // Verified recipient email
             subject: 'New Account Creation',
             html: `<html>
@@ -1147,7 +1147,7 @@ const attachments = [
 
     const demoAccountCreation = async (id, firstName, lastName, email, phoneNumber, country, experience, expectedInvestment) => {
         const mailOptions = {
-            from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+            from: `"INVESTAiN" <no-reply@investain.com>`, // Verified sender email
             to: 'demo@investain.com', // Verified recipient email
             subject: 'New Demo Account Creation',
             html: `<html>
@@ -1281,7 +1281,7 @@ const attachments = [
 
     const applicationSubmissionEmail = async (email, link, customerName) => {
         const mailOptions = {
-            from: `"INVESTAiN" <support@investain.com>`, // Verified sender email
+            from: `"INVESTAiN" <no-reply@investain.com>`, // Verified sender email
             to: email, // Verified recipient email
             subject: 'Your INVESTAiN account application has been submitted',
             html: `<html>
@@ -1434,7 +1434,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: 'accounts@investain.com',
                 subject: `New Additional Trading Account Request – User ID: ${user_id}`,
                 html: `<html>
@@ -1569,7 +1569,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `New Additional Trading Account Request – User ID: ${user_id}`,
                 html: `<html>
@@ -1704,7 +1704,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Trading Account Request Received`,
                 html: `<html>
@@ -1831,7 +1831,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Your Request to Become an IB Has Been Received`,
                 html: `<html>
@@ -1958,7 +1958,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: 'ib@investain.com',
                 subject: `New Request to Become an IB`,
                 html: `<html>
@@ -2095,7 +2095,7 @@ const attachments = [
                     : 'Our compliance team requires legal documentation:';
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Action Required: Document Submission`,
                 html: `<html>
@@ -2230,7 +2230,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Document uploaded by ${userId}`,
                 html: `<html>
@@ -2363,7 +2363,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Signature Document Uploaded by User ${userId}`,
                 html: `<html>
@@ -2500,7 +2500,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Your Document Request Has Been Submitted`,
                 html: `<html>
@@ -2631,7 +2631,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `New Support Ticket Assigned to You: #${ticketId} - ${subject}`,
                 html: `<html>
@@ -2777,7 +2777,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Your Document Has Been Approved`,
                 html: `<html>
@@ -2905,7 +2905,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `Your Document Has Been Rejected`,
                 html: `<html>
@@ -3043,7 +3043,7 @@ const attachments = [
 
             // Email template
             const mailOptions = {
-                from: `"INVESTAiN" <support@investain.com>`, // Replace with your email
+                from: `"INVESTAiN" <no-reply@investain.com>`, // Replace with your email
                 to: email,
                 subject: `${subject}`,
                 html: `<html>
@@ -3164,7 +3164,7 @@ const attachments = [
     async function sendEmailToAllUsers (email, subject, reply)  {
     try {
         const mailOptions = {
-        from: '"INVESTAiN" <support@investain.com>',
+        from: '"INVESTAiN" <no-reply@investain.com>',
         to: email,
         subject: `${subject}`,
         html: `
@@ -3253,7 +3253,7 @@ const attachments = [
     async function sendVerificationKycDocsEmail (email, sdkLink, name )  {
     try {
         const mailOptions = {
-        from: '"INVESTAiN" <support@investain.com>',
+        from: '"INVESTAiN" <no-reply@investain.com>',
         to: email,
         subject: `KYC Verification Required`,
         html: `
