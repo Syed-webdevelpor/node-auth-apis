@@ -62,7 +62,13 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(apiKeyAuth);
+app.use((req, res, next) => {
+  // Exclude /api/user/verify route from API key authentication
+  if (req.path === '/api/user/verify') {
+    return next();
+  }
+  return apiKeyAuth(req, res, next);
+});
 
 // Rate limiting
 const limiter = rateLimit({
