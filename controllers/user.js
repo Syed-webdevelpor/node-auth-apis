@@ -332,12 +332,8 @@ module.exports = {
         }
       }
   
-      if (platform === 'web') {
-        const link = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
-        await sendVerificationEmail(email, link, username);
-      } else if (platform === 'mobile') {
-        await sendOtpEmail(email, otp, username);
-      }
+      const link = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      await sendVerificationEmail(email, link, username);
   
       const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
       newAccountRegister(id,username,email,phoneNumber,account_type,account_nature,referredBy,dubaiTime)
