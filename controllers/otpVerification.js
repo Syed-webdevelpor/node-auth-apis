@@ -13,8 +13,8 @@ exports.requestOtp = async (req, res) => {
   if (!phoneNumber) return res.status(400).json({ error: 'Phone number is required' });
 
   try {
-    // let message = await sendSMS(phoneNumber);
-    // console.log(message);
+    let message = await sendSMS(phoneNumber);
+    console.log(message);
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
