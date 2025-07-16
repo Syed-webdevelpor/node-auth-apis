@@ -71,8 +71,8 @@ const fetchUsersByAccManID = async (id) => {
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.created_at, users.updated_at, users.support_enable,
-         organizationalInfo.*, 
-         orgFinancialInfo.*,
+         organizationalInfo.id AS organizationalInfo_id, organizationalInfo.company_name, organizationalInfo.register_number, organizationalInfo.country_of_incorporation, organizationalInfo.nature_of_business, organizationalInfo.government_name, organizationalInfo.international_body, organizationalInfo.parent_company, organizationalInfo.stock_exchange_name, organizationalInfo.origin_of_funds, organizationalInfo.address, organizationalInfo.city, organizationalInfo.post_code, organizationalInfo.county,
+         orgFinancialInfo.id AS orgFinancialInfo_id, orgFinancialInfo.userId AS orgFinancialInfo_userId, orgFinancialInfo.annual_revenue, orgFinancialInfo.net_worth, orgFinancialInfo.other_assets, orgFinancialInfo.source_of_funds, orgFinancialInfo.is_shareholder, orgFinancialInfo.is_beneficial_owner, orgFinancialInfo.objective_of_investment, orgFinancialInfo.bank_name, orgFinancialInfo.controlling_person_first_name, orgFinancialInfo.controlling_person_last_name, orgFinancialInfo.controlling_person_phone_number,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
@@ -142,8 +142,8 @@ const fetchAllUsers = async () => {
     const [orgRows] = await DB.execute(
       `SELECT 
          users.id, users.email, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
-         organizationalInfo.*, 
-         orgFinancialInfo.*,
+         organizationalInfo.id AS organizationalInfo_id, organizationalInfo.company_name, organizationalInfo.register_number, organizationalInfo.country_of_incorporation, organizationalInfo.nature_of_business, organizationalInfo.government_name, organizationalInfo.international_body, organizationalInfo.parent_company, organizationalInfo.stock_exchange_name, organizationalInfo.origin_of_funds, organizationalInfo.address, organizationalInfo.city, organizationalInfo.post_code, organizationalInfo.county,
+         orgFinancialInfo.id AS orgFinancialInfo_id, orgFinancialInfo.userId AS orgFinancialInfo_userId, orgFinancialInfo.annual_revenue, orgFinancialInfo.net_worth, orgFinancialInfo.other_assets, orgFinancialInfo.source_of_funds, orgFinancialInfo.is_shareholder, orgFinancialInfo.is_beneficial_owner, orgFinancialInfo.objective_of_investment, orgFinancialInfo.bank_name, orgFinancialInfo.controlling_person_first_name, orgFinancialInfo.controlling_person_last_name, orgFinancialInfo.controlling_person_phone_number,
          account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
@@ -209,10 +209,10 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
     // Fetch organizational user data with joins to organizationalInfo, orgFinancialInfo
     const [orgRows] = await DB.execute(
       `SELECT 
-         users.id, users.email, users.password, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
-         organizationalInfo.*, 
-         orgFinancialInfo.*,
-         account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
+         users.id, users.email, users.password, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at AS user_created_at, users.updated_at AS user_updated_at, users.support_enable,
+         organizationalInfo.id AS organizationalInfo_id, organizationalInfo.company_name, organizationalInfo.register_number, organizationalInfo.country_of_incorporation, organizationalInfo.nature_of_business, organizationalInfo.government_name, organizationalInfo.international_body, organizationalInfo.parent_company, organizationalInfo.stock_exchange_name, organizationalInfo.origin_of_funds, organizationalInfo.address, organizationalInfo.city, organizationalInfo.post_code, organizationalInfo.county,
+         orgFinancialInfo.id AS orgFinancialInfo_id, orgFinancialInfo.userId AS orgFinancialInfo_userId, orgFinancialInfo.annual_revenue, orgFinancialInfo.net_worth, orgFinancialInfo.other_assets, orgFinancialInfo.source_of_funds, orgFinancialInfo.is_shareholder, orgFinancialInfo.is_beneficial_owner, orgFinancialInfo.objective_of_investment, orgFinancialInfo.bank_name, orgFinancialInfo.controlling_person_first_name, orgFinancialInfo.controlling_person_last_name, orgFinancialInfo.controlling_person_phone_number,
+         account_info.id AS account_info_id, account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN organizationalInfo ON users.organizational_info_id = organizationalInfo.id
        LEFT JOIN orgFinancialInfo ON users.org_financial_info_id = orgFinancialInfo.id
@@ -234,10 +234,10 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
     // Fetch non-organizational user data with join to personal_info only
     const [nonOrgRows] = await DB.execute(
       `SELECT 
-         users.id, users.email, users.password, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at, users.updated_at, users.support_enable,
-         personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
-         financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
-         account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
+         users.id, users.email, users.password, users.kyc_completed, users.referral_code, users.username, users.phoneNumber, users.role, users.account_nature, users.is_verified, users.is_approved, users.subusers, users.current_step, users.created_at AS user_created_at, users.updated_at AS user_updated_at, users.support_enable,
+         personal_info.id AS personal_info_id, personal_info.first_name, personal_info.last_name, personal_info.gender, personal_info.dob, personal_info.Nationality, personal_info.street, personal_info.Address, personal_info.State, personal_info.Country,
+         financial_info.id AS financial_info_id, financial_info.TIN, financial_info.industry, financial_info.employment_status, financial_info.annual_income, financial_info.value_of_savings, financial_info.total_net_assets, financial_info.source_of_wealth, financial_info.expected_initial_amount_of_depsoit,
+         account_info.id AS account_info_id, account_info.trading_experience, account_info.account_type, account_info.platforms, account_info.base_currency, account_info.leverage
        FROM users
        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
        LEFT JOIN financial_info ON users.financial_info_id = financial_info.id
