@@ -70,7 +70,7 @@ module.exports = {
       
           // Update the user's organizational info ID
           await DB.execute(
-            "UPDATE users SET organizationalInfo = ? WHERE id = ?",
+            "UPDATE users SET organizational_info_id = ? WHERE id = ?",
             [uuid, userId]
           );
       
