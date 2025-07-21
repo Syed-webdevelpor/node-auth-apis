@@ -262,7 +262,6 @@ module.exports = {
         account_type,
         account_nature,
         phoneNumber,
-        role,
         is_approved,
         is_verified,
         account_manager_id,
@@ -309,7 +308,7 @@ module.exports = {
       const [insertResult] = await DB.execute(
         `INSERT INTO users (id, email, password, referral_code, affiliation_type, username, account_type, account_nature, phoneNumber, role, is_approved, is_verified, verification_token, otp, otp_created_at, account_manager_id)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, email, hashPassword, referralCode, affiliationType, username, account_type, account_nature, phoneNumber, role, is_approved, is_verified, verificationToken, otp, platform === 'mobile' ? new Date() : null, account_manager_id]
+        [id, email, hashPassword, referralCode, affiliationType, username, account_type, account_nature, phoneNumber, "User", is_approved, is_verified, verificationToken, otp, platform === 'mobile' ? new Date() : null, account_manager_id]
       );
   
       if (!insertResult.affectedRows) {
