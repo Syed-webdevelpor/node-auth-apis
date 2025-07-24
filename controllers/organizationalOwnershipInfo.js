@@ -102,7 +102,7 @@ module.exports = {
 
   updateOrganizationalOwnershipInfo: async (req, res, next) => {
     try {
-      const updatesArray = req.body; // Expecting an array of ownership updates
+      const updatesArray = req.body;
 
       if (!Array.isArray(updatesArray) || updatesArray.length === 0) {
         return res.status(400).json({
@@ -129,42 +129,49 @@ module.exports = {
           address,
         } = item;
 
-        if (!id) continue; // Skip if ID is missing
+        const columns = [];
+        const placeholders = [];
+        const values = [];
 
-        const updates = [];
-        const params = [];
+        if (role) columns.push("role"), placeholders.push("?"), values.push(role);
+        if (title) columns.push("title"), placeholders.push("?"), values.push(title);
+        if (first_name) columns.push("first_name"), placeholders.push("?"), values.push(first_name);
+        if (last_name) columns.push("last_name"), placeholders.push("?"), values.push(last_name);
+        if (email) columns.push("email"), placeholders.push("?"), values.push(email);
+        if (phone_number) columns.push("phone_number"), placeholders.push("?"), values.push(phone_number);
+        if (country) columns.push("country"), placeholders.push("?"), values.push(country);
+        if (source_of_funds) columns.push("source_of_funds"), placeholders.push("?"), values.push(source_of_funds);
+        if (source_of_funds_other) columns.push("source_of_funds_other"), placeholders.push("?"), values.push(source_of_funds_other);
+        if (percentage_of_shares) columns.push("percentage_of_shares"), placeholders.push("?"), values.push(percentage_of_shares);
+        if (city) columns.push("city"), placeholders.push("?"), values.push(city);
+        if (post_code) columns.push("post_code"), placeholders.push("?"), values.push(post_code);
+        if (address) columns.push("address"), placeholders.push("?"), values.push(address);
 
-        if (role) updates.push("role = ?"), params.push(role);
-        if (title) updates.push("title = ?"), params.push(title);
-        if (first_name) updates.push("first_name = ?"), params.push(first_name);
-        if (last_name) updates.push("last_name = ?"), params.push(last_name);
-        if (email) updates.push("email = ?"), params.push(email);
-        if (phone_number) updates.push("phone_number = ?"), params.push(phone_number);
-        if (country) updates.push("country = ?"), params.push(country);
-        if (source_of_funds) updates.push("source_of_funds = ?"), params.push(source_of_funds);
-        if (source_of_funds_other) updates.push("source_of_funds_other = ?"), params.push(source_of_funds_other);
-        if (percentage_of_shares) updates.push("percentage_of_shares = ?"), params.push(percentage_of_shares);
-        if (city) updates.push("city = ?"), params.push(city);
-        if (post_code) updates.push("post_code = ?"), params.push(post_code);
-        if (address) updates.push("address = ?"), params.push(address);
+        if (columns.length === 0) continue;
 
-        if (updates.length === 0) continue;
-
-        params.push(id);
-
-        await DB.execute(
-          `UPDATE organizationOwnershipInfo SET ${updates.join(", ")} WHERE id = ?`,
-          params
-        );
+        if (id) {
+          // UPDATE
+          const updates = columns.map(col => `${col} = ?`);
+          values.push(id);
+          await DB.execute(
+            `UPDATE organizationOwnershipInfo SET ${updates.join(", ")} WHERE id = ?`,
+            values
+          );
+        } else {
+          // INSERT
+          await DB.execute(
+            `INSERT INTO organizationOwnershipInfo (${columns.join(", ")}) VALUES (${placeholders.join(", ")})`,
+            values
+          );
+        }
       }
 
       res.status(200).json({
         status: 200,
-        message: "All organization ownership records updated successfully.",
+        message: "Ownership info inserted/updated successfully.",
       });
     } catch (err) {
       next(err);
     }
   }
-
 };
