@@ -25,6 +25,7 @@ module.exports = {
             percentage_of_shares,
             city,
             post_code,
+            address
           } = req.body;
       
           const uuid = uuidv4();
@@ -45,8 +46,9 @@ module.exports = {
             source_of_funds_other,
             percentage_of_shares,
             city,
-            post_code
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            post_code,
+            address
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
             uuid,
             organizational_info_id,
@@ -62,6 +64,7 @@ module.exports = {
             percentage_of_shares,
             city,
             post_code,
+            address
             ]
           );
       
@@ -113,6 +116,7 @@ module.exports = {
         percentage_of_shares,
         city,
         post_code,
+        address
       } = req.body;
   
       // Build the update query dynamically
@@ -167,6 +171,10 @@ module.exports = {
       if (post_code) {
         updates.push("post_code = ?");
         params.push(post_code);
+      }
+      if (address) {
+        updates.push("address = ?");
+        params.push(address);
       }
   
       if (updates.length === 0) {

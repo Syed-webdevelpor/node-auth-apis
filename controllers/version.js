@@ -1,36 +1,43 @@
-const fs = require('fs');
-const path = require('path');
+const db = require('../dbConnection');
 
-const versionFilePath = path.join(__dirname, '..', 'versionData.json');
-
-const getVersion = (req, res) => {
-  fs.readFile(versionFilePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading version data:', err);
-      return res.status(500).json({ message: 'Failed to read version data' });
+const getVersion = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT version FROM version WHERE id = 1');
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Version not found' });
     }
+    // Assuming version column stores JSON string or object
+    let versionData;
     try {
-      const versionData = JSON.parse(data);
-      res.json(versionData);
-    } catch (parseErr) {
-      console.error('Error parsing version data:', parseErr);
-      res.status(500).json({ message: 'Failed to parse version data' });
+      versionData = typeof rows[0].version === 'string' ? JSON.parse(rows[0].version) : rows[0].version;
+    } catch (err) {
+      versionData = rows[0].version;
     }
-  });
+    res.json(versionData);
+  } catch (err) {
+    console.error('Error fetching version data:', err);
+    res.status(500).json({ message: 'Failed to fetch version data' });
+  }
 };
 
-const updateVersion = (req, res) => {
+const updateVersion = async (req, res) => {
   const newVersionData = req.body;
   if (!newVersionData || typeof newVersionData !== 'object') {
     return res.status(400).json({ message: 'Invalid version data' });
   }
-  fs.writeFile(versionFilePath, JSON.stringify(newVersionData, null, 2), 'utf8', (err) => {
-    if (err) {
-      console.error('Error writing version data:', err);
-      return res.status(500).json({ message: 'Failed to update version data' });
+  try {
+    const versionString = JSON.stringify(newVersionData);
+    // Try to update existing row
+    const [result] = await db.query('UPDATE version SET version = ? WHERE id = 1', [versionString]);
+    if (result.affectedRows === 0) {
+      // Insert if no row updated
+      await db.query('INSERT INTO version (id, version) VALUES (1, ?)', [versionString]);
     }
     res.json({ message: 'Version data updated successfully' });
-  });
+  } catch (err) {
+    console.error('Error updating version data:', err);
+    res.status(500).json({ message: 'Failed to update version data' });
+  }
 };
 
 module.exports = {
