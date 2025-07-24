@@ -100,112 +100,71 @@ module.exports = {
     }
   },
 
- updateOrganizationalOwnershipInfo : async (req, res, next) => {
+  updateOrganizationalOwnershipInfo: async (req, res, next) => {
     try {
-      const {
-        id, // ID of the organizational info to update
-        role,
-        title,
-        first_name,
-        last_name,
-        email,
-        phone_number,
-        country,
-        source_of_funds,
-        source_of_funds_other,
-        percentage_of_shares,
-        city,
-        post_code,
-        address
-      } = req.body;
-  
-      // Build the update query dynamically
-      const updates = [];
-      const params = [];
-  
-      // Add non-JSON fields to the update query
-      if (role) {
-        updates.push("role = ?");
-        params.push(role);
-      }
-      if (title) {
-        updates.push("title = ?");
-        params.push(title);
-      }
-      if (first_name) {
-        updates.push("first_name = ?");
-        params.push(first_name);
-      }
-      if (last_name) {
-        updates.push("last_name = ?");
-        params.push(last_name);
-      }
-      if (email) {
-        updates.push("email = ?");
-        params.push(email);
-      }
-      if (phone_number) {
-        updates.push("phone_number = ?");
-        params.push(phone_number);
-      }
-      if (country) {
-        updates.push("country = ?");
-        params.push(country);
-      }
-      if (source_of_funds) {
-        updates.push("source_of_funds = ?");
-        params.push(source_of_funds);
-      }
-      if (source_of_funds_other) {
-        updates.push("source_of_funds_other = ?");
-        params.push(source_of_funds_other);
-      }
-      if (percentage_of_shares) {
-        updates.push("percentage_of_shares = ?");
-        params.push(percentage_of_shares);
-      }
-      if (city) {
-        updates.push("city = ?");
-        params.push(city);
-      }
-      if (post_code) {
-        updates.push("post_code = ?");
-        params.push(post_code);
-      }
-      if (address) {
-        updates.push("address = ?");
-        params.push(address);
-      }
-  
-      if (updates.length === 0) {
+      const updatesArray = req.body; // Expecting an array of ownership updates
+
+      if (!Array.isArray(updatesArray) || updatesArray.length === 0) {
         return res.status(400).json({
           status: 400,
-          message: "No fields provided for update.",
+          message: "No ownership data provided for update.",
         });
       }
-  
-      // Add the ID to the parameters
-      params.push(id);
-  
-      // Execute the update query
-      const [result] = await DB.execute(
-        `UPDATE organizationOwnershipInfo SET ${updates.join(", ")} WHERE id = ?`,
-        params
-      );
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          status: 404,
-          message: "Organization Ownership info not found or no changes made.",
-        });
+
+      for (const item of updatesArray) {
+        const {
+          id,
+          role,
+          title,
+          first_name,
+          last_name,
+          email,
+          phone_number,
+          country,
+          source_of_funds,
+          source_of_funds_other,
+          percentage_of_shares,
+          city,
+          post_code,
+          address,
+        } = item;
+
+        if (!id) continue; // Skip if ID is missing
+
+        const updates = [];
+        const params = [];
+
+        if (role) updates.push("role = ?"), params.push(role);
+        if (title) updates.push("title = ?"), params.push(title);
+        if (first_name) updates.push("first_name = ?"), params.push(first_name);
+        if (last_name) updates.push("last_name = ?"), params.push(last_name);
+        if (email) updates.push("email = ?"), params.push(email);
+        if (phone_number) updates.push("phone_number = ?"), params.push(phone_number);
+        if (country) updates.push("country = ?"), params.push(country);
+        if (source_of_funds) updates.push("source_of_funds = ?"), params.push(source_of_funds);
+        if (source_of_funds_other) updates.push("source_of_funds_other = ?"), params.push(source_of_funds_other);
+        if (percentage_of_shares) updates.push("percentage_of_shares = ?"), params.push(percentage_of_shares);
+        if (city) updates.push("city = ?"), params.push(city);
+        if (post_code) updates.push("post_code = ?"), params.push(post_code);
+        if (address) updates.push("address = ?"), params.push(address);
+
+        if (updates.length === 0) continue;
+
+        params.push(id);
+
+        await DB.execute(
+          `UPDATE organizationOwnershipInfo SET ${updates.join(", ")} WHERE id = ?`,
+          params
+        );
       }
-  
+
       res.status(200).json({
         status: 200,
-        message: "Organization Ownership info updated successfully.",
+        message: "All organization ownership records updated successfully.",
       });
     } catch (err) {
       next(err);
     }
   }
+
 };
