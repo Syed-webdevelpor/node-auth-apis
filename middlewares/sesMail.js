@@ -3343,5 +3343,116 @@ const attachments = [
     }
     }
 
+const orgApplicationSubmissionEmail = async (email, link, customerName) => {
+    const mailOptions = {
+        from: `"INVESTAiN" <no-reply@investain.com>`,
+        to: email,
+        subject: 'Your INVESTAiN account application has been submitted',
+        html: `<html>
+            <head>
+                <style>
+                    @media screen and (max-width: 600px) {
+                        .download-app-container td {
+                            display: block;
+                            width: 100% !important;
+                            text-align: center !important;
+                        }
+                        .download-img {
+                            width: 135px !important;
+                            margin-bottom: 5px !important;
+                        }
+                    }
+                </style>
+            </head>
+    <body style="font-family: Rajdhani, sans-serif; background-color: #f7f7f7; color: #4d4d4d; padding: 20px; margin: 0;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <div style="text-align: center; padding: 20px;">
+                <a href="https://investain.com" style="text-decoration: none;">
+                    <img src="cid:investain_logo" alt="INVESTAiN" style="width: 100px; height: 100px;" />
+                </a>
+            </div>
+        </div>
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail, sendDocReqEmail, sendDocUploadedEmail, sendSupportTicketEmail, sendDocSignatureUploadedEmail, sendDocApproveEmail, sendDocUploadedEmailToUser, sendDocRejectEmail, sendReplyTicketEmail, sendEmailToAllUsers, sendVerificationKycDocsEmail };
+        <div style="padding: 20px; padding-top: 50px; padding-bottom: 50px; max-width: 600px; margin: 0 auto;">
+            <p>Dear ${customerName},</p>
+
+            <p>Thank you for applying for a trading account with <strong>INVESTAiN</strong>.</p>
+
+            <p>Your application has been successfully submitted. To move forward with onboarding, please upload the following required documents:</p>
+
+            <ul>
+                <li><strong>Company Documents</strong></li>
+                <li><strong>Director KYC Documents:</strong> Valid ID and proof of address</li>
+                <li><strong>Shareholder KYC Documents:</strong> Valid ID and proof of address for each shareholder</li>
+            </ul>
+
+            <p>To upload your documents:</p>
+            <p>
+                <a href="${link}" style="color: red; font-weight: bold;">Log in</a> using your email and password that you set during registration.
+            </p>
+
+            <p>Once all required documents are uploaded, our compliance team will begin the verification process.</p>
+            <p>If you have any questions or need help, feel free to contact our support team.</p>
+        </div>
+
+        <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <div style="text-align: center; padding-top: 40px;">
+                <h3 style="color: #333; font-size: 16px;">Download our App</h3>
+            </div>
+            <table align="center" role="presentation" style="width: 100%; text-align: center;">
+                <tr class="download-app-container">
+                    <td>
+                        <a href="https://apps.apple.com/ae/app/investain/id6475628015">
+                            <img src="cid:app_store" alt="Download on App Store" class="download-img" width="120" style="max-width: 130px; width: 100%;">
+                        </a>
+                    </td>
+                    <td>
+                        <a href="https://play.google.com/store/apps/details?id=com.investain.investain&pcampaignid=web_share">
+                            <img src="cid:play_store" alt="Download on Google Play" class="download-img" width="120" style="max-width: 130px; width: 100%;">
+                        </a>
+                    </td>
+                    <td>
+                        <a href="https://appgallery.huawei.com">
+                            <img src="cid:app_gallery" alt="Download on App Gallery" class="download-img" width="120" style="max-width: 130px; width: 100%;">
+                        </a>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="text-align: center; padding: 20px;">
+                <h3 style="color: #333; font-size: 20px;">Contact us</h3>
+                <p>For any inquiries please reach us at <strong style="color: red;">support@investain.com</strong></p>
+            </div>
+
+            <table align="center" cellpadding="10">
+                <tr>
+                    <td><a href="https://facebook.com"><img src="cid:fb_logo" alt="Facebook" style="width: 24px; height: 24px;"></a></td>
+                    <td><a href="https://x.com/investain_com"><img src="cid:twitter_logo" alt="Twitter" style="width: 24px; height: 24px;"></a></td>
+                    <td><a href="https://www.linkedin.com/company/investain/"><img src="cid:linkdin_logo" alt="LinkedIn" style="width: 24px; height: 24px;"></a></td>
+                    <td><a href="https://instagram.com"><img src="cid:insta_logo" alt="Instagram" style="width: 24px; height: 24px;"></a></td>
+                </tr>
+            </table>
+
+            <div style="text-align: center; padding: 10px;">
+                <p style="font-size: 14px; color: #888;">&copy; 2025 INVESTAiN. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+</html>`,
+        attachments: attachments,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('org application success email sent!', info);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending email of org aapplication: ', error);
+        return { success: false, error };
+    }
+};
+
+
+
+
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail, sendDocReqEmail, sendDocUploadedEmail, sendSupportTicketEmail, sendDocSignatureUploadedEmail, sendDocApproveEmail, sendDocUploadedEmailToUser, sendDocRejectEmail, sendReplyTicketEmail, sendEmailToAllUsers, sendVerificationKycDocsEmail, orgApplicationSubmissionEmail };

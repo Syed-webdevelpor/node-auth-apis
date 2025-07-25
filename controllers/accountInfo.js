@@ -1,7 +1,7 @@
 const DB = require("../dbConnection.js");
 const { v4: uuidv4 } = require("uuid");
 const { verifyToken } = require("../tokenHandler.js");
-const { applicationSubmissionEmail } = require('../middlewares/sesMail.js')
+const { applicationSubmissionEmail, orgApplicationSubmissionEmail } = require('../middlewares/sesMail.js')
 
 const fetchaccountInfoByID = async (id) => {
   sql = "SELECT * FROM `account_info` WHERE `userId`=?";
@@ -47,7 +47,11 @@ module.exports = {
       } else {
         link = "https://portal.investain.com/dashboard";
       }
-      await applicationSubmissionEmail(user[0].email, link, user[0].username);
+      if(user[0].accountNature == "Organizational"){
+        await orgApplicationSubmissionEmail(user[0].email, user[0].name, link);
+      }else{
+        await applicationSubmissionEmail(user[0].email, link, user[0].username);
+      }
       res.status(201).json({
         status: 201,
         message: "Your Accounts Info have been created",
