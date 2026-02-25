@@ -5,6 +5,7 @@ const { DateTime } = require("luxon");
 const { verifyToken } = require("../tokenHandler.js");
 const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
 const { sendTradingAccountEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewTradingAccountReqToAccManagerEmail } = require('../middlewares/sesMail.js')
+const axios = require('axios');
 
 const fetchAllTradingAccount = async () => {
   sql = `
@@ -43,47 +44,142 @@ module.exports = {
       const {
         user_id,
         account_type,
-        account_number,
-        account_status,
+        initial_balance,
+        leverage,
+        custom_spread,
+        custom_swap_long,
+        custom_swap_short,
         account_mode
       } = req.body;
-      const uuid = uuidv4();
-      const [result] = await DB.execute(
+
+      // Step 1: Get user data from user table
+      const [userRows] = await DB.execute(
+        `SELECT 
+            users.id, users.email, users.password, users.role,
+            personal_info.first_name, personal_info.last_name,
+            account_info.leverage AS user_leverage
+        FROM users
+        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+        LEFT JOIN account_info ON users.account_info_id = account_info.id
+        WHERE users.id = ?`,
+        [user_id]
+      );
+
+      if (userRows.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+
+      const user = userRows[0];
+      const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+
+      // Step 2: Call external API to create user on trading server
+      const externalApiUrl = process.env.TRADING_SERVER_URL || 'https://trading.investain.com';
+      
+      const registerPayload = {
+        name: userName || user.email.split('@')[0],
+        email: user.email,
+        password: user.password || crypto.randomBytes(8).toString('hex'),
+        role: 'trader',
+        account_type: account_type || 'Standard',
+        initial_balance: initial_balance || 0,
+        leverage: leverage || 100,
+        custom_spread: custom_spread || null,
+        custom_swap_long: custom_swap_long || null,
+        custom_swap_short: custom_swap_short || null
+      };
+
+      let tradingServerResponse;
+      try {
+        tradingServerResponse = await axios.post(
+          `${externalApiUrl}/auth/register`,
+          registerPayload,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            timeout: 30000
+          }
+        );
+      } catch (apiError) {
+        console.error('Trading server API error:', apiError.response?.data || apiError.message);
+        return res.status(502).json({
+          status: 502,
+          message: "Failed to create account on trading server",
+          error: apiError.response?.data?.message || apiError.message
+        });
+      }
+
+      // Step 3: Extract data from trading server response
+      const tradingUser = tradingServerResponse.data.user;
+      const tradingAccountData = tradingServerResponse.data.tradingAccount;
+      const tokens = tradingServerResponse.data.tokens;
+      
+      const account_number = tradingAccountData?.accountNumber || tradingUser?.id;
+
+      // Step 4: Create trading account record in local database using API response
+      const uuid = tradingAccountData?.id || uuidv4();
+      await DB.execute(
         "INSERT INTO `trading_accounts` (`id`, `user_id`, `account_type`,`account_number`,`account_status`, `account_mode`) VALUES (?,?,?, ?,?,?)",
         [
           uuid,
           user_id,
-          account_type,
+          tradingAccountData?.group?.name || account_type || 'Standard',
           account_number,
-          account_status,
-          account_mode
+          tradingAccountData?.status || 'active',
+          account_mode || 'live'
         ]
       );
 
-      const [rows] = await DB.execute(
-        `SELECT 
-             users.id, users.email, users.role,
-             personal_info.first_name,
-             account_info.leverage
-         FROM users
-         LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-         LEFT JOIN account_info ON users.account_info_id = account_info.id
-         WHERE users.id = ?`,
-        [user_id]
+      // Step 5: Create account financial record in local database using API response
+      const financialUuid = uuidv4();
+      const balance = tradingAccountData?.balance || 0;
+      const equity = tradingAccountData?.equity || balance;
+      const marginUsed = tradingAccountData?.marginUsed || 0;
+      const currency = tradingAccountData?.group?.currency || 'USD';
+      const leverageValue = tradingAccountData?.group?.leverage || leverage || user.user_leverage || 100;
+
+      await DB.execute(
+        `INSERT INTO account_financials 
+        (id, account_id, equity, credit, balance, margin, platforms, withdrawal_amount, leverage, deposit, currency, userId) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          financialUuid,
+          account_number,
+          equity,
+          0,
+          balance,
+          marginUsed,
+          'MT4',
+          0,
+          leverageValue,
+          balance,
+          currency,
+          user_id
+        ]
       );
+
+      // Send email notification
       let link;
-      if (rows[0].role == "Introduced Broker") {
+      if (user.role == "Introduced Broker") {
         link = "https://partner.investain.com/dashboard";
       } else {
         link = "https://portal.investain.com/dashboard";
       }
-      sendTradingAccountEmail(rows[0].email, rows[0].first_name, account_type, account_number, link, rows[0].leverage)
+      sendTradingAccountEmail(user.email, user.first_name, account_type, account_number, link, leverage || user.user_leverage);
+
       res.status(201).json({
         status: 201,
         message: "Your Account has been created",
         account_id: uuid,
+        account_number: account_number,
+        trading_user: tradingUser,
+        tokens: tokens
       });
     } catch (err) {
+      console.error('Error in createAccount:', err);
       next(err);
     }
   },
