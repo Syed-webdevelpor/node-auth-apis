@@ -1,17 +1,32 @@
-# TODO: Implement Trading Account Creation with External API Integration
+# Account Financial Real-Time Sync Implementation
 
-## Task
-Modify trading account creation to:
-1. Get user data from user table
-2. Call external API `https://trading.investain.com/auth/register`
-3. Create trading account and account financial based on API response
+## Task: Connect Express.js to NestJS for Real-Time Account Financial Updates
 
-## Steps:
-- [ ] 1. Modify controllers/tradingAccount.js - Add external API call and account financial creation
-- [ ] 2. Test the implementation
+### Steps:
+- [x] 1. Add socket.io-client dependency to package.json ✓
+- [x] 2. Create services/NestJSConnection.js - Service to connect to NestJS WebSocket ✓
+- [x] 3. Update app.js - Import and initialize the NestJS connection service ✓
 
-## Implementation Details:
-- Add axios for external API call
-- Get user data from users table + personal_info + account_info
-- Call external API with user data
-- On success: create trading_accounts record + account_financials record
+### Data Mapping (NestJS → Database):
+| NestJS Field | Database Field |
+|--------------|----------------|
+| accountId | account_id |
+| equity | equity |
+| balance | balance |
+| margin | margin |
+| free_margin | free_margin |
+| margin_level | margin_level |
+| credit | credit |
+| updatedAt | updated_at |
+
+### Implementation Details:
+- Connect to NestJS WebSocket at `/account-financial-sync`
+- Listen for `account-financial-update` events
+- Update account_financials table when updates are received
+- Handle reconnection automatically
+
+### Environment Variables:
+Add to your `.env` file:
+```
+NESTJS_WS_URL=http://localhost:3000
+SERVER_ID=express-server

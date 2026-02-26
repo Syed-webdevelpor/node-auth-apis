@@ -32,6 +32,7 @@ const otpRoutes = require('./routers/otpVerification.js');
 const organizationalOwnershipInfo = require("./routers/organizationalOwnershipInfo.js");
 const orgInfoDoc = require("./routers/orgInfoDoc.js");
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
+const nestJSConnection = require('./services/NestJSConnection.js');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -119,6 +120,9 @@ dbConnection
   .then(() => {
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
+      
+      // Initialize NestJS WebSocket connection for real-time account financial sync
+      nestJSConnection.initialize();
     });
   })
   .catch((err) => {
