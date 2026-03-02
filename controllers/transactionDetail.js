@@ -40,7 +40,7 @@ module.exports = {
     }
 
     // 🔒 Prevent duplicate transaction
-    const [existing] = await connection.execute(
+    const [existing] = await DB.execute(
       "SELECT id FROM transaction_details WHERE transaction_id = ?",
       [transaction_id]
     );
@@ -149,7 +149,7 @@ module.exports = {
 
       if (tradingAccountNumber) {
 
-        const [financialRows] = await connection.execute(
+        const [financialRows] = await DB.execute(
           `SELECT balance FROM account_financials WHERE account_id = ?`,
           [tradingAccountNumber]
         );
