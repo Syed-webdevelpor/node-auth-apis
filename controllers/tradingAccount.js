@@ -152,7 +152,7 @@ module.exports = {
           0,
           balance,
           marginUsed,
-          'MT4',
+          'INVESTAiN',
           0,
           leverageValue,
           balance,
