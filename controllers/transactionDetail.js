@@ -48,7 +48,7 @@ module.exports = {
 
       // Prevent duplicate transaction
       const [existing] = await connection.execute(
-        "SELECT id FROM transaction_details WHERE transaction_id = ?",
+        "SELECT transaction_id FROM transaction_details WHERE transaction_id = ?",
         [transaction_id]
       );
       console.log("Existing Transaction Rows:", existing);
