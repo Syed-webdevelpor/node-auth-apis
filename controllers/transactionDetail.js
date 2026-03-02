@@ -39,8 +39,6 @@ module.exports = {
         user_id
       } = req.body;
 
-      console.log("Received Transaction:", req.body);
-
       // Validate input
       if (!transaction_id || !amount || amount <= 0) {
         throw new Error("Invalid transaction data");
@@ -51,7 +49,6 @@ module.exports = {
         "SELECT transaction_id FROM transaction_details WHERE transaction_id = ?",
         [transaction_id]
       );
-      console.log("Existing Transaction Rows:", existing);
 
       if (existing.length > 0) {
         throw new Error("Duplicate transaction");
@@ -64,14 +61,12 @@ module.exports = {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [transaction_id, user_id, from_type, from_id, to_type, to_id, amount, transaction_type, status]
       );
-      console.log("Inserted Transaction Result:", insertResult);
 
       // Fetch inserted transaction
       const [transactionRows] = await connection.execute(
         "SELECT * FROM transaction_details WHERE transaction_id = ?",
         [transaction_id]
       );
-      console.log("Inserted Transaction Row:", transactionRows);
 
       const transaction = transactionRows[0];
       if (!transaction) throw new Error("Transaction not found");
@@ -83,7 +78,6 @@ module.exports = {
         // Deposit
         // ------------------------------
         if (transaction_type === "Deposit") {
-          console.log("Processing Deposit for account:", to_id);
           await connection.execute(
             "UPDATE account_financials SET balance = balance + ?, deposit = deposit + ? WHERE account_id = ?",
             [amount, amount, to_id]
@@ -95,7 +89,6 @@ module.exports = {
         // Withdrawal
         // ------------------------------
         else if (transaction_type === "Withdrawal") {
-          console.log("Processing Withdrawal for account:", from_id);
           await connection.execute(
             "UPDATE account_financials SET balance = balance - ?, withdrawal_amount = withdrawal_amount + ? WHERE account_id = ?",
             [amount, amount, from_id]
@@ -107,7 +100,6 @@ module.exports = {
         // Transfer
         // ------------------------------
         else if (transaction_type === "Transfer") {
-          console.log(`Processing Transfer from ${from_id} (${from_type}) to ${to_id} (${to_type})`);
 
           if (from_type === "wallet" && to_type === "account") {
             await connection.execute(
@@ -152,7 +144,6 @@ module.exports = {
           }
         }
 
-        console.log("Trading Account Number to Sync:", tradingAccountNumber);
 
         // ------------------------------
         // Sync with Trading Server
@@ -162,10 +153,8 @@ module.exports = {
             "SELECT balance FROM account_financials WHERE account_id = ?",
             [tradingAccountNumber]
           );
-          console.log("Financial Rows:", financialRows);
 
           const updatedBalance = Number(financialRows[0]?.balance || 0);
-          console.log("Updated Balance to Sync:", updatedBalance);
 
           await axios.patch(
             `https://trading.investain.com/trading-accounts/account-number/${tradingAccountNumber}`,
@@ -181,7 +170,6 @@ module.exports = {
               timeout: 5000
             }
           );
-          console.log("Trading server synced successfully");
         }
       }
 
@@ -196,7 +184,6 @@ module.exports = {
         [user_id]
       );
 
-      console.log("Fetched User Info:", userRows);
 
       const user = userRows[0];
       if (!user) throw new Error("User not found");
@@ -217,7 +204,6 @@ module.exports = {
       );
 
       await connection.commit();
-      console.log("Transaction committed successfully");
 
       res.status(201).json({
         status: 201,
