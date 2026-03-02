@@ -227,7 +227,7 @@ const attachments = [
             <p style="font-family: Rajdhani, sans-serif;">Your Trading account details are: </p>
                 <ul style="font-family: Rajdhani, sans-serif;">
                         <li>Trading Server: INVESTAiN SERVER</li>
-                        <li>Login: ${accountNumber}</li>
+                        <li>Email: ${customerEmail}</li>
                         <li>Password: Use the same password you created during your application</li>
                         <li>Leverage: ${leverage}</li>
                     </ul>
