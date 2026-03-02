@@ -9,14 +9,21 @@ const axios = require('axios');
 
 const fetchAllTradingAccount = async () => {
   sql = `
-    SELECT 
+      SELECT 
       ta.id AS trading_account_id,
       ta.*, 
       af.id AS financial_id,
-      af.* 
-    FROM trading_accounts AS ta
-    LEFT JOIN account_financials AS af 
-    ON ta.account_number = af.account_id `;
+      af.*
+    FROM trading_accounts ta
+    LEFT JOIN account_financials af 
+      ON af.account_id = ta.account_number
+      AND af.id = (
+        SELECT id 
+        FROM account_financials 
+        WHERE account_id = ta.account_number
+        ORDER BY created_at DESC 
+        LIMIT 1
+      );`;
   const [row] = await DB.execute(sql);
   return row;
 };
