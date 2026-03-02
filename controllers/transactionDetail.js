@@ -23,7 +23,10 @@ const fetchAllTransactionDetails = async () => {
 module.exports = {
 
   transactionDetail: async (req, res, next) => {
+    const connection = await DB.getConnection();
     try {
+      await connection.beginTransaction();
+
       const {
         transaction_id,
         amount,
@@ -35,185 +38,199 @@ module.exports = {
         to_id,
         user_id
       } = req.body;
-          if (!transaction_id || !amount || amount <= 0) {
-      throw new Error("Invalid transaction data");
-    }
 
-    // 🔒 Prevent duplicate transaction
-    const [existing] = await DB.execute(
-      "SELECT id FROM transaction_details WHERE transaction_id = ?",
-      [transaction_id]
-    );
+      console.log("Received Transaction:", req.body);
 
-    if (existing.length > 0) {
-      throw new Error("Duplicate transaction");
-    }
-     await DB.execute(
-        "INSERT INTO `transaction_details` (`transaction_id`, `user_id`,`from_type`,`from_id`,`to_type`,`to_id`, `amount`,`transaction_type`, `status`) VALUES (?,?,?, ?,?,?,?,?,?)",
-        [
-          transaction_id,
-          user_id,
-          from_type,
-          from_id,
-          to_type,
-          to_id,
-          amount,
-          transaction_type,
-          status,
-        ]
-      );
-      
-      // Fetch inserted transaction details
-      const [transactionRows] = await DB.execute(
-        "SELECT * FROM `transaction_details` WHERE `transaction_id` = ?",
+      // Validate input
+      if (!transaction_id || !amount || amount <= 0) {
+        throw new Error("Invalid transaction data");
+      }
+
+      // Prevent duplicate transaction
+      const [existing] = await connection.execute(
+        "SELECT id FROM transaction_details WHERE transaction_id = ?",
         [transaction_id]
       );
+      console.log("Existing Transaction Rows:", existing);
+
+      if (existing.length > 0) {
+        throw new Error("Duplicate transaction");
+      }
+
+      // Insert transaction
+      const [insertResult] = await connection.execute(
+        `INSERT INTO transaction_details
+          (transaction_id, user_id, from_type, from_id, to_type, to_id, amount, transaction_type, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [transaction_id, user_id, from_type, from_id, to_type, to_id, amount, transaction_type, status]
+      );
+      console.log("Inserted Transaction Result:", insertResult);
+
+      // Fetch inserted transaction
+      const [transactionRows] = await connection.execute(
+        "SELECT * FROM transaction_details WHERE transaction_id = ?",
+        [transaction_id]
+      );
+      console.log("Inserted Transaction Row:", transactionRows);
 
       const transaction = transactionRows[0];
-      if (!transaction) {
-        throw new Error("Transaction not found");
-      }
+      if (!transaction) throw new Error("Transaction not found");
+
       let tradingAccountNumber = null;
-      if(transaction.status === "success"){
-         // Update account financials based on transaction type
-        
-        if (transaction_type === 'Deposit') {
-          await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` + ?, `deposit` = `deposit` + ? WHERE `account_id` = ?",
+
+      if (transaction.status === "success") {
+        // ------------------------------
+        // Deposit
+        // ------------------------------
+        if (transaction_type === "Deposit") {
+          console.log("Processing Deposit for account:", to_id);
+          await connection.execute(
+            "UPDATE account_financials SET balance = balance + ?, deposit = deposit + ? WHERE account_id = ?",
             [amount, amount, to_id]
           );
           tradingAccountNumber = to_id;
-        } 
-        else if (transaction_type === 'Withdrawal') {
-          await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` - ?, `withdrawal_amount` = `withdrawal_amount` + ? WHERE `account_id` = ?",
+        }
+
+        // ------------------------------
+        // Withdrawal
+        // ------------------------------
+        else if (transaction_type === "Withdrawal") {
+          console.log("Processing Withdrawal for account:", from_id);
+          await connection.execute(
+            "UPDATE account_financials SET balance = balance - ?, withdrawal_amount = withdrawal_amount + ? WHERE account_id = ?",
             [amount, amount, from_id]
           );
           tradingAccountNumber = from_id;
-        } 
-        else if (transaction_type === 'Transfer') {
+        }
 
-          if(from_type === 'wallet' && to_type ==='account'){
-          // Deduct from sender account
-          await DB.execute(
-            "UPDATE `wallets` SET `balance` = `balance` - ? WHERE `wallet_number` = ?",
-            [amount, from_id]
-          );
+        // ------------------------------
+        // Transfer
+        // ------------------------------
+        else if (transaction_type === "Transfer") {
+          console.log(`Processing Transfer from ${from_id} (${from_type}) to ${to_id} (${to_type})`);
 
-          // Add to receiver account
-          await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` + ? WHERE `account_id` = ?",
-            [amount, to_id]
-          );
-          tradingAccountNumber = to_id;
-          }else if(from_type === 'account' && to_type ==='wallet'){
-            // Deduct from sender account
-          await DB.execute(
-            "UPDATE `account_financials` SET `balance` = `balance` - ? WHERE `account_id` = ?",
-            [amount, from_id]
-          );
-
-          // Add to receiver account
-          await DB.execute(
-            "UPDATE `wallets` SET `balance` = `balance` + ? WHERE `wallet_number` = ?",
-            [amount, to_id]
-          );
-          tradingAccountNumber = from_id;
-          }else if(from_type === 'wallet' && to_type ==='wallet'){
-            // Deduct from sender account
-            await DB.execute(
-              "UPDATE `wallets` SET `balance` = `balance` - ? WHERE `wallet_number` = ?",
+          if (from_type === "wallet" && to_type === "account") {
+            await connection.execute(
+              "UPDATE wallets SET balance = balance - ? WHERE wallet_number = ?",
               [amount, from_id]
             );
-
-          // Add to receiver account
-          await DB.execute(
-            "UPDATE `wallets` SET `balance` = `balance` + ? WHERE `wallet_number` = ?",
-            [amount, to_id]
-          );
-          tradingAccountNumber = to_id;
-          }else{
-            await DB.execute(
-              "UPDATE `account_financials` SET `balance` = `balance` - ? WHERE `account_id` = ?",
-              [amount, from_id]
-            );
-
-            await DB.execute(
-              "UPDATE `account_financials` SET `balance` = `balance` + ? WHERE `account_id` = ?",
+            await connection.execute(
+              "UPDATE account_financials SET balance = balance + ? WHERE account_id = ?",
               [amount, to_id]
             );
+            tradingAccountNumber = to_id;
+          } else if (from_type === "account" && to_type === "wallet") {
+            await connection.execute(
+              "UPDATE account_financials SET balance = balance - ? WHERE account_id = ?",
+              [amount, from_id]
+            );
+            await connection.execute(
+              "UPDATE wallets SET balance = balance + ? WHERE wallet_number = ?",
+              [amount, to_id]
+            );
+            tradingAccountNumber = from_id;
+          } else if (from_type === "account" && to_type === "account") {
+            await connection.execute(
+              "UPDATE account_financials SET balance = balance - ? WHERE account_id = ?",
+              [amount, from_id]
+            );
+            await connection.execute(
+              "UPDATE account_financials SET balance = balance + ? WHERE account_id = ?",
+              [amount, to_id]
+            );
+            tradingAccountNumber = to_id;
+          } else if (from_type === "wallet" && to_type === "wallet") {
+            await connection.execute(
+              "UPDATE wallets SET balance = balance - ? WHERE wallet_number = ?",
+              [amount, from_id]
+            );
+            await connection.execute(
+              "UPDATE wallets SET balance = balance + ? WHERE wallet_number = ?",
+              [amount, to_id]
+            );
+            tradingAccountNumber = to_id;
           }
-          tradingAccountNumber = to_id;
+        }
+
+        console.log("Trading Account Number to Sync:", tradingAccountNumber);
+
+        // ------------------------------
+        // Sync with Trading Server
+        // ------------------------------
+        if (tradingAccountNumber) {
+          const [financialRows] = await connection.execute(
+            "SELECT balance FROM account_financials WHERE account_id = ?",
+            [tradingAccountNumber]
+          );
+          console.log("Financial Rows:", financialRows);
+
+          const updatedBalance = Number(financialRows[0]?.balance || 0);
+          console.log("Updated Balance to Sync:", updatedBalance);
+
+          await axios.patch(
+            `https://trading.investain.com/trading-accounts/account-number/${tradingAccountNumber}`,
+            {
+              balance: updatedBalance,
+              free_margin: updatedBalance
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-internal-api-key": process.env.INTERNAL_API_KEY
+              },
+              timeout: 5000
+            }
+          );
+          console.log("Trading server synced successfully");
         }
       }
-console.log("Trading Account Number:", tradingAccountNumber);
-      if (tradingAccountNumber) {
 
-        const [financialRows] = await DB.execute(
-          `SELECT balance FROM account_financials WHERE account_id = ?`,
-          [tradingAccountNumber]
-        );
-console.log(financialRows[0]);
-
-        const updatedBalance = Number(financialRows[0].balance);
-console.log("Updated Balance:", updatedBalance);
-
-        await axios.patch(
-          `https://trading.investain.com/trading-accounts/account-number/${tradingAccountNumber}`,
-          {
-            balance: updatedBalance,
-            free_margin: updatedBalance
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-internal-api-key": process.env.INTERNAL_API_KEY
-            },
-            timeout: 5000
-          }
-        );
-      }
-    
-       
-
-      // Fetch user details
-      const [rows] = await DB.execute(
-        `SELECT 
-       users.id, users.email,
-       personal_info.first_name
-   FROM users
-   LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
-   WHERE users.id = ?`,
+      // ------------------------------
+      // Fetch user info and send email
+      // ------------------------------
+      const [userRows] = await connection.execute(
+        `SELECT users.id, users.email,personal_info.first_name
+        FROM users
+        LEFT JOIN personal_info ON users.personal_info_id = personal_info.id
+        WHERE users.id = ?`,
         [user_id]
       );
 
-      const user = rows[0];
-      if (!user) {
-        throw new Error("User not found");
-      }
-      const timestamp = DateTime
-        .fromJSDate(transaction.created_at, { zone: 'utc' })
-        .setZone("Asia/Dubai")
-        .toFormat("yyyy/MM/dd HH:mm:ss");
-      let account_number = '';
-      if (transaction_type === 'Deposit') {
-        account_number = to_id;
-        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id)
-      } else if (transaction_type === 'Withdrawal') {
-        account_number = from_id;
-        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id)
-      } else if (transaction_type === 'Transfer') {
-        account_number = `${from_id} to ${to_id}.`;
-        await sendTransactionNotificationEmail(rows[0].email, rows[0].first_name, transaction_type, amount, timestamp, account_number, transaction_id, from_id, to_id)
-      }
+      console.log("Fetched User Info:", userRows);
+
+      const user = userRows[0];
+      if (!user) throw new Error("User not found");
+
+      const timestamp = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
+      let account_number = transaction_type === "Deposit" ? to_id :
+                          transaction_type === "Withdrawal" ? from_id :
+                          `${from_id} to ${to_id}`;
+
+      await sendTransactionNotificationEmail(
+        user.email,
+        user.first_name,
+        transaction_type,
+        amount,
+        timestamp,
+        account_number,
+        transaction_id
+      );
+
+      await connection.commit();
+      console.log("Transaction committed successfully");
 
       res.status(201).json({
         status: 201,
-        message: "Your transaction detail have been created",
-        transaction_id: transaction_id,
+        message: "Transaction processed successfully",
+        transaction_id
       });
+
     } catch (err) {
+      console.error("Transaction Error:", err);
+      await connection.rollback();
       next(err);
+    } finally {
+      connection.release();
     }
   },
 
