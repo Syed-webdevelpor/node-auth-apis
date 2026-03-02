@@ -146,15 +146,17 @@ module.exports = {
           tradingAccountNumber = to_id;
         }
       }
-
+console.log("Trading Account Number:", tradingAccountNumber);
       if (tradingAccountNumber) {
 
         const [financialRows] = await DB.execute(
           `SELECT balance FROM account_financials WHERE account_id = ?`,
           [tradingAccountNumber]
         );
+console.log(financialRows[0]);
 
         const updatedBalance = Number(financialRows[0].balance);
+console.log("Updated Balance:", updatedBalance);
 
         await axios.patch(
           `https://trading.investain.com/trading-accounts/account-number/${tradingAccountNumber}`,
