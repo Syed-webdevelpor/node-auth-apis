@@ -116,7 +116,6 @@ class NestJSConnection {
           data.equity,
           data.balance,
           data.margin,
-          data.updatedAt || new Date(),
           accountId
         ]
       );
