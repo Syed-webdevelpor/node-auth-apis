@@ -109,12 +109,13 @@ class NestJSConnection {
       // Update existing account financial record
       await DB.execute(
         `UPDATE account_financials 
-          SET equity = ?, balance = ?, margin = ?
+          SET equity = ?, balance = ?, margin = ?, credit=?
           WHERE account_id = ?`,
         [
           data.equity,
           data.balance,
           data.margin,
+          data.credit,
           accountId
         ]
       );
