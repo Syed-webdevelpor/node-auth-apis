@@ -92,6 +92,7 @@ class NestJSConnection {
       // Map NestJS data to database schema
       // NestJS: accountId, account_id, equity, balance, margin, free_margin, margin_level, credit, updatedAt
       // Database: account_id, equity, balance, margin, free_margin, margin_level, credit, updated_at
+      console.log( '🔄 Processing account financial update for accountId:', data.accountId || data.account_id);
       
       const accountId = data.accountId || data.account_id;
       
@@ -105,29 +106,10 @@ class NestJSConnection {
         'SELECT id FROM account_financials WHERE account_id = ?',
         [accountId]
       );
+      console.log('Existing account check result:', existingAccount);
 
       if (existingAccount.length === 0) {
-        console.log(`⚠️ Account ${accountId} not found, creating new record`);
-        
-        // Create new account financial record
-        const { v4: uuidv4 } = require('uuid');
-        const uuid = uuidv4();
-        
-        await DB.execute(
-          `INSERT INTO account_financials 
-            (id, account_id, equity, balance, margin, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?)`,
-          [
-            uuid,
-            accountId,
-            data.equity || 0,
-            data.balance || 0,
-            data.margin || 0,
-            data.updatedAt || new Date()
-          ]
-        );
-        
-        console.log(`✅ Created new account financial record for ${accountId}`);
+        console.log(`⚠️ Account ${accountId} not found`);
         return;
       }
 
@@ -174,3 +156,4 @@ class NestJSConnection {
 const nestJSConnection = new NestJSConnection();
 
 module.exports = nestJSConnection;
+
