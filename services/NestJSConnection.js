@@ -15,8 +15,6 @@ class NestJSConnection {
    * Initialize the connection to NestJS WebSocket server
    */
   initialize() {
-    console.log(`🔄 Connecting to NestJS Account Financial Sync...`);
-    console.log(`   URL: ${this.nestjsUrl}/account-financial-sync`);
 
     this.socket = io(`${this.nestjsUrl}/account-financial-sync`, {
       query: {
@@ -40,8 +38,6 @@ class NestJSConnection {
     // Connection established
     this.socket.on('connect', () => {
       this.isConnected = true;
-      console.log('✅ Connected to NestJS Account Financial Sync');
-      console.log('   Socket ID:', this.socket.id);
       
       // Register this server with the NestJS server
       this.socket.emit('register-server', {
@@ -73,8 +69,7 @@ class NestJSConnection {
 
     // Account financial update received
     this.socket.on('account-financial-update', (data) => {
-      console.log('📊 Received account financial update:', data);
-      this.handleAccountFinancialUpdate(data);
+      this.handleAccountFinancialUpdate(data.data);
     });
 
     // Error event
@@ -106,7 +101,6 @@ class NestJSConnection {
         'SELECT id FROM account_financials WHERE account_id = ?',
         [accountId]
       );
-      console.log('Existing account check result:', existingAccount);
 
       if (existingAccount.length === 0) {
         console.log(`⚠️ Account ${accountId} not found`);
@@ -127,7 +121,6 @@ class NestJSConnection {
         ]
       );
 
-      console.log(`✅ Synced account ${accountId}: equity=${data.equity}, balance=${data.balance}, margin=${data.margin}`);
     } catch (error) {
       console.error('❌ Failed to update account financial:', error.message);
     }
