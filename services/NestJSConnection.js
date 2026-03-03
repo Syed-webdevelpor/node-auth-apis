@@ -87,7 +87,6 @@ class NestJSConnection {
       // Map NestJS data to database schema
       // NestJS: accountId, account_id, equity, balance, margin, free_margin, margin_level, credit, updatedAt
       // Database: account_id, equity, balance, margin, free_margin, margin_level, credit, updated_at
-      console.log( '🔄 Processing account financial update for accountId:', data);
       
       const accountId = data.accountId || data.account_id;
       
@@ -110,7 +109,7 @@ class NestJSConnection {
       // Update existing account financial record
       await DB.execute(
         `UPDATE account_financials 
-          SET equity = ?, balance = ?, margin = ?, updated_at = ? 
+          SET equity = ?, balance = ?, margin = ?
           WHERE account_id = ?`,
         [
           data.equity,
