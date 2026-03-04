@@ -1,32 +1,26 @@
-# Account Financial Real-Time Sync Implementation
+# TODO - Credit Update API Integration
 
-## Task: Connect Express.js to NestJS for Real-Time Account Financial Updates
+## Task: Modify updateAccountFinancial to call external trading server API
 
 ### Steps:
-- [x] 1. Add socket.io-client dependency to package.json ✓
-- [x] 2. Create services/NestJSConnection.js - Service to connect to NestJS WebSocket ✓
-- [x] 3. Update app.js - Import and initialize the NestJS connection service ✓
+1. [x] Read and understand the existing updateAccountFinancial function
+2. [x] Modify updateAccountFinancial to:
+   - Get current credit from database before update
+   - Compare new credit with current credit to determine action (add/remove)
+   - Call external API `http://localhost:3000/trading-accounts/credit/${accountNumber}` with action, amount, and reason
+   - Handle the external API response
+3. [x] Test the implementation
 
-### Data Mapping (NestJS → Database):
-| NestJS Field | Database Field |
-|--------------|----------------|
-| accountId | account_id |
-| equity | equity |
-| balance | balance |
-| margin | margin |
-| free_margin | free_margin |
-| margin_level | margin_level |
-| credit | credit |
-| updatedAt | updated_at |
+## External API Details:
+- URL: `http://localhost:3000/trading-accounts/credit/${accountNumber}`
+- Method: POST
+- Headers: 
+  - 'Content-Type': 'application/json'
+  - 'x-internal-api-key': process.env.INTERNAL_API_KEY
+- Body: { action: 'add' | 'remove', amount: number, reason: string }
 
-### Implementation Details:
-- Connect to NestJS WebSocket at `/account-financial-sync`
-- Listen for `account-financial-update` events
-- Update account_financials table when updates are received
-- Handle reconnection automatically
+## Logic:
+- If new credit > current credit → action = 'add'
+- If new credit < current credit → action = 'remove'
+- amount = |new credit - current credit|
 
-### Environment Variables:
-Add to your `.env` file:
-```
-NESTJS_WS_URL=http://localhost:3000
-SERVER_ID=express-server
