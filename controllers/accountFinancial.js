@@ -253,4 +253,50 @@ module.exports = {
       next(err);
     }
   },
+
+  // Get credit history of a trading account for admin
+  getCreditHistory: async (req, res, next) => {
+    try {
+      const data = verifyToken(req.headers.access_token);
+      if (data && data.status) return res.status(data.status).json(data);
+
+      const { accountId } = req.params;
+
+      if (!accountId) {
+        return res.status(400).json({
+          status: 400,
+          message: "accountId is required",
+        });
+      }
+
+      const tradingServerUrl = process.env.TRADING_SERVER_URL || 'http://localhost:3000';
+      
+      const externalApiResponse = await fetch(
+        `${tradingServerUrl}/trading-accounts/credit-history/${accountId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-internal-api-key': process.env.INTERNAL_API_KEY
+          }
+        }
+      );
+
+      const externalData = await externalApiResponse.json();
+
+      if (!externalApiResponse.ok) {
+        return res.status(externalApiResponse.status || 500).json({
+          status: externalApiResponse.status || 500,
+          message: externalData.message || 'Failed to fetch credit history from trading server',
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        creditHistory: externalData,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };

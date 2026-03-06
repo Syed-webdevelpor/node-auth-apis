@@ -40,4 +40,12 @@ router.post(
   accountFinancial.updateAccountFinancial
 );
 
+// Get credit history of a trading account for admin
+router.get(
+  "/credit-history/:accountId",
+  tokenValidation(),
+  validate,
+  accountFinancial.getCreditHistory
+);
+
 module.exports = router;
