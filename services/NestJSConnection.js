@@ -102,7 +102,6 @@ class NestJSConnection {
       );
 
       if (existingAccount.length === 0) {
-        console.log(`⚠️ Account ${accountId} not found`);
         return;
       }
 
