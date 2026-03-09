@@ -218,6 +218,8 @@ module.exports = {
           message: "Account Financial not found",
         });
       }
+      console.log(`Account Financial updated for account_id: ${account_id} and credit: ${amount} and action ${action}`);
+      
 
       // Call external trading server API to update credit
       if (action && amount > 0) {
