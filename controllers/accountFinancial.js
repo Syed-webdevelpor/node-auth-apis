@@ -279,6 +279,7 @@ module.exports = {
           }
         }
       );
+console.log(externalApiResponse);
 
       const externalData = externalApiResponse.data;
 
