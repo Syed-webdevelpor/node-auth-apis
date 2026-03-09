@@ -6,7 +6,12 @@ const WebSocket = require('ws');
 const axios = require('axios');
 
 const fetchAllaccountFinancial = async () => {
-  sql = "SELECT * FROM `account_financials`";
+  sql = `
+    SELECT af.* 
+    FROM \`account_financials\` af
+    LEFT JOIN \`trading_accounts\` ta ON af.\`account_id\` = ta.\`account_number\`
+    WHERE ta.\`account_mode\` = 'live' OR ta.\`account_mode\` IS NULL
+  `;
   const [row] = await DB.execute(sql);
   return row;
 };
