@@ -279,7 +279,7 @@ module.exports = {
           }
         }
       );
-console.log(externalApiResponse);
+      console.log(`log are here: ${externalApiResponse}`);
 
       const externalData = externalApiResponse.data;
 
