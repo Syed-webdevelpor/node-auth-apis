@@ -219,25 +219,24 @@ module.exports = {
         try {
           const tradingServerUrl = process.env.TRADING_SERVER_URL || 'http://localhost:3000';
           
-          const externalApiResponse = await fetch(
+          const externalApiResponse = await axios.post(
             `${tradingServerUrl}/trading-accounts/credit/${account_id}`,
+            { 
+              action, 
+              amount, 
+              reason: reason || 'Credit update via account financial API' 
+            },
             {
-              method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'x-internal-api-key': process.env.INTERNAL_API_KEY
-              },
-              body: JSON.stringify({ 
-                action, 
-                amount, 
-                reason: reason || 'Credit update via account financial API' 
-              })
+              }
             }
           );
 
-          const externalData = await externalApiResponse.json();
+          const externalData = externalApiResponse.data;
           
-          if (!externalApiResponse.ok) {
+          if (externalApiResponse.status !== 200) {
             console.error('External trading server credit update failed:', externalData.message || 'Failed to manage credit');
           }
         } catch (externalApiError) {
@@ -271,10 +270,9 @@ module.exports = {
 
       const tradingServerUrl = process.env.TRADING_SERVER_URL || 'http://localhost:3000';
       
-      const externalApiResponse = await fetch(
+      const externalApiResponse = await axios.get(
         `${tradingServerUrl}/trading-accounts/credit-history/${accountId}`,
         {
-          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'x-internal-api-key': process.env.INTERNAL_API_KEY
@@ -282,9 +280,9 @@ module.exports = {
         }
       );
 
-      const externalData = await externalApiResponse.json();
+      const externalData = externalApiResponse.data;
 
-      if (!externalApiResponse.ok) {
+      if (externalApiResponse.status !== 200) {
         return res.status(externalApiResponse.status || 500).json({
           status: externalApiResponse.status || 500,
           message: externalData.message || 'Failed to fetch credit history from trading server',
