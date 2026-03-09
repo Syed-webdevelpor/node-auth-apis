@@ -256,7 +256,6 @@ module.exports = {
   // Get credit history of a trading account for admin
   getCreditHistory: async (req, res, next) => {
     try {
-      console.log(`Received request for credit history of accountId: ${req.params.accountId}`);
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
 
@@ -270,7 +269,6 @@ module.exports = {
       }
 
       const tradingServerUrl = process.env.TRADING_SERVER_URL || 'http://localhost:3000';
-      console.log(`Fetching credit history for accountId: ${accountId} from trading server at ${tradingServerUrl}  and key ${process.env.INTERNAL_API_KEY}`);
       const externalApiResponse = await axios.get(
         `${tradingServerUrl}/trading-accounts/credit-history/${accountId}`,
         {
@@ -280,7 +278,6 @@ module.exports = {
           }
         }
       );
-      console.log(`log are here: ${externalApiResponse}`);
 
       const externalData = externalApiResponse.data;
 
