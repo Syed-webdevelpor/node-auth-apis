@@ -270,7 +270,7 @@ module.exports = {
       }
 
       const tradingServerUrl = process.env.TRADING_SERVER_URL || 'http://localhost:3000';
-      
+      console.log(`Fetching credit history for accountId: ${accountId} from trading server at ${tradingServerUrl}  and key ${process.env.INTERNAL_API_KEY}`);
       const externalApiResponse = await axios.get(
         `${tradingServerUrl}/trading-accounts/credit-history/${accountId}`,
         {
