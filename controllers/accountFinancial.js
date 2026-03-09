@@ -256,6 +256,7 @@ module.exports = {
   // Get credit history of a trading account for admin
   getCreditHistory: async (req, res, next) => {
     try {
+      console.log(`Received request for credit history of accountId: ${req.params.accountId}`);
       const data = verifyToken(req.headers.access_token);
       if (data && data.status) return res.status(data.status).json(data);
 
