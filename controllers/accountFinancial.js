@@ -218,7 +218,6 @@ module.exports = {
           message: "Account Financial not found",
         });
       }
-      console.log(`Account Financial updated for account_id: ${account_id} and credit: ${amount} and action ${action}`);
       
 
       // Call external trading server API to update credit
@@ -240,11 +239,10 @@ module.exports = {
               }
             }
           );
-          console.log(externalApiResponse.data);
 
           const externalData = externalApiResponse.data;
           
-          if (externalApiResponse.status !== 200) {
+          if (externalApiResponse.data.success !== true) {
             console.error('External trading server credit update failed:', externalData.message || 'Failed to manage credit');
           }
         } catch (externalApiError) {
