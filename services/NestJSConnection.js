@@ -21,7 +21,7 @@ class NestJSConnection {
         serverType: 'express-server',
         serverId: this.serverId
       },
-      path: 'trading/socket.io',
+      path: '/trading/socket.io',
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: Infinity,
