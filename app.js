@@ -34,7 +34,7 @@ const orgInfoDoc = require("./routers/orgInfoDoc.js");
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3003;
 
 // Middleware to parse JSON requests
 app.use(express.json({ limit: '50mb' }));
