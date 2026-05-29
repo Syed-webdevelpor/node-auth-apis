@@ -61,6 +61,9 @@ app.use(session({
     sameSite: 'strict',
   },
 }));
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
@@ -77,9 +80,7 @@ const limiter = rateLimit({
   max: 150,
 });
 // app.use(limiter);
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+
 app.use("/api/user", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/api/introducerBroker", introducerBrokerRoutes);
