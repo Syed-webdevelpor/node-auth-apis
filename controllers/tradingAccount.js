@@ -146,16 +146,6 @@ module.exports = {
       const marginUsed = tradingAccountData?.marginUsed || 0;
       const currency = tradingAccountData?.group?.currency || 'USD';
       const leverageValue = tradingAccountData?.group?.leverage?.default || leverage || user.user_leverage || 100;
-      console.log("FINANCIAL INSERT VALUES:", {
-        financialUuid,
-        account_number,
-        equity,
-        balance,
-        marginUsed,
-        leverageValue,
-        currency,
-        user_id
-      });
       await DB.execute(
         `INSERT INTO account_financials 
         (id, account_id, equity, credit, balance, margin, platforms, withdrawal_amount, leverage, deposit, currency, userId) 
