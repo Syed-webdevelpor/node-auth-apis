@@ -145,7 +145,7 @@ module.exports = {
       const equity = tradingAccountData?.equity || balance;
       const marginUsed = tradingAccountData?.marginUsed || 0;
       const currency = tradingAccountData?.group?.currency || 'USD';
-      const leverageValue = tradingAccountData?.group?.leverage || leverage || user.user_leverage || 100;
+      const leverageValue = tradingAccountData?.group?.leverage?.default || leverage || user.user_leverage || 100;
       console.log("FINANCIAL INSERT VALUES:", {
         financialUuid,
         account_number,
