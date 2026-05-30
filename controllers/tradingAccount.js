@@ -89,7 +89,6 @@ module.exports = {
         name: userName || user.email.split('@')[0],
         email: user.email,
         password: user.password || crypto.randomBytes(8).toString('hex'),
-        role: 'trader',
         account_type: account_type || 'Standard',
         initial_balance: initial_balance || 0,
         leverage: leverage || 100,
