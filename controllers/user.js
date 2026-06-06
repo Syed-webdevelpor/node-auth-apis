@@ -471,10 +471,43 @@ module.exports = {
         await sendVerificationEmail(userdata[0].email, verificationLink, userdata[0].username);
       }
 
+      // --- Trading server login (proxy) ---
+      // Calls TRADING_SERVER_URL/auth/login with same email + password
+      // and returns tokens as trading_access_token and trading_referesh_token.
+      const tradingServerUrl = process.env.TRADING_SERVER_URL;
+      let trading_access_token = null;
+      let trading_referesh_token = null; // keep your spelling: referesh
+
+      if (tradingServerUrl) {
+        try {
+          const tradingLoginRes = await axios.post(
+            `${tradingServerUrl}/auth/login`,
+            {
+              email: user.email,
+              password,
+            },
+            { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+          );
+
+          trading_access_token = tradingLoginRes?.data?.access_token ?? null;
+          trading_referesh_token = tradingLoginRes?.data?.refresh_token ?? null;
+        } catch (tradingErr) {
+          // If trading server fails, fail the login as well to keep contract consistent
+          console.error('Trading server auth/login error:', tradingErr.response?.data || tradingErr.message);
+          return res.status(502).json({
+            status: 502,
+            message: 'Failed to login on trading server',
+            error: tradingErr.response?.data?.message || tradingErr.response?.data || tradingErr.message,
+          });
+        }
+      }
+
       res.json({
         status: 200,
         access_token,
         refresh_token,
+        trading_access_token,
+        trading_referesh_token,
         userId: user.id,
         role: user.role,
         account_nature: user.account_nature,
