@@ -375,7 +375,8 @@ module.exports = {
 
   login: async (req, res, next) => {
     try {
-      const { user, password } = req.body;
+      const { user, password, platform } = req.body;
+
 
       // Check if user is locked out
       const [lockData] = await DB.execute(
@@ -481,7 +482,10 @@ module.exports = {
       let trading_account_id = null;
       let trading_group_id = null;
 
-      if (tradingServerUrl) {
+      const isMobile = platform === 'mobile';
+
+      // Only call trading server and return trading fields for mobile platform.
+      if (isMobile && tradingServerUrl) {
         try {
           const tradingLoginRes = await axios.post(
             `${tradingServerUrl}/auth/login`,
@@ -498,7 +502,6 @@ module.exports = {
           trading_account_id = tradingLoginRes?.data?.accountId ?? null;
           trading_group_id = tradingLoginRes?.data?.groupId ?? null;
         } catch (tradingErr) {
-          // If trading server fails, fail the login as well to keep contract consistent
           console.error('Trading server auth/login error:', tradingErr.response?.data || tradingErr.message);
           return res.status(502).json({
             status: 502,
@@ -508,22 +511,28 @@ module.exports = {
         }
       }
 
-      res.json({
+      const responsePayload = {
         status: 200,
         access_token,
         refresh_token,
-        trading_access_token,
-        trading_referesh_token,
         userId: user.id,
         role: user.role,
         account_nature: user.account_nature,
         is_verified: user.is_verified,
         kyc_completed: user.kyc_completed,
         current_step: user.current_step,
-        trading_user_id,
-        trading_account_id,
-        trading_group_id,
-      });
+      };
+
+      if (isMobile) {
+        responsePayload.trading_access_token = trading_access_token;
+        responsePayload.trading_referesh_token = trading_referesh_token;
+        responsePayload.trading_user_id = trading_user_id;
+        responsePayload.trading_account_id = trading_account_id;
+        responsePayload.trading_group_id = trading_group_id;
+      }
+
+      res.json(responsePayload);
+
     } catch (err) {
       next(err);
     }
