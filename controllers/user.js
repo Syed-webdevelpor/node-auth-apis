@@ -477,6 +477,9 @@ module.exports = {
       const tradingServerUrl = process.env.TRADING_SERVER_URL;
       let trading_access_token = null;
       let trading_referesh_token = null; // keep your spelling: referesh
+      let trading_user_id = null;
+      let trading_account_id = null;
+      let trading_group_id = null;
 
       if (tradingServerUrl) {
         try {
@@ -491,6 +494,9 @@ module.exports = {
 
           trading_access_token = tradingLoginRes?.data?.access_token ?? null;
           trading_referesh_token = tradingLoginRes?.data?.refresh_token ?? null;
+          trading_user_id = tradingLoginRes?.data?.user.id ?? null;
+          trading_account_id = tradingLoginRes?.data?.accountId ?? null;
+          trading_group_id = tradingLoginRes?.data?.groupId ?? null;
         } catch (tradingErr) {
           // If trading server fails, fail the login as well to keep contract consistent
           console.error('Trading server auth/login error:', tradingErr.response?.data || tradingErr.message);
@@ -514,6 +520,9 @@ module.exports = {
         is_verified: user.is_verified,
         kyc_completed: user.kyc_completed,
         current_step: user.current_step,
+        trading_user_id,
+        trading_account_id,
+        trading_group_id,
       });
     } catch (err) {
       next(err);
