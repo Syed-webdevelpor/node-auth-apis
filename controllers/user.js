@@ -525,7 +525,7 @@ module.exports = {
 
       if (isMobile) {
         responsePayload.trading_access_token = trading_access_token;
-        responsePayload.trading_referesh_token = trading_referesh_token;
+        responsePayload.trading_refresh_token = trading_referesh_token;
         responsePayload.trading_user_id = trading_user_id;
         responsePayload.trading_account_id = trading_account_id;
         responsePayload.trading_group_id = trading_group_id;
