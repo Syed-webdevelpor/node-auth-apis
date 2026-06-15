@@ -44,6 +44,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://investain-portal.vercel.app',
   'https://partner.investain.com',
+  'https://portal.investain.com',
   process.env.FRONTEND_URL
 ];
 app.use(cors({
