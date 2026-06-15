@@ -6,8 +6,8 @@ const COOKIE_PATH = '/';
 
 function getCookieOptions() {
   return {
-    domain: COOKIE_DOMAIN,
-    path: COOKIE_PATH,
+    // domain: COOKIE_DOMAIN,
+    // path: COOKIE_PATH,
     httpOnly: true,
     secure: true,
     // Required for cross-site cookie persistence when using fetch/credentials across subdomains
