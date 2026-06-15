@@ -4,9 +4,7 @@ const session = require('express-session');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const cookieParser = require('cookie-parser');
 const dbConnection = require("./dbConnection.js");
-
 const userRoutes = require("./routers/user.js");
 const authRoutes = require("./routers/auth.js");
 const introducerBrokerRoutes = require("./routers/introducerBroker.js");
@@ -39,10 +37,8 @@ const app = express();
 const port = process.env.PORT || 3003;
 
 // Middleware to parse JSON requests
-app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
 app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
