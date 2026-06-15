@@ -5,8 +5,10 @@ const COOKIE_DOMAIN = '.investain.com';
 const COOKIE_PATH = '/';
 
 function getCookieOptions() {
+  // Temporarily set cookie as a host-only cookie (no `domain`) to verify
+  // the browser persists it. Once confirmed, we can re-enable cross-subdomain.
   return {
-    domain: COOKIE_DOMAIN,
+    // domain: COOKIE_DOMAIN,
     path: COOKIE_PATH,
     httpOnly: true,
     secure: true,
@@ -14,6 +16,7 @@ function getCookieOptions() {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   };
 }
+
 
 function setAuthTokenCookie(res, jwt) {
   res.cookie(COOKIE_NAME, jwt, getCookieOptions());
