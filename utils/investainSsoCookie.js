@@ -5,8 +5,6 @@ const COOKIE_DOMAIN = '.investain.com';
 const COOKIE_PATH = '/';
 
 function getCookieOptions() {
-  // Temporarily set cookie as a host-only cookie (no `domain`) to verify
-  // the browser persists it. Once confirmed, we can re-enable cross-subdomain.
   return {
     domain: COOKIE_DOMAIN,
     path: COOKIE_PATH,
@@ -30,7 +28,7 @@ function clearAuthTokenCookie(res) {
     path: COOKIE_PATH,
     httpOnly: true,
     secure: true,
-    sameSite: 'lax',
+    sameSite: 'none',
   });
 }
 
