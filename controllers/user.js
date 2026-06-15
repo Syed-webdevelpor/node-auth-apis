@@ -7,6 +7,9 @@ const { DateTime } = require("luxon");
 const { createHash } = crypto;
 const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
 const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister, sendEmailToAllUsers } = require('../middlewares/sesMail.js')
+const { createSsoJwt } = require('../services/investainSsoTokenService.js');
+const { setAuthTokenCookie, clearAuthTokenCookie } = require('../utils/investainSsoCookie.js');
+
 
 
 axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
@@ -531,12 +534,21 @@ module.exports = {
         responsePayload.trading_group_id = trading_group_id;
       }
 
+      // Set shared Investain SSO cookie for cross-subdomain auth
+      try {
+        const ssoJwt = createSsoJwt({ email: user.email, crmUserId: user.id });
+        setAuthTokenCookie(res, ssoJwt);
+      } catch (cookieErr) {
+        console.error('Failed to set SSO cookie:', cookieErr.message);
+      }
+
       res.json(responsePayload);
 
     } catch (err) {
       next(err);
     }
   },
+
 
   getUser: async (req, res, next) => {
     try {
@@ -685,11 +697,19 @@ module.exports = {
         });
       }
 
+      // Clear shared Investain SSO cookie for cross-subdomain auth
+      try {
+        clearAuthTokenCookie(res);
+      } catch (cookieErr) {
+        console.error('Failed to clear SSO cookie:', cookieErr.message);
+      }
+
       // Successfully logged out
       res.json({
         status: 200,
         message: "Successfully logged out.",
       });
+
     } catch (err) {
       next(err);
     }

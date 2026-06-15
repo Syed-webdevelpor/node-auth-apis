@@ -1,7 +1,15 @@
-# TODO
+# TODO: Investain SSO (shared JWT cookie)
 
-- [x] Update `controllers/user.js` login response to return trading fields only when `platform === 'mobile'`.
-- [x] (Performance) Skip calling trading server `/auth/login` when `platform !== 'mobile'`.
-- [ ] Verify behavior by running login endpoint with `platform: mobile` and `platform: web` (or without platform, if that’s possible).
+- [x] Add SSO JWT service (services/investainSsoTokenService.js)
+- [x] Add cookie helpers (utils/investainSsoCookie.js)
+- [x] Add SSO auth middleware (middlewares/investainSsoAuthentication.js)
 
+- [x] Wire `cookie-parser` into app.js
+- [ ] CRM login: generate SSO JWT + set `auth_token` cookie after successful login
+- [ ] CRM logout: clear `auth_token` cookie
+- [ ] Trading account endpoints: accept/validate SSO cookie (email-based)
+- [x] Update sample.env with JWT_SECRET and JWT_EXPIRES_IN
+
+- [ ] Add basic error handling/logging for invalid/missing cookies
+- [ ] Run server and verify Set-Cookie/clear-cookie behavior
 
