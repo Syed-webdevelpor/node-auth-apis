@@ -44,6 +44,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://investain-portal.vercel.app',
   'https://partner.investain.com',
+  'https://trading.investain.com',
   process.env.FRONTEND_URL
 ];
 app.use(cors({
@@ -107,6 +108,11 @@ app.use("/api/version", versionRoutes);
 app.use('/api/otp', otpRoutes);
 app.use("/api/organizationalOwnershipInfo", organizationalOwnershipInfo);
 app.use("/api/orgInfoDoc", orgInfoDoc);
+
+// ---- CRM SSO Provider APIs ----
+const ssoRoutes = require('./routers/sso.js');
+app.use('/sso', ssoRoutes);
+
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
