@@ -75,7 +75,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
   // Exclude /api/user/verify route from API key authentication
-  if (req.path === '/api/user/verify') {
+  if (req.path === '/api/user/verify' || req.path.startsWith('/api/sso')) {
     return next();
   }
   return apiKeyAuth(req, res, next);
