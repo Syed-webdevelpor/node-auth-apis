@@ -111,7 +111,7 @@ app.use("/api/orgInfoDoc", orgInfoDoc);
 
 // ---- CRM SSO Provider APIs ----
 const ssoRoutes = require('./routers/sso.js');
-app.use('/sso', ssoRoutes);
+app.use('/api/sso', ssoRoutes);
 
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
