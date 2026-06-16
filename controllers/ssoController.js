@@ -56,6 +56,7 @@ async function validateToken(req, res) {
 
   // Helpful debug: we only log a small prefix, never the whole token.
   const tokenPrefix = typeof token === 'string' ? token.slice(0, 8) : null;
+console.log(token, tokenPrefix);
 
   const consumed = await ssoService.consumeSingleUseToken(token);
 
