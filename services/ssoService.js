@@ -1,7 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
 const { getRedisClient } = require('./redisClient');
 
-const TTL_SECONDS = 60;
+const TTL_SECONDS = 2 * 60 * 60;
+
 const PREFIX = 'sso:token:';
 
 function buildRedisKey(token) {
