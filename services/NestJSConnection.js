@@ -21,8 +21,8 @@ class NestJSConnection {
         serverType: 'express-server',
         serverId: this.serverId
       },
-      path: '/trading/socket.io',
-      transports: ['websocket'],
+      path: process.env.SOCKET_IO_PATH || '/trading/socket.io',
+      transports: ['polling', 'websocket'],
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 5000,
@@ -40,11 +40,15 @@ class NestJSConnection {
     this.socket.on('connect', () => {
       this.isConnected = true;
       
-      // Register this server with the NestJS server
-      this.socket.emit('register-server', {
-        serverId: this.serverId,
-        accountId: null // Set specific account ID if needed
-      });
+      // Register this server with the NestJS server (guard for server that doesn't use this event)
+      try {
+        this.socket.emit('register-server', {
+          serverId: this.serverId,
+          accountId: null // Set specific account ID if needed
+        });
+      } catch (e) {
+        console.warn('register-server emit failed (non-fatal):', e.message);
+      }
     });
 
     // Disconnected from server
