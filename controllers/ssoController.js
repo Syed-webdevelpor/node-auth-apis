@@ -11,9 +11,6 @@ const validate = (req, res, next) => {
   next();
 };
 
-const generateTokenValidators = [
-  // No body required, but keep endpoint extensible.
-];
 
 const validateTokenValidators = [
   body('token').isString().trim().notEmpty().withMessage('token is required'),
@@ -96,7 +93,6 @@ async function validateToken(req, res) {
 module.exports = {
   generateToken,
   validateToken,
-  generateTokenValidators,
   validateTokenValidators,
   validate,
 };
