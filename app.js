@@ -36,8 +36,14 @@ const nestJSConnection = require('./services/NestJSConnection.js');
 const app = express();
 const port = process.env.PORT || 3003;
 
+// If you're behind a reverse proxy (Nginx/ELB/etc) that sets X-Forwarded-For,
+// this is required for express-rate-limit to identify clients correctly.
+// `1` means trust the first proxy hop.
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 1));
+
 // Middleware to parse JSON requests
 app.use(express.json({ limit: '50mb' }));
+
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(helmet());
 const allowedOrigins = [
