@@ -54,6 +54,9 @@ async function validateToken(req, res) {
   const ip = req.ip;
   const route = req.originalUrl;
 
+  // Helpful debug: we only log a small prefix, never the whole token.
+  const tokenPrefix = typeof token === 'string' ? token.slice(0, 8) : null;
+
   const consumed = await ssoService.consumeSingleUseToken(token);
 
   if (!consumed || !consumed.userId || !consumed.email) {
@@ -65,10 +68,14 @@ async function validateToken(req, res) {
       ip,
       route,
       status: 401,
-      details: { reason: 'invalid_or_expired_or_used' },
+      details: {
+        reason: 'invalid_or_expired_or_used',
+        tokenPrefix,
+      },
     });
     return res.status(401).json({ success: false, message: 'Invalid or expired token' });
   }
+
 
   // Token already consumed (atomic getDel) and deleted.
   const user = {

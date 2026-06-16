@@ -50,13 +50,17 @@ async function consumeSingleUseToken(token) {
   }
 
   const val = await client.getDel(redisKey);
-  if (!val) return null;
+  if (!val) {
+    // Token missing/expired or already consumed.
+    return null;
+  }
 
   try {
     return JSON.parse(val);
   } catch {
     return null;
   }
+
 }
 
 module.exports = {
