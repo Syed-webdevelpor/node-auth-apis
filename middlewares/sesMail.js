@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 // Set up Nodemailer transporter with SES
 const transporter = nodemailer.createTransport({
     SES: new AWS.SES({
-        region: process.env.AWS_REGION, // Specify your SES region
+        region: process.env.AWS_SES_REGION, // Specify your SES region
         credentials: new AWS.Credentials({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
             secretAccessKey: process.env.AWS_SES_SECRET, // AWS Secret Key
