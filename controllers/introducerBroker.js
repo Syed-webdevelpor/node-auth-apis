@@ -154,7 +154,7 @@ module.exports = {
       await connection.commit();
   
       // Send verification email (outside transaction)
-      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      const verificationLink = `https://server.investain.com/crm/api/user/verify?token=${verificationToken}`;
       await sendVerificationEmail(email, verificationLink, username);
   
       // Send success response

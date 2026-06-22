@@ -331,7 +331,7 @@ module.exports = {
         }
       }
   
-      const link = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      const link = `https://server.investain.com/crm/api/user/verify?token=${verificationToken}`;
       await sendVerificationEmail(email, link, username);
   
       const dubaiTime = DateTime.now().setZone("Asia/Dubai").toFormat("yyyy/MM/dd HH:mm:ss");
@@ -458,7 +458,7 @@ module.exports = {
       if (userdata[0].is_verified === 0) {
         // Generate a new verification token
         const verificationToken = crypto.randomBytes(32).toString("hex");
-        const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+        const verificationLink = `https://server.investain.com/crm/api/user/verify?token=${verificationToken}`;
 
         // Update the user's verification token in the database
         const [result] = await DB.execute(
@@ -771,7 +771,7 @@ module.exports = {
 
       // Generate a new verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
-      const verificationLink = `https://server.investain.com/api/user/verify?token=${verificationToken}`;
+      const verificationLink = `https://server.investain.com/crm/api/user/verify?token=${verificationToken}`;
 
       // Update the user's verification token in the database
       const [result] = await DB.execute(
