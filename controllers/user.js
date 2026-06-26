@@ -477,15 +477,14 @@ module.exports = {
       // and returns tokens as trading_access_token and trading_referesh_token.
       const tradingServerUrl = process.env.TRADING_SERVER_URL;
       let trading_access_token = null;
-      let trading_referesh_token = null; // keep your spelling: referesh
+      let trading_refresh_token = null;
       let trading_user_id = null;
       let trading_account_id = null;
       let trading_group_id = null;
 
-      const isMobile = platform === 'mobile';
+      const isMobile = platform === "mobile";
 
-      // Only call trading server and return trading fields for mobile platform.
-      if (isMobile && tradingServerUrl) {
+      if (tradingServerUrl) {
         try {
           const tradingLoginRes = await axios.post(
             `${tradingServerUrl}/auth/login`,
@@ -493,20 +492,92 @@ module.exports = {
               email: user.email,
               password,
             },
-            { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              timeout: 30000,
+            }
           );
 
-          trading_access_token = tradingLoginRes?.data?.access_token ?? null;
-          trading_referesh_token = tradingLoginRes?.data?.refresh_token ?? null;
-          trading_user_id = tradingLoginRes?.data?.user.id ?? null;
-          trading_account_id = tradingLoginRes?.data?.accountId ?? null;
-          trading_group_id = tradingLoginRes?.data?.groupId ?? null;
+          trading_access_token =
+            tradingLoginRes?.data?.access_token ?? null;
+          trading_refresh_token =
+            tradingLoginRes?.data?.refresh_token ?? null;
+          trading_user_id =
+            tradingLoginRes?.data?.user?.id ?? null;
+          trading_account_id =
+            tradingLoginRes?.data?.accountId ?? null;
+          trading_group_id =
+            tradingLoginRes?.data?.groupId ?? null;
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 7);
+          const [existingSession] = await DB.execute(
+            `
+            SELECT id
+            FROM trading_sessions
+            WHERE user_id = ?
+            LIMIT 1
+            `,
+            [user.id]
+          );
+          if (existingSession.length > 0) {
+            await DB.execute(
+              `
+              UPDATE trading_sessions
+              SET
+                trading_user_id = ?,
+                trading_access_token = ?,
+                trading_refresh_token = ?,
+                expires_at = ?,
+                is_active = 1,
+                updated_at = NOW()
+              WHERE user_id = ?
+              `,
+              [
+                trading_user_id,
+                trading_access_token,
+                trading_refresh_token,
+                expiresAt,
+                user.id,
+              ]
+            );
+          } else {
+            await DB.execute(
+              `
+              INSERT INTO trading_sessions
+              (
+                user_id,
+                trading_user_id,
+                trading_access_token,
+                trading_refresh_token,
+                expires_at,
+                is_active
+              )
+              VALUES (?, ?, ?, ?, ?, 1)
+              `,
+              [
+                user.id,
+                trading_user_id,
+                trading_access_token,
+                trading_refresh_token,
+                expiresAt,
+              ]
+            );
+          }
         } catch (tradingErr) {
-          console.error('Trading server auth/login error:', tradingErr.response?.data || tradingErr.message);
+          console.error(
+            "Trading server auth/login error:",
+            tradingErr.response?.data || tradingErr.message
+          );
+
           return res.status(502).json({
             status: 502,
-            message: 'Failed to login on trading server',
-            error: tradingErr.response?.data?.message || tradingErr.response?.data || tradingErr.message,
+            message: "Failed to login on trading server",
+            error:
+              tradingErr.response?.data?.message ||
+              tradingErr.response?.data ||
+              tradingErr.message,
           });
         }
       }
@@ -525,14 +596,13 @@ module.exports = {
 
       if (isMobile) {
         responsePayload.trading_access_token = trading_access_token;
-        responsePayload.trading_refresh_token = trading_referesh_token;
+        responsePayload.trading_refresh_token = trading_refresh_token;
         responsePayload.trading_user_id = trading_user_id;
         responsePayload.trading_account_id = trading_account_id;
         responsePayload.trading_group_id = trading_group_id;
       }
 
-      res.json(responsePayload);
-
+      return res.json(responsePayload);
     } catch (err) {
       next(err);
     }
