@@ -109,7 +109,6 @@ function buildTradingReportPath(reportKind, opts = {}) {
 
 async function proxyGetReport(req, res) {
   try {
-    const userIdParam = req.params.userId;
 
     // External server authenticated to *this* API via JWT.
     // We enforce that authenticated user matches :userId based on the existing requirement.
@@ -120,11 +119,7 @@ async function proxyGetReport(req, res) {
     if (data && data.status) return res.status(data.status).json(data);
 
     const callerUserId = data?.id;
-    if (callerUserId && callerUserId.toString() !== userIdParam.toString()) {
-      return res.status(403).json({ status: 403, message: 'Forbidden' });
-    }
-
-    const session = await getTradingSessionByUserId(userIdParam);
+    const session = await getTradingSessionByUserId(callerUserId);
     if (!session || !session.trading_access_token) {
       return res.status(401).json({
         status: 401,
