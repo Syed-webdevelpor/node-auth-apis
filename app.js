@@ -32,9 +32,11 @@ const otpRoutes = require('./routers/otpVerification.js');
 const organizationalOwnershipInfo = require("./routers/organizationalOwnershipInfo.js");
 const orgInfoDoc = require("./routers/orgInfoDoc.js");
 const reportsRoutes = require('./routers/reports.js');
+const depositWithdrawalReportRoutes = require('./routers/depositWithdrawalReport.js');
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
 const app = express();
+
 const port = process.env.PORT || 3003;
 
 // If you're behind a reverse proxy (Nginx/ELB/etc) that sets X-Forwarded-For,
@@ -123,7 +125,11 @@ app.use('/api/trading/reports', reportsRoutes);
 const ssoRoutes = require('./routers/sso.js');
 app.use('/api/sso', ssoRoutes);
 
+// ---- Deposit/Withdrawal Report APIs ----
+app.use('/api/reports', depositWithdrawalReportRoutes);
+
 app.use((err, req, res, next) => {
+
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
   res.status(err.statusCode).json({
