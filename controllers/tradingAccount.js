@@ -90,6 +90,7 @@ module.exports = {
         email: user.email,
         password: user.password || crypto.randomBytes(8).toString('hex'),
         account_type: account_type || 'Standard',
+        account_mode: account_mode || 'live',
         initial_balance: initial_balance || 0,
         leverage: leverage || 100,
         custom_spread: custom_spread || null,
