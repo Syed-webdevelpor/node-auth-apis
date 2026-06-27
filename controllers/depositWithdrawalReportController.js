@@ -108,113 +108,190 @@ async function uploadToS3AndGetSignedUrl({ buffer, contentType, fileName }) {
 }
 
 async function exportPdf(req, res) {
-  const { verifyToken } = require('../tokenHandler.js');
-
   const caller = verifyToken(req.headers.access_token, true);
-  if (caller && caller.status) return res.status(caller.status).json(caller);
+
+  if (caller && caller.status) {
+    return res.status(caller.status).json(caller);
+  }
+
   const userId = caller?.id?.toString();
 
-  if (!userId) return res.status(401).json({ status: 401, message: 'Unauthorized' });
+  if (!userId) {
+    return res.status(401).json({
+      status: 401,
+      message: 'Unauthorized',
+    });
+  }
 
   const statusFilter = 'success';
-  const transactions = await fetchTransactionsForUser(userId, { status: statusFilter });
+
+  const transactions = await fetchTransactionsForUser(userId, {
+    status: statusFilter,
+  });
 
   const columns = getColumnDefinitions();
-  const heading = buildReportHeading();
 
   const pdfDoc = await PDFDocument.create();
-  // Landscape A4
-  const page = pdfDoc.addPage([841.89, 595.28]);
 
-  const { width, height } = page.getSize();
+  const pageWidth = 841.89;
+  const pageHeight = 595.28;
 
-  const margin = 40;
+  let currentPage = pdfDoc.addPage([pageWidth, pageHeight]);
+
+  const { width, height } = currentPage.getSize();
+
+  const margin = 30;
   let y = height - margin;
 
-  // Heading
-  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(
+    StandardFonts.HelveticaBold,
+  );
 
-  const headingWidth = font.widthOfTextAtSize(heading, 18);
-  const headingX = (width - headingWidth) / 2;
-  page.drawText(heading, { x: headingX, y, size: 18, font, color: rgb(0, 0.1, 0.3) });
+  const fontRegular = await pdfDoc.embedFont(
+    StandardFonts.Helvetica,
+  );
 
-  y -= 24;
+  // ==================================================
+  // REPORT HEADER
+  // ==================================================
 
-  const sub = `User Id: ${userId} | Records: ${transactions.length} | Status: ${statusFilter}`;
-  page.drawText(sub, { x: margin, y, size: 10, font: fontRegular, color: rgb(0, 0, 0) });
-  y -= 18;
+  const heading = buildReportHeading();
 
-  // Table layout
-  const tableWidth = width - margin * 2;
-  const rowHeight = 18;
-  const headerHeight = 20;
+  const headingWidth = fontBold.widthOfTextAtSize(
+    heading,
+    18,
+  );
 
-  const colCount = columns.length;
-  const colWidth = tableWidth / colCount;
+  currentPage.drawText(heading, {
+    x: (width - headingWidth) / 2,
+    y,
+    size: 18,
+    font: fontBold,
+    color: rgb(0, 0.1, 0.3),
+  });
 
-  // Header background
-  for (let i = 0; i < colCount; i++) {
-    const x = margin + i * colWidth;
-    page.drawRectangle({ x, y: y - headerHeight + 4, width: colWidth, height: headerHeight, color: rgb(0.9, 0.9, 0.95) });
-    page.drawText(columns[i].header, { x: x + 4, y: y + 6, size: 10, font: fontBoldFallback(fontRegular, pdfDoc) });
-  }
-  y -= headerHeight;
+  y -= 28;
 
-  // Rows
-  const fontForHeaders = font;
-  const maxRowsPerPage = 35;
+  currentPage.drawText(
+    `User Id: ${userId} | Records: ${transactions.length} | Status: ${statusFilter}`,
+    {
+      x: margin,
+      y,
+      size: 10,
+      font: fontRegular,
+    },
+  );
 
-  let rowIndex = 0;
-  for (const tx of transactions) {
-    if (rowIndex > 0 && rowIndex % maxRowsPerPage === 0) {
-      // new page (landscape)
-      pdfDoc.addPage([841.89, 595.28]);
-      y = height - margin;
+  y -= 25;
 
-      // redraw table header on the new page (bold)
-      for (let i = 0; i < colCount; i++) {
-        const x = margin + i * colWidth;
-        pdfDoc.getPages()[pdfDoc.getPages().length - 1].drawRectangle({
+  // ==================================================
+  // TABLE CONFIG
+  // ==================================================
 
-          x,
-          y: y - headerHeight + 4,
-          width: colWidth,
-          height: headerHeight,
-          color: rgb(0.9, 0.9, 0.95),
-        });
-        pdfDoc.getPages()[pdfDoc.getPages().length - 1].drawText(columns[i].header, {
-          x: x + 4,
-          y: y + 6,
-          size: 10,
-          font: fontRegular,
-        });
-      }
+  const rowHeight = 22;
+  const headerHeight = 24;
 
-      y -= headerHeight;
+  const columnWidths = [
+    260, // Transaction Id
+    120, // Transaction Type
+    90,  // Status
+    90,  // Amount
+    180, // Created At
+  ];
+
+  const maxRowsPerPage = 20;
+
+  const drawTableHeader = () => {
+    let currentX = margin;
+
+    for (let i = 0; i < columns.length; i++) {
+      const column = columns[i];
+      const colWidth = columnWidths[i];
+
+      currentPage.drawRectangle({
+        x: currentX,
+        y: y - headerHeight,
+        width: colWidth,
+        height: headerHeight,
+        color: rgb(0.88, 0.89, 0.94),
+        borderColor: rgb(0.6, 0.6, 0.6),
+        borderWidth: 1,
+      });
+
+      currentPage.drawText(column.header, {
+        x: currentX + 5,
+        y: y - 16,
+        size: 10,
+        font: fontBold,
+        color: rgb(0, 0, 0),
+      });
+
+      currentX += colWidth;
     }
 
+    y -= headerHeight;
+  };
 
-    for (let i = 0; i < colCount; i++) {
-      const col = columns[i];
-      const x = margin + i * colWidth;
-      const value = String(toRowData(tx)[col.key] ?? '');
+  drawTableHeader();
 
-      // Truncate to fit
-      const display = value.length > 18 ? value.slice(0, 17) + '…' : value;
+  // ==================================================
+  // TABLE ROWS
+  // ==================================================
 
-      // cell border
-      page.drawRectangle({
-        x,
-        y: y - rowHeight + 4,
+  let rowIndex = 0;
+
+  for (const tx of transactions) {
+    if (
+      rowIndex > 0 &&
+      rowIndex % maxRowsPerPage === 0
+    ) {
+      currentPage = pdfDoc.addPage([
+        pageWidth,
+        pageHeight,
+      ]);
+
+      y = pageHeight - margin;
+
+      drawTableHeader();
+    }
+
+    const rowData = toRowData(tx);
+
+    let currentX = margin;
+
+    for (let i = 0; i < columns.length; i++) {
+      const column = columns[i];
+      const colWidth = columnWidths[i];
+
+      const value = String(
+        rowData[column.key] ?? '',
+      );
+
+      currentPage.drawRectangle({
+        x: currentX,
+        y: y - rowHeight,
         width: colWidth,
         height: rowHeight,
-        borderColor: rgb(0.8, 0.8, 0.85),
+        borderColor: rgb(0.8, 0.8, 0.8),
         borderWidth: 0.5,
         color: rgb(1, 1, 1),
       });
 
-      page.drawText(display, { x: x + 4, y: y + 6, size: 9, font: fontRegular, color: rgb(0, 0, 0) });
+      let fontSize = 8;
+
+      if (column.key === 'transaction_id') {
+        fontSize = 7;
+      }
+
+      currentPage.drawText(value, {
+        x: currentX + 4,
+        y: y - 15,
+        size: fontSize,
+        font: fontRegular,
+        color: rgb(0, 0, 0),
+      });
+
+      currentX += colWidth;
     }
 
     y -= rowHeight;
@@ -222,6 +299,7 @@ async function exportPdf(req, res) {
   }
 
   const pdfBytes = await pdfDoc.save();
+
   const fileName = `deposit_withdrawal_report_${userId}.pdf`;
 
   const signedUrl = await uploadToS3AndGetSignedUrl({
@@ -234,13 +312,9 @@ async function exportPdf(req, res) {
     status: 200,
     message: 'PDF report generated',
     signedUrl,
-    expiresIn: Number(SIGNED_URL_EXPIRATION) || 3600,
+    expiresIn:
+      Number(SIGNED_URL_EXPIRATION) || 3600,
   });
-}
-
-function fontBoldFallback(fontRegular) {
-  // Keep compatibility; headers use bold font in pdf-lib anyway.
-  return fontRegular;
 }
 
 async function exportExcel(req, res) {
