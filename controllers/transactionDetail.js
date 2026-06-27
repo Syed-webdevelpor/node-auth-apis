@@ -163,7 +163,8 @@ module.exports = {
             `https://trading.investain.com/trading/trading-accounts/account-number/${tradingAccountNumber}`,
             {
               balance: updatedBalance,
-              free_margin: updatedBalance
+              free_margin: updatedBalance,
+              equity: updatedBalance,
             },
             {
               headers: {
