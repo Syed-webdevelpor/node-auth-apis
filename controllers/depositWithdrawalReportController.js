@@ -128,7 +128,6 @@ async function exportPdf(req, res) {
 
   const { width, height } = page.getSize();
 
-  const { width, height } = page.getSize();
   const margin = 40;
   let y = height - margin;
 
