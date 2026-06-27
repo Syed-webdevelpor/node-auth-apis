@@ -157,7 +157,7 @@ module.exports = {
           const updatedBalance = Number(financialRows[0]?.balance || 0);
 
           await axios.patch(
-            `https://trading.investain.com/trading-accounts/account-number/${tradingAccountNumber}`,
+            `https://trading.investain.com/trading/trading-accounts/account-number/${tradingAccountNumber}`,
             {
               balance: updatedBalance,
               free_margin: updatedBalance
