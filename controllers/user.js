@@ -512,7 +512,6 @@ module.exports = {
             tradingLoginRes?.data?.groupId ?? null;
           const expiresAt = new Date();
           expiresAt.setDate(expiresAt.getDate() + 7);
-          console.log(trading_user_id,tradingLoginRes?.data);
           
           const [existingSession] = await DB.execute(
             `

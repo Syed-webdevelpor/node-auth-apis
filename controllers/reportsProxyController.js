@@ -65,42 +65,21 @@ async function refreshTradingToken({ tradingRefreshToken }) {
 
 function buildTradingReportPath(reportKind, opts = {}) {
   // Matches requested basePath: TRADING_SERVER_URL + /trading/reports
-  // All endpoints live under: /trading/reports/trader/:userId/...
+  // All endpoints live under: /reports/trader/:userId/...
   const { userId } = opts;
 
   switch (reportKind) {
     case 'account-summary':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/account-summary`;
+      return `/reports/trader/${encodeURIComponent(userId)}/account-summary`;
 
     case 'account-summary-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/account-summary/export`;
-
-    case 'deposits-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/deposits/export`;
-
-    case 'withdrawals-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/withdrawals/export`;
-
-    case 'internal-transfers-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/internal-transfers/export`;
-
-    case 'trade-history-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/trade-history/export`;
+      return `/reports/trader/${encodeURIComponent(userId)}/account-summary/export`;
 
     case 'open-positions-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/open-positions/export`;
-
-    case 'pending-orders-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/pending-orders/export`;
-
-    case 'performance-analytics-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/performance-analytics/export`;
+      return `/reports/trader/${encodeURIComponent(userId)}/open-positions/export`;
 
     case 'statement-export':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/statement/export`;
-
-    case 'total-trades-pnl':
-      return `/trading/reports/trader/${encodeURIComponent(userId)}/total-trades-pnl`;
+      return `/reports/trader/${encodeURIComponent(userId)}/statement/export`;
 
     default:
       throw new Error(`Unknown reportKind: ${reportKind}`);
