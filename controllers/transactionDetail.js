@@ -148,7 +148,10 @@ module.exports = {
         // ------------------------------
         // Sync with Trading Server
         // ------------------------------
-        if (tradingAccountNumber) {
+        const shouldSyncTradingServer =
+          transaction_type === "Transfer" ? from_type !== to_type : !!tradingAccountNumber;
+
+        if (shouldSyncTradingServer && tradingAccountNumber) {
           const [financialRows] = await connection.execute(
             "SELECT balance FROM account_financials WHERE account_id = ?",
             [tradingAccountNumber]
