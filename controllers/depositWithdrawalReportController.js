@@ -49,8 +49,16 @@ function getColumnDefinitions() {
   ].map((c) => ({ ...c, header: formatHeader(c.header) }));
 }
 
-async function fetchTransactionsForUser(userId, { status = 'success' } = {}) {
+async function fetchTransactionsForUser(
+  userId,
+  {
+    status = 'success',
+    startDate = null,
+    endDate = null,
+  } = {}
+) {
   // Using transaction_details table (present in db.sql)
+  // startDate/endDate apply to created_at.
   const sql = `
     SELECT
       transaction_id,
@@ -63,12 +71,24 @@ async function fetchTransactionsForUser(userId, { status = 'success' } = {}) {
     WHERE user_id = ?
       AND transaction_type IN ('Deposit','Withdrawal')
       AND (? IS NULL OR status = ?)
+      AND (? IS NULL OR created_at >= ?)
+      AND (? IS NULL OR created_at <= ?)
     ORDER BY created_at DESC
   `;
 
-  const [rows] = await DB.execute(sql, [userId, status, status]);
+  const [rows] = await DB.execute(sql, [
+    userId,
+    status,
+    status,
+    startDate,
+    startDate,
+    endDate,
+    endDate,
+  ]);
+
   return rows || [];
 }
+
 
 function toRowData(tx) {
   const dt = tx.created_at ? DateTime.fromJSDate(new Date(tx.created_at)) : null;
@@ -125,11 +145,18 @@ async function exportPdf(req, res) {
 
   const statusFilter = 'success';
 
+  const startDate = req.query?.startDate ? new Date(req.query.startDate) : null;
+  const endDate = req.query?.endDate ? new Date(req.query.endDate) : null;
+
   const transactions = await fetchTransactionsForUser(userId, {
     status: statusFilter,
+    startDate: startDate && !Number.isNaN(startDate.getTime()) ? startDate : null,
+    endDate: endDate && !Number.isNaN(endDate.getTime()) ? endDate : null,
   });
 
   const columns = getColumnDefinitions();
+
+
 
   const pdfDoc = await PDFDocument.create();
 
