@@ -16,7 +16,7 @@ CREATE TABLE `users` (
   `financial_info_id` VARCHAR(36) DEFAULT NULL,
   `account_info_id` VARCHAR(36) DEFAULT NULL,
   `affiliation_type` ENUM('Direct', 'Introduced', 'Affiliate') NOT NULL,
-  `referral_code` VARCHAR(8) NOT NULL UNIQUE, -- Column for the unique referral code
+  `referral_code` VARCHAR(8) NOT NULL UNIQUE,
   `subusers` TEXT DEFAULT NULL, 
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -105,6 +105,21 @@ CREATE TABLE `refer_friends` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `login_activity` (
+  `id` VARCHAR(36) NOT NULL,
+  `user_id` VARCHAR(36) NOT NULL,
+  `ip_address` VARCHAR(45) DEFAULT NULL,
+  `user_agent` TEXT DEFAULT NULL,
+  `device_info` TEXT DEFAULT NULL,
+  `login_type` ENUM('email_password', 'google_oauth', 'refresh_token') NOT NULL DEFAULT 'email_password',
+  `status` ENUM('success', 'failed') NOT NULL DEFAULT 'success',
+  `failure_reason` VARCHAR(255) DEFAULT NULL,
+  `login_time` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  INDEX `idx_login_activity_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 ALTER TABLE `refresh_tokens`

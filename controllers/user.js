@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { v4: uuidv4 } = require("uuid");
 const { generateToken, verifyToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
 const axios = require('axios');
@@ -249,6 +250,23 @@ const fetchUserByEmailOrID = async (data, isEmail) => {
   }
 };
 
+/**
+ * Log login activity into the login_activity table
+ */
+const logLoginActivity = async ({ user_id, ip_address, user_agent, device_info, login_type, status, failure_reason }) => {
+  try {
+    const id = crypto.randomUUID();
+    const login_time = new Date();
+    await DB.execute(
+      `INSERT INTO login_activity (id, user_id, ip_address, user_agent, device_info, login_type, status, failure_reason, login_time)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, user_id, ip_address, user_agent, device_info || null, login_type, status, failure_reason || null, login_time]
+    );
+  } catch (err) {
+    console.error("Failed to log login activity:", err.message);
+  }
+};
+
 module.exports = {
   fetchUserByEmailOrID: fetchUserByEmailOrID,
   signup: async (req, res, next) => {
@@ -389,6 +407,16 @@ module.exports = {
         const now = new Date();
 
         if (lock_until && new Date(lock_until) > now) {
+          // Log failed login attempt due to locked account
+          await logLoginActivity({
+            user_id: user.id,
+            ip_address: req.ip,
+            user_agent: req.headers['user-agent'] || null,
+            device_info: platform ? JSON.stringify({ platform }) : null,
+            login_type: 'email_password',
+            status: 'failed',
+            failure_reason: 'account_locked'
+          });
           return res.status(423).json({
             status: 423,
             message: "Your account has been temporarily locked due to multiple unsuccessful login attempts. To regain access, please reset your password",
@@ -412,6 +440,17 @@ module.exports = {
         );
 
         if (attemptData.length > 0 && attemptData[0].failed_login_attempts >= 5) {
+          // Log failed login attempt due to max attempts reached
+          await logLoginActivity({
+            user_id: user.id,
+            ip_address: req.ip,
+            user_agent: req.headers['user-agent'] || null,
+            device_info: platform ? JSON.stringify({ platform }) : null,
+            login_type: 'email_password',
+            status: 'failed',
+            failure_reason: 'max_attempts_reached'
+          });
+
           // Lock account indefinitely until password reset
           await DB.execute(
             "UPDATE users SET lock_until = ? WHERE id = ?",
@@ -423,6 +462,17 @@ module.exports = {
             message: "Account locked due to too many failed login attempts. Please reset your password.",
           });
         }
+
+        // Log failed login attempt due to incorrect password
+        await logLoginActivity({
+          user_id: user.id,
+          ip_address: req.ip,
+          user_agent: req.headers['user-agent'] || null,
+          device_info: platform ? JSON.stringify({ platform }) : null,
+          login_type: 'email_password',
+          status: 'failed',
+          failure_reason: 'incorrect_password'
+        });
 
         return res.status(422).json({
           status: 422,
@@ -582,6 +632,16 @@ module.exports = {
           });
         }
       }
+
+      // Log successful login activity
+      await logLoginActivity({
+        user_id: user.id,
+        ip_address: req.ip,
+        user_agent: req.headers['user-agent'] || null,
+        device_info: platform ? JSON.stringify({ platform }) : null,
+        login_type: 'email_password',
+        status: 'success'
+      });
 
       const responsePayload = {
         status: 200,
