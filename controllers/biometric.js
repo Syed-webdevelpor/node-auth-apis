@@ -110,7 +110,6 @@ module.exports = {
                             timeout: 30000,
                         }
                     );
-console.log(tradingLoginRes)
                     trading_access_token =
                         tradingLoginRes?.data?.access_token ?? null;
                     trading_refresh_token =
@@ -202,7 +201,6 @@ console.log(tradingLoginRes)
             responsePayload.trading_user_id = trading_user_id;
             responsePayload.trading_account_id = trading_account_id;
             responsePayload.trading_group_id = trading_group_id;
-console.log("Response Payload:", responsePayload);
             return res.status(200).json(responsePayload);
         } catch (err) {
             console.error('Local auth verification error:', err);
