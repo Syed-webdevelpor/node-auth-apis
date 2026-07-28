@@ -87,7 +87,7 @@ module.exports = {
                 'SELECT email, password FROM users WHERE id = ?',
                 [userId]
             );
-console.log('User credentials for trading server login:', userCred[0]);
+
             const tradingServerUrl = process.env.TRADING_SERVER_URL;
             let trading_access_token = null;
             let trading_refresh_token = null;
