@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { generateToken } = require("../tokenHandler.js");
 const DB = require("../dbConnection.js");
+const axios = require('axios');
 
 module.exports = {
     // Register device (simplified for local_auth)
@@ -60,12 +61,14 @@ module.exports = {
                 [deviceId]
             );
             const [userdata] = await DB.execute(
-                "SELECT id, is_verified,username,email,account_nature,kyc_completed, current_step FROM users WHERE id = ?",
+                "SELECT id, is_verified, username, email, account_nature, kyc_completed, current_step FROM users WHERE id = ?",
                 [userId]
             );
             if (!userdata.length) return res.status(404).json({ message: 'User not found' });
             const user = userdata[0];
-            res.status(200).json({
+
+            // Build base response payload
+            const responsePayload = {
                 status: 200,
                 access_token,
                 refresh_token,
@@ -76,7 +79,131 @@ module.exports = {
                 is_verified: user.is_verified,
                 kyc_completed: user.kyc_completed,
                 current_step: user.current_step
-            });
+            };
+
+            // --- Trading server login (proxy) ---
+            // Fetch the user's password for trading server authentication
+            const [userCred] = await DB.execute(
+                'SELECT email, password FROM users WHERE id = ?',
+                [userId]
+            );
+
+            const tradingServerUrl = process.env.TRADING_SERVER_URL;
+            let trading_access_token = null;
+            let trading_refresh_token = null;
+            let trading_user_id = null;
+            let trading_account_id = null;
+            let trading_group_id = null;
+
+            if (tradingServerUrl && userCred.length > 0) {
+                try {
+                    const tradingLoginRes = await axios.post(
+                        `${tradingServerUrl}/auth/login`,
+                        {
+                            email: userCred[0].email,
+                            password: userCred[0].password,
+                        },
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            timeout: 30000,
+                        }
+                    );
+
+                    trading_access_token =
+                        tradingLoginRes?.data?.access_token ?? null;
+                    trading_refresh_token =
+                        tradingLoginRes?.data?.refresh_token ?? null;
+                    trading_user_id =
+                        tradingLoginRes?.data?.user?.id ?? null;
+                    trading_account_id =
+                        tradingLoginRes?.data?.accountId ?? null;
+                    trading_group_id =
+                        tradingLoginRes?.data?.groupId ?? null;
+
+                    const expiresAt = new Date();
+                    expiresAt.setDate(expiresAt.getDate() + 7);
+
+                    const [existingSession] = await DB.execute(
+                        `
+                        SELECT id
+                        FROM trading_sessions
+                        WHERE user_id = ?
+                        LIMIT 1
+                        `,
+                        [userId]
+                    );
+
+                    if (existingSession.length > 0) {
+                        await DB.execute(
+                            `
+                            UPDATE trading_sessions
+                            SET
+                                trading_user_id = ?,
+                                trading_access_token = ?,
+                                trading_refresh_token = ?,
+                                expires_at = ?,
+                                is_active = 1,
+                                updated_at = NOW()
+                            WHERE user_id = ?
+                            `,
+                            [
+                                trading_user_id,
+                                trading_access_token,
+                                trading_refresh_token,
+                                expiresAt,
+                                userId,
+                            ]
+                        );
+                    } else {
+                        await DB.execute(
+                            `
+                            INSERT INTO trading_sessions
+                            (
+                                user_id,
+                                trading_user_id,
+                                trading_access_token,
+                                trading_refresh_token,
+                                expires_at,
+                                is_active
+                            )
+                            VALUES (?, ?, ?, ?, ?, 1)
+                            `,
+                            [
+                                userId,
+                                trading_user_id,
+                                trading_access_token,
+                                trading_refresh_token,
+                                expiresAt,
+                            ]
+                        );
+                    }
+                } catch (tradingErr) {
+                    console.error(
+                        "Trading server auth/login error:",
+                        tradingErr.response?.data || tradingErr.message
+                    );
+
+                    return res.status(502).json({
+                        status: 502,
+                        message: "Failed to login on trading server",
+                        error:
+                            tradingErr.response?.data?.message ||
+                            tradingErr.response?.data ||
+                            tradingErr.message,
+                    });
+                }
+            }
+
+            // Include trading fields in the response
+            responsePayload.trading_access_token = trading_access_token;
+            responsePayload.trading_refresh_token = trading_refresh_token;
+            responsePayload.trading_user_id = trading_user_id;
+            responsePayload.trading_account_id = trading_account_id;
+            responsePayload.trading_group_id = trading_group_id;
+
+            return res.status(200).json(responsePayload);
         } catch (err) {
             console.error('Local auth verification error:', err);
             res.status(500).json({ message: 'Local authentication failed' });
