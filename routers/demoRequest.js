@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { sendDemoRequestEmail } = require('../services/emailService'); // Adjust path as needed
+const { sendDemoRequestEmail } = require('../middlewares/sesMail'); // Adjust path as needed
 
 // Validation helper
 const validateEmail = (email) => {
