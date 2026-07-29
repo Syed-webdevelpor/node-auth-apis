@@ -35,6 +35,7 @@ const reportsRoutes = require('./routers/reports.js');
 const depositWithdrawalReportRoutes = require('./routers/depositWithdrawalReport.js');
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
+const demoRequestRoutes = require('./routes/demoRequest');
 const app = express();
 
 const port = process.env.PORT || 3003;
@@ -51,6 +52,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:8080',
   'https://investain-portal.vercel.app',
   'https://partner.investain.com',
   'https://trading.investain.com',
@@ -117,6 +119,7 @@ app.use("/api/version", versionRoutes);
 app.use('/api/otp', otpRoutes);
 app.use("/api/organizationalOwnershipInfo", organizationalOwnershipInfo);
 app.use("/api/orgInfoDoc", orgInfoDoc);
+app.use('/api', demoRequestRoutes);
 
 // ---- Trading Reports API (proxy to trading server) ----
 app.use('/api/trading/reports', reportsRoutes);

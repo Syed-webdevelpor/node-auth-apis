@@ -3452,7 +3452,119 @@ const orgApplicationSubmissionEmail = async (email, link, customerName) => {
     }
 };
 
+// Add this function to your emailService.js file
+const sendDemoRequestEmail = async (demoData) => {
+    try {
+        const {
+            name,
+            company,
+            email,
+            phone,
+            country,
+            website,
+            type,
+            platform,
+            users,
+            meeting,
+            requirements,
+            submittedAt
+        } = demoData;
+
+        // Build the email body with all provided information
+        let personalInfo = `
+            Full Name: ${name}
+            Company: ${company}
+            Business Email: ${email}
+            Phone: ${phone || 'Not provided'}`;
+
+        let businessInfo = `
+            Country: ${country || 'Not provided'}
+            Website: ${website || 'Not provided'}
+            Business Type: ${type || 'Not provided'}
+            Current Platform: ${platform || 'Not provided'}`;
+
+        let requirementsInfo = `
+            Expected Users: ${users || 'Not provided'}
+            Preferred Meeting Time: ${meeting || 'Not provided'}
+            
+            Additional Requirements:
+            ${requirements || 'None provided'}`;
+
+        // Create HTML version
+        const htmlBody = `
+        <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; padding: 20px; margin: 0; }
+                    .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                    .header { text-align: center; padding-bottom: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+                    .section { margin-bottom: 25px; }
+                    .section h3 { color: #e74c3c; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+                    .field { padding: 5px 0; }
+                    .field strong { display: inline-block; min-width: 150px; color: #555; }
+                    .requirements-box { background-color: #f8f9fa; padding: 15px; border-radius: 4px; border-left: 3px solid #e74c3c; white-space: pre-wrap; }
+                    .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; text-align: center; color: #999; font-size: 12px; }
+                    .submitted-at { color: #666; font-style: italic; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h2 style="color: #e74c3c; margin: 0;">New Demo Request</h2>
+                        <p style="color: #666; margin-top: 5px;">A new demo request has been submitted</p>
+                    </div>
+
+                    <div class="section">
+                        <h3>Personal Information</h3>
+                        <div class="field"><strong>Full Name:</strong> ${name}</div>
+                        <div class="field"><strong>Company:</strong> ${company}</div>
+                        <div class="field"><strong>Business Email:</strong> ${email}</div>
+                        <div class="field"><strong>Phone:</strong> ${phone || 'Not provided'}</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Business Information</h3>
+                        <div class="field"><strong>Country:</strong> ${country || 'Not provided'}</div>
+                        <div class="field"><strong>Website:</strong> ${website || 'Not provided'}</div>
+                        <div class="field"><strong>Business Type:</strong> ${type || 'Not provided'}</div>
+                        <div class="field"><strong>Current Platform:</strong> ${platform || 'Not provided'}</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Requirements</h3>
+                        <div class="field"><strong>Expected Users:</strong> ${users || 'Not provided'}</div>
+                        <div class="field"><strong>Preferred Meeting Time:</strong> ${meeting || 'Not provided'}</div>
+                        <div style="margin-top: 10px;">
+                            <strong>Additional Requirements:</strong>
+                            <div class="requirements-box">${requirements || 'None provided'}</div>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <p class="submitted-at">Submitted At: ${submittedAt || new Date().toISOString()}</p>
+                        <p>&copy; 2026 XSiDER Ltd. All rights reserved</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        `;
+
+        const mailOptions = {
+            from: `"INVESTAiN" <no-reply@investain.com>`,
+            to: process.env.ADMIN_EMAIL || 'admin@investain.com', // Configure this in .env
+            subject: `New Demo Request - ${company}`,
+            html: htmlBody,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Demo request email sent!', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('Error sending demo request email:', error);
+        throw error;
+    }
+};
 
 
 
-module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail, sendDocReqEmail, sendDocUploadedEmail, sendSupportTicketEmail, sendDocSignatureUploadedEmail, sendDocApproveEmail, sendDocUploadedEmailToUser, sendDocRejectEmail, sendReplyTicketEmail, sendEmailToAllUsers, sendVerificationKycDocsEmail, orgApplicationSubmissionEmail };
+module.exports = { sendVerificationEmail, sendTradingAccountEmail, sendDemoAccountEmail, forgetPasswordEmail, sendTransactionNotificationEmail, sendOtpEmail, sendWithdrawalEmail, newAccountRegister, demoAccountCreation, applicationSubmissionEmail, sendNewTradingAccountReqEmail, sendNewTradingAccountEmail, sendNewIbEmail, sendIbReqEmail, sendNewTradingAccountReqToAccManagerEmail, sendDocReqEmail, sendDocUploadedEmail, sendSupportTicketEmail, sendDocSignatureUploadedEmail, sendDocApproveEmail, sendDocUploadedEmailToUser, sendDocRejectEmail, sendReplyTicketEmail, sendEmailToAllUsers, sendVerificationKycDocsEmail, orgApplicationSubmissionEmail, sendDemoRequestEmail };
