@@ -35,7 +35,7 @@ const reportsRoutes = require('./routers/reports.js');
 const depositWithdrawalReportRoutes = require('./routers/depositWithdrawalReport.js');
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
-const demoRequestRoutes = require('./routes/demoRequest');
+const demoRequestRoutes = require('./routers/demoRequest.js');
 const app = express();
 
 const port = process.env.PORT || 3003;
