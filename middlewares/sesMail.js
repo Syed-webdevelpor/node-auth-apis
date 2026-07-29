@@ -3551,7 +3551,7 @@ const sendDemoRequestEmail = async (demoData) => {
 
         const mailOptions = {
             from: `"INVESTAiN" <no-reply@investain.com>`,
-            to: process.env.ADMIN_EMAIL || 'admin@investain.com', // Configure this in .env
+            to: process.env.ADMIN_EMAIL || 'usamaahmed@investain.com', // Configure this in .env
             subject: `New Demo Request - ${company}`,
             html: htmlBody,
         };
