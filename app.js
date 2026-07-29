@@ -80,7 +80,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
   // Exclude /api/user/verify route from API key authentication
-  if (req.path === '/api/user/verify' || req.path.startsWith('/api/sso')) {
+  if (req.path === '/api/user/verify' || req.path.startsWith('/api/sso' || req.path === '/api/request-demo')) {
     return next();
   }
   return apiKeyAuth(req, res, next);
