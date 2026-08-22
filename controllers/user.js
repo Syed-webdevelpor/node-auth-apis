@@ -1079,6 +1079,31 @@ module.exports = {
         // Update password in database
         await DB.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, id]);
 
+        // --- Synchronize password hash with Trading Backend ---
+        // Only runs after the Portal DB update succeeded.
+        // Never sends plaintext; sends only the bcrypt hash.
+        // Failures are retried via Redis queue - do not fail the response.
+        try {
+            let tradingUserId = null;
+            try {
+                const [session] = await DB.execute(
+                    'SELECT trading_user_id FROM trading_sessions WHERE user_id = ? LIMIT 1',
+                    [id]
+                );
+                if (session.length > 0) tradingUserId = session[0].trading_user_id;
+            } catch (sessionErr) {
+                console.error('[password-sync] unable to resolve trading user id:', sessionErr.message);
+            }
+
+            await passwordSyncService.syncPassword({
+                userId: id,
+                tradingUserId,
+                passwordHash: hashedPassword,
+            });
+        } catch (syncErr) {
+            console.error('[password-sync] unexpected error:', syncErr.message);
+        }
+
         res.status(200).json({ message: 'Password changed successfully!' });
 
     } catch (error) {

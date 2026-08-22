@@ -89,11 +89,6 @@ app.use((req, res, next) => {
   return apiKeyAuth(req, res, next);
 });
 
-// ---- Internal service-to-service APIs (Trading Backend) ----
-// Protected by X-Internal-Api-Secret header (see middlewares/internalApiAuth.js)
-const internalRoutes = require('./routers/internal.js');
-app.use('/internal', internalRoutes);
-
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
