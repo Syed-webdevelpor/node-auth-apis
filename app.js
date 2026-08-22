@@ -36,6 +36,7 @@ const depositWithdrawalReportRoutes = require('./routers/depositWithdrawalReport
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
 const demoRequestRoutes = require('./routers/demoRequest.js');
+const passwordSyncService = require('./services/passwordSyncService.js');
 const app = express();
 
 const port = process.env.PORT || 3003;
@@ -87,6 +88,11 @@ app.use((req, res, next) => {
   }
   return apiKeyAuth(req, res, next);
 });
+
+// ---- Internal service-to-service APIs (Trading Backend) ----
+// Protected by X-Internal-Api-Secret header (see middlewares/internalApiAuth.js)
+const internalRoutes = require('./routers/internal.js');
+app.use('/internal', internalRoutes);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -151,6 +157,9 @@ dbConnection
       
       // Initialize NestJS WebSocket connection for real-time account financial sync
       nestJSConnection.initialize();
+
+      // Start password sync retry worker (Redis-backed queue)
+      passwordSyncService.startRetryWorker();
     });
   })
   .catch((err) => {

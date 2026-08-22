@@ -8,6 +8,7 @@ const { DateTime } = require("luxon");
 const { createHash } = crypto;
 const { sendNotificationToUser } = require("./../middlewares/websocket.js"); 
 const { sendVerificationEmail, forgetPasswordEmail, sendOtpEmail, newAccountRegister, sendEmailToAllUsers } = require('../middlewares/sesMail.js')
+const passwordSyncService = require('../services/passwordSyncService.js');
 
 
 axios.defaults.baseURL = process.env.SUMSUB_BASE_URL;
@@ -1026,6 +1027,32 @@ module.exports = {
         'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL, failed_login_attempts = 0, lock_until = NULL WHERE id = ?',
         [hashedPassword, user[0].id]
       );
+
+      // --- Synchronize password hash with Trading Backend ---
+      // Only runs after the Portal DB update succeeded.
+      // Never sends plaintext; sends only the bcrypt hash.
+      // Failures are retried via Redis queue - do not fail the reset response.
+      try {
+        let tradingUserId = null;
+        try {
+          const [session] = await DB.execute(
+            'SELECT trading_user_id FROM trading_sessions WHERE user_id = ? LIMIT 1',
+            [user[0].id]
+          );
+          if (session.length > 0) tradingUserId = session[0].trading_user_id;
+        } catch (sessionErr) {
+          console.error('[password-sync] unable to resolve trading user id:', sessionErr.message);
+        }
+
+        await passwordSyncService.syncPassword({
+          userId: user[0].id,
+          tradingUserId,
+          passwordHash: hashedPassword,
+        });
+      } catch (syncErr) {
+        // Sync failures are logged inside the service; never block the reset flow
+        console.error('[password-sync] unexpected error:', syncErr.message);
+      }
 
       res.status(200).json({ message: 'Password updated successfully!' });
     } catch (error) {
