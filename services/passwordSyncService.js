@@ -66,7 +66,6 @@ async function sendPasswordHashToTrading({ userId, tradingUserId, passwordHash, 
     {
       userId: tradingUserId || userId,
       passwordHash,
-      syncId,
     },
     {
       headers: {
