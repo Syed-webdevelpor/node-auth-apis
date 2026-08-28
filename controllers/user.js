@@ -800,6 +800,7 @@ module.exports = {
       // Validate and decode the refresh token
       const data = verifyToken(refreshToken, false);
       if (data && data.status) return res.status(data.status).json(data);
+      const userId = data.id;
 
       // Hash the refresh token for comparison in the database
       const md5Refresh = createHash("md5").update(refreshToken).digest("hex");
@@ -817,10 +818,65 @@ module.exports = {
         });
       }
 
+      // --- Logout from the trading server ---
+      // If the user is logged into the trading server, invalidate that session
+      // and deactivate the local trading_sessions record so it can't be reused.
+      const tradingServerUrl = process.env.TRADING_SERVER_URL;
+      let tradingLogout = { attempted: false, success: false };
+
+      const [sessions] = await DB.execute(
+        `SELECT id, trading_user_id, trading_access_token, trading_refresh_token
+         FROM trading_sessions
+         WHERE user_id = ?
+           AND (is_active IS NULL OR is_active = 1)
+         LIMIT 1`,
+        [userId]
+      );
+
+      if (tradingServerUrl && sessions.length > 0) {
+        const session = sessions[0];
+        tradingLogout.attempted = true;
+
+        try {
+          await axios.post(
+            `${tradingServerUrl.replace(/\/$/, "")}/auth/logout`,
+            { refreshToken: session.trading_refresh_token },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                ...(session.trading_access_token
+                  ? { Authorization: `Bearer ${session.trading_access_token}` }
+                  : {}),
+              },
+              timeout: 30000,
+            }
+          );
+          tradingLogout.success = true;
+        } catch (tradingErr) {
+          // Best-effort: don't fail the local logout if the trading server errors.
+          console.error(
+            "Trading server auth/logout error:",
+            tradingErr.response?.data || tradingErr.message
+          );
+        }
+
+        // Deactivate the trading session so it can't be refreshed/reused later.
+        await DB.execute(
+          `UPDATE trading_sessions
+           SET is_active = 0,
+               trading_access_token = NULL,
+               trading_refresh_token = NULL,
+               updated_at = NOW()
+           WHERE id = ?`,
+          [session.id]
+        );
+      }
+
       // Successfully logged out
       res.json({
         status: 200,
         message: "Successfully logged out.",
+        tradingLogout,
       });
     } catch (err) {
       next(err);
