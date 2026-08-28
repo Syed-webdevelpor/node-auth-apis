@@ -839,7 +839,7 @@ module.exports = {
 
         try {
           await axios.delete(
-            `${tradingServerUrl.replace(/\/$/, "")}/auth/logout`,
+            `${tradingServerUrl.replace(/\/$/, "")}/auth/sso-logout`,
             { refreshToken: session.trading_refresh_token },
             {
               headers: {
