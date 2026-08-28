@@ -838,7 +838,7 @@ module.exports = {
         tradingLogout.attempted = true;
 
         try {
-          await axios.post(
+          await axios.delete(
             `${tradingServerUrl.replace(/\/$/, "")}/auth/logout`,
             { refreshToken: session.trading_refresh_token },
             {
