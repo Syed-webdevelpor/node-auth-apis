@@ -840,7 +840,7 @@ module.exports = {
         try {
           
           await axios.delete(
-            `${tradingServerUrl.replace(/\/$/, "")}/auth/sso-logout`,
+            `${tradingServerUrl.replace(/\/$/, "")}/auth/logout`,
             {
               headers: {
                 "Content-Type": "application/json",
