@@ -838,7 +838,6 @@ module.exports = {
         tradingLogout.attempted = true;
 
         try {
-          console.log(session.trading_access_token);
           
           await axios.delete(
             `${tradingServerUrl.replace(/\/$/, "")}/auth/sso-logout`,
