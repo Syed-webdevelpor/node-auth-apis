@@ -169,5 +169,6 @@ async function verifyRecaptcha(req, res, next) {
 module.exports = {
   tokenValidation,
   validate,
-  verifyRecaptcha
+  verifyRecaptcha,
+  logRecaptcha
 };
