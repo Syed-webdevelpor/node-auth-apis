@@ -235,9 +235,6 @@ async function verifyExpressIntegrityToken({ token, nonce }) {
     decoded = res && res.data && res.data.tokenPayloadExternal;
   } catch (e) {
     const status = e && e.response && e.response.status;
-    console.debug(
-      `[PlayIntegrity] express decode failed${status ? ` HTTP ${status}` : ""}: ${(e && e.message) || e}`
-    );
     return { verified: false, statusCode: 403, reason: "express_decode_failed" };
   }
 
@@ -278,7 +275,6 @@ async function verifyExpressIntegrityToken({ token, nonce }) {
  */
 async function verifyIntegrityToken({ token, nonce }) {
   if (!token || typeof token !== "string") {
-    console.debug("[PlayIntegrity] integrity_token_required — token is empty or not a string");
     return { verified: false, statusCode: 400, reason: "integrity_token_required" };
   }
 
@@ -286,9 +282,6 @@ async function verifyIntegrityToken({ token, nonce }) {
   // or leading/trailing whitespace (e.g. from a file copy or log scraping).
   const rawToken = token;
   token = token.trim();
-  if (token.length !== rawToken.length) {
-    console.debug(`[PlayIntegrity] token trimmed ${rawToken.length - token.length} char(s)`);
-  }
 
   const parts = token.split(".");
   if (parts.length !== 3) {
@@ -301,22 +294,10 @@ async function verifyIntegrityToken({ token, nonce }) {
     const preview = token.length > 0
       ? `${token.slice(0, 20)}…${token.slice(-20)}`
       : "(empty)";
-    console.debug(
-      "[PlayIntegrity] non-JWS token — attempting detection ",
-      JSON.stringify({
-        tokenLength: token.length,
-        dotCount,
-        partsCount: parts.length,
-        startsWithBrace: looksJson,
-        looksLikeBase64: looksB64,
-        preview,
-      })
-    );
 
     // If the token is opaque and Google verification is configured, treat it
     // as an Express integrity token and verify it server-side.
     if (!looksJson && loadServiceAccount()) {
-      console.debug("[PlayIntegrity] routing to Express server-side verification");
       return verifyExpressIntegrityToken({ token, nonce });
     }
 
@@ -366,9 +347,6 @@ async function verifyIntegrityToken({ token, nonce }) {
     return { verified: false, statusCode: 403, reason: "payload_decryption_failed" };
   }
 
-  if (nonce) {
-    console.debug(`[PlayIntegrity] nonce len=${nonce.length} hash=${requestHashFromNonce(nonce).slice(0, 16)}…`);
-  }
   const result = evaluateVerdict(verdict, { nonce });
   if (!result.verified) return result;
 
@@ -411,11 +389,6 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
           : "",
         raw_nonce: nonce || "",
       };
-      console.debug(
-        `[PlayIntegrity] request_binding_mismatch — expected=${expected} actual=${actual}\n` +
-          `  nonce=${nonce}\n` +
-          `  candidates=${JSON.stringify(candidates, null, 2)}`
-      );
       return { verified: false, statusCode: 403, reason: "request_binding_mismatch" };
     }
   }
@@ -426,11 +399,9 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
   const appIntegrity = verdict.appIntegrity || verdict.appIntegrityVerdict || {};
   const appRecognition = appIntegrity.appRecognitionVerdict || appIntegrity.verdict || "";
 
-  console.debug("[PlayIntegrity] app integrity:", JSON.stringify(appIntegrity));
 
   // For OTP we require Google Play to recognize our app.
   if (appRecognition !== "PLAY_RECOGNIZED") {
-    console.debug(`[PlayIntegrity] app integrity failed: ${appRecognition || "missing"}`);
     return { verified: false, statusCode: 403, reason: "app_integrity_failed" };
   }
 
@@ -439,9 +410,6 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
   // ---------------------------------------------------------
   if (appIntegrity.packageName && config.PLAY_INTEGRITY_PACKAGE_NAME) {
     if (appIntegrity.packageName !== config.PLAY_INTEGRITY_PACKAGE_NAME) {
-      console.debug(
-        `[PlayIntegrity] package mismatch: ${appIntegrity.packageName} !== ${config.PLAY_INTEGRITY_PACKAGE_NAME}`
-      );
       return { verified: false, statusCode: 403, reason: "package_mismatch" };
     }
   }
@@ -473,13 +441,6 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
         expectedBytes.some((exp) => certDigestEquals(recv, exp))
       );
       if (!certificateMatch) {
-        console.debug(
-          "[PlayIntegrity] certificate digest mismatch",
-          JSON.stringify({
-            received: digests,
-            expected: config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS,
-          })
-        );
         return { verified: false, statusCode: 403, reason: "certificate_digest_mismatch" };
       }
     }
@@ -495,7 +456,6 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
     ? [deviceIntegrity.deviceRecognitionVerdict]
     : [];
 
-  console.debug("[PlayIntegrity] device integrity:", JSON.stringify(deviceIntegrity));
 
   if (deviceVerdicts.length === 0) {
     return { verified: false, statusCode: 403, reason: "device_integrity_missing" };
@@ -506,21 +466,9 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
     (v) => v === "MEETS_DEVICE_INTEGRITY" || v === "MEETS_STRONG_INTEGRITY"
   );
   if (!deviceAccepted) {
-    console.debug(`[PlayIntegrity] device integrity failed: ${deviceVerdicts.join(",")}`);
     return { verified: false, statusCode: 403, reason: "device_integrity_failed" };
   }
 
-  // ---------------------------------------------------------
-  // 6. Success
-  // ---------------------------------------------------------
-  console.debug(
-    "[PlayIntegrity] integrity verification passed",
-    JSON.stringify({
-      appRecognition,
-      deviceVerdicts,
-      packageName: appIntegrity.packageName || null,
-    })
-  );
 
   return { verified: true, requestHash: normalizeRequestHash(requestDetails.requestHash || "") };
 }
