@@ -32,11 +32,16 @@ async function applyPlatformSecurity({ req, body, operation, phone }) {
       logSecurity({ platform, operation, result: "error", reason: "play_integrity_not_configured" });
       return { ok: false, statusCode: 500, error: "Play Integrity is not configured" };
     }
+    console.debug(
+      `[PlayIntegrity] incoming android attestation — ` +
+      `tokenLen=${typeof body.integrityToken === "string" ? body.integrityToken.length : "missing"}, ` +
+      `nonceLen=${typeof body.integrityNonce === "string" ? body.integrityNonce.length : "missing"}`
+    );
     const verdict = await PlayIntegrityService.verifyIntegrityToken({
       token: body.integrityToken,
       nonce: body.integrityNonce,
     });
-    logSecurity({ platform, operation, result: verdict.verified ? "pass" : "block", reason: verdict.reason });
+    logSecurity({ platform, operation, result: verdict.verified ? "pass" : "block", reason: verdict.reason, details: { requestHash: verdict.requestHash } });
     if (!verdict.verified) {
       return { ok: false, statusCode: verdict.statusCode, error: "Device integrity verification failed" };
     }

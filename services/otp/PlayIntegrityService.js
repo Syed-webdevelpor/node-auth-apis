@@ -108,12 +108,43 @@ function requestHashFromNonce(nonce) {
  */
 async function verifyIntegrityToken({ token, nonce }) {
   if (!token || typeof token !== "string") {
+    console.debug("[PlayIntegrity] integrity_token_required — token is empty or not a string");
     return { verified: false, statusCode: 400, reason: "integrity_token_required" };
+  }
+
+  // Defensive trim: clients sometimes ship the JWS with a trailing newline
+  // or leading/trailing whitespace (e.g. from a file copy or log scraping).
+  const rawToken = token;
+  token = token.trim();
+  if (token.length !== rawToken.length) {
+    console.debug(`[PlayIntegrity] token trimmed ${rawToken.length - token.length} char(s)`);
   }
 
   const parts = token.split(".");
   if (parts.length !== 3) {
-    return { verified: false, statusCode: 400, reason: "malformed_integrity_token" };
+    // Diagnostic logging — DO NOT log the full token.
+    const dotCount = (token.match(/\./g) || []).length;
+    const looksJson = token.startsWith("{") || token.startsWith("[");
+    const looksB64 = /^[A-Za-z0-9+/_=-]+$/.test(token);
+    const preview = token.length > 0
+      ? `${token.slice(0, 20)}…${token.slice(-20)}`
+      : "(empty)";
+    console.debug(
+      "[PlayIntegrity] malformed_integrity_token — ",
+      JSON.stringify({
+        tokenLength: token.length,
+        dotCount,
+        partsCount: parts.length,
+        startsWithBrace: looksJson,
+        looksLikeBase64: looksB64,
+        preview,
+      })
+    );
+    return {
+      verified: false,
+      statusCode: 400,
+      reason: `malformed_integrity_token:expected_3_parts_got_${parts.length}`,
+    };
   }
   const [headerB64, payloadB64, sigB64] = parts;
 
@@ -155,6 +186,9 @@ async function verifyIntegrityToken({ token, nonce }) {
     return { verified: false, statusCode: 403, reason: "payload_decryption_failed" };
   }
 
+  if (nonce) {
+    console.debug(`[PlayIntegrity] nonce len=${nonce.length} hash=${requestHashFromNonce(nonce).slice(0, 16)}…`);
+  }
   const result = evaluateVerdict(verdict, { nonce });
   if (!result.verified) return result;
 
