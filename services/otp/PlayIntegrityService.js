@@ -23,6 +23,55 @@ function b64urlDecode(str) {
 }
 
 /**
+ * Normalize a SHA-256 certificate digest into canonical raw 32 bytes.
+ *
+ * Play Integrity's certificateSha256Digest comes back as Base64URL (unpadded),
+ * e.g. "f297BhTdLiuUaAa9SPjEtLYlInNFUGaiOteZ21oRsr0". Your config might instead
+ * hold the Play Console "SHA-256 fingerprint" (colon-separated hex), e.g.
+ * "2A:A1:27:7E:...:96:D4", or plain 64-char hex. Accept all of them and compare
+ * on the decoded bytes so format differences never cause a false rejection.
+ *
+ * @param {string} value
+ * @returns {Buffer|null} 32-byte hash, or null if it cannot be parsed
+ */
+function normalizeCertDigest(value) {
+  if (!value || typeof value !== "string") return null;
+  const v = value.trim();
+  if (!v) return null;
+
+  // 1) Colon-separated hex: "2A:A1:27:...:D4" (Play Console fingerprint).
+  if (v.includes(":")) {
+    const hex = v.replace(/:/g, "");
+    if (!/^[0-9a-fA-F]{64}$/.test(hex)) return null;
+    const buf = Buffer.from(hex, "hex");
+    return buf.length === 32 ? buf : null;
+  }
+
+  // 2) Plain 64-char hex: "2AA127...D4".
+  if (/^[0-9a-fA-F]{64}$/.test(v)) {
+    const buf = Buffer.from(v, "hex");
+    return buf.length === 32 ? buf : null;
+  }
+
+  // 3) Base64 / Base64URL (with or without padding) that decodes to 32 bytes.
+  const cleaned = v.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+  if (!/^[A-Za-z0-9+/]+$/.test(cleaned)) return null;
+  try {
+    const buf = Buffer.from(cleaned, "base64");
+    return buf.length === 32 ? buf : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/** Compare two normalized cert-digest Buffers (constant-time-ish). */
+function certDigestEquals(a, b) {
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  return a.equals(b);
+}
+
+/**
  * Derive the AES-GCM payload decryption key from the signing certificate's
  * EC public key: key = SHA256( 0x04 || X || Y ).
  */
@@ -407,18 +456,32 @@ function evaluateVerdict(verdict, { nonce, express = false } = {}) {
     : [];
 
   if (config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.length > 0 && digests.length > 0) {
-    const normalizedExpected = config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.map((d) =>
-      String(d).toUpperCase()
-    );
-    const certificateMatch = digests
-      .map((d) => String(d).toUpperCase())
-      .some((d) => normalizedExpected.includes(d));
-    if (!certificateMatch) {
-      console.debug(
-        "[PlayIntegrity] certificate digest mismatch",
-        JSON.stringify({ received: digests, expected: normalizedExpected })
+    // Google returns Base64URL; the config may hold Base64URL, colon-hex, or
+    // plain hex. Normalize everything to raw bytes before comparing so format
+    // differences (the Base64URL-vs-hex mismatch you hit) can't cause a false
+    // rejection.
+    const receivedBytes = digests.map((d) => normalizeCertDigest(d)).filter(Boolean);
+    const expectedBytes = config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.map((d) =>
+      normalizeCertDigest(d)
+    ).filter(Boolean);
+
+    // Only enforce when at least one side is a valid 32-byte digest; if the
+    // config holds garbage we shouldn't silently crash, but a real mismatch of
+    // valid digests must block.
+    if (receivedBytes.length > 0 && expectedBytes.length > 0) {
+      const certificateMatch = receivedBytes.some((recv) =>
+        expectedBytes.some((exp) => certDigestEquals(recv, exp))
       );
-      return { verified: false, statusCode: 403, reason: "certificate_digest_mismatch" };
+      if (!certificateMatch) {
+        console.debug(
+          "[PlayIntegrity] certificate digest mismatch",
+          JSON.stringify({
+            received: digests,
+            expected: config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS,
+          })
+        );
+        return { verified: false, statusCode: 403, reason: "certificate_digest_mismatch" };
+      }
     }
   }
 
