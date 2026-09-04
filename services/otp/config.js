@@ -35,6 +35,10 @@ const config = {
     .split(",")
     .map((d) => d.trim().toUpperCase())
     .filter(Boolean),
+  // Google Cloud project number and service-account key JSON used to verify
+  // Express Integrity tokens (which are NOT JWS and cannot be verified locally).
+  PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER: process.env.PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER || "",
+  PLAY_INTEGRITY_SERVICE_ACCOUNT_JSON: process.env.PLAY_INTEGRITY_SERVICE_ACCOUNT_JSON || "",
 
   // iOS App Attest
   APP_ATTEST_ENABLED: toBool(process.env.APP_ATTEST_ENABLED, false),

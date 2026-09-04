@@ -3,6 +3,8 @@ const config = require("./config");
 const { verifyEcdsaSignature, verifyCertificateChain } = require("./cryptoHelpers");
 const { getRedisClient } = require("../redisClient");
 const { GTS_ROOTS } = require("./gtsRoots");
+const { JWT } = require("google-auth-library");
+const { playintegrity } = require("@googleapis/playintegrity");
 
 // Injectable for tests (defaults to the real Redis client).
 let replayClientGetter = getRedisClient;
@@ -97,6 +99,120 @@ function requestHashFromNonce(nonce) {
     return "";
   }
 }
+/* ---------------------------------------------------------------------------
+ * Express Integrity (opaque tokens) — server-side verification via Google.
+ *
+ * Express tokens (from StandardIntegrity.requestExpressIntegrityToken) are NOT
+ * JWS and cannot be verified offline. They MUST be decoded by Google's API
+ * using a service-account. This block implements that flow.
+ * ------------------------------------------------------------------------- */
+
+// Parse the raw service-account JSON from config.
+function loadServiceAccount() {
+  const raw = config.PLAY_INTEGRITY_SERVICE_ACCOUNT_JSON;
+  if (!raw) return null;
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (parsed && parsed.client_email && parsed.private_key) return parsed;
+  } catch (e) {
+    // ignore; treated as missing below
+  }
+  return null;
+}
+
+let expressAuthClient = null;
+let expressAuthInitError = "";
+
+function getExpressAuthClient() {
+  if (expressAuthClient) return expressAuthClient;
+  const sa = loadServiceAccount();
+  if (!sa) {
+    expressAuthInitError = "service_account_missing_or_invalid";
+    return null;
+  }
+  try {
+    expressAuthClient = new JWT({
+      email: sa.client_email,
+      key: sa.private_key,
+      scopes: ["https://www.googleapis.com/auth/playintegrity"],
+      subject: sa.client_email,
+    });
+    expressAuthInitError = "";
+    return expressAuthClient;
+  } catch (e) {
+    expressAuthInitError = "service_account_jwt_failed";
+    return null;
+  }
+}
+
+/**
+ * Verify an Express (opaque) integrity token by asking Google to decode it.
+ *
+ * @param {object} params
+ * @param {string} params.token - opaque integrity token from the client
+ * @param {string} [params.expectedHash] - request hash the client claims to
+ *                                         have bound into the token
+ * @returns {Promise<{ verified: boolean, statusCode?: number, reason?: string, requestHash?: string }>}
+ */
+async function verifyExpressIntegrityToken({ token, expectedHash }) {
+  const auth = getExpressAuthClient();
+  if (!auth) {
+    return {
+      verified: false,
+      statusCode: 500,
+      reason: `express_auth_unavailable:${expressAuthInitError || "unknown"}`,
+    };
+  }
+
+  let client;
+  try {
+    client = playintegrity({ version: "v1", auth });
+  } catch (e) {
+    return { verified: false, statusCode: 500, reason: "express_client_init_failed" };
+  }
+
+  // Decode (and thereby cryptographically verify) the token with Google.
+  let decoded;
+  try {
+    const res = await client.v1.decodeIntegrityToken({
+      packageName: config.PLAY_INTEGRITY_PACKAGE_NAME,
+      requestBody: { integrityToken: token },
+    });
+    decoded = res && res.data && res.data.tokenPayloadExternal;
+  } catch (e) {
+    const status = e && e.response && e.response.status;
+    console.debug(
+      `[PlayIntegrity] express decode failed${status ? ` HTTP ${status}` : ""}: ${(e && e.message) || e}`
+    );
+    return { verified: false, statusCode: 403, reason: "express_decode_failed" };
+  }
+
+  if (!decoded || typeof decoded !== "object") {
+    return { verified: false, statusCode: 403, reason: "express_empty_payload" };
+  }
+
+  // Reject Google test/tester responses outside of a test environment.
+  if (
+    config.NODE_ENV !== "test" &&
+    decoded.testingDetails &&
+    decoded.testingDetails.isTestingResponse
+  ) {
+    return { verified: false, statusCode: 403, reason: "testing_response" };
+  }
+
+  const result = evaluateVerdict(decoded, { nonce: expectedHash, express: true });
+  if (!result.verified) return result;
+
+  const requestHash = result.requestHash || "";
+  if (requestHash) {
+    const replayed = await rejectIfReplayed(normalizeRequestHash(requestHash));
+    if (replayed) {
+      return { verified: false, statusCode: 403, reason: "replayed_token" };
+    }
+  }
+
+  return result;
+}
 
 /**
  * Verify a Play Integrity response token (JWS: Header.Payload.Signature).
@@ -122,7 +238,9 @@ async function verifyIntegrityToken({ token, nonce }) {
 
   const parts = token.split(".");
   if (parts.length !== 3) {
-    // Diagnostic logging — DO NOT log the full token.
+    // Not a JWS. This is expected for Express Integrity tokens (opaque, from
+    // StandardIntegrity.requestExpressIntegrityToken), which cannot be verified
+    // locally and must be decoded by Google's server-side API.
     const dotCount = (token.match(/\./g) || []).length;
     const looksJson = token.startsWith("{") || token.startsWith("[");
     const looksB64 = /^[A-Za-z0-9+/_=-]+$/.test(token);
@@ -130,7 +248,7 @@ async function verifyIntegrityToken({ token, nonce }) {
       ? `${token.slice(0, 20)}…${token.slice(-20)}`
       : "(empty)";
     console.debug(
-      "[PlayIntegrity] malformed_integrity_token — ",
+      "[PlayIntegrity] non-JWS token — attempting detection ",
       JSON.stringify({
         tokenLength: token.length,
         dotCount,
@@ -140,10 +258,18 @@ async function verifyIntegrityToken({ token, nonce }) {
         preview,
       })
     );
+
+    // If the token is opaque and Google verification is configured, treat it
+    // as an Express integrity token and verify it server-side.
+    if (!looksJson && loadServiceAccount()) {
+      console.debug("[PlayIntegrity] routing to Express server-side verification");
+      return verifyExpressIntegrityToken({ token, expectedHash: nonce });
+    }
+
     return {
       verified: false,
       statusCode: 400,
-      reason: `malformed_integrity_token:expected_3_parts_got_${parts.length}`,
+      reason: `malformed_integrity_token:expected_3_parts_got_${parts.length};express_unconfigured`,
     };
   }
   const [headerB64, payloadB64, sigB64] = parts;
@@ -204,10 +330,18 @@ async function verifyIntegrityToken({ token, nonce }) {
 }
 
 /** Evaluate the decrypted verdict against configured security policy. */
-function evaluateVerdict(verdict, { nonce }) {
+function evaluateVerdict(verdict, { nonce, express = false }) {
   const requestDetails = verdict.requestDetails || {};
   if (requestDetails.requestHash) {
-    const expected = normalizeRequestHash(requestHashFromNonce(nonce));
+    let expected;
+    if (express) {
+      // Express tokens echo back the exact request hash the client submitted;
+      // bind to the hash we received (normalized), no sha256 transform.
+      expected = normalizeRequestHash(nonce || "");
+    } else {
+      // Standard JWS tokens embed sha256(nonce) as the request hash.
+      expected = normalizeRequestHash(requestHashFromNonce(nonce));
+    }
     if (expected && expected !== normalizeRequestHash(requestDetails.requestHash)) {
       return { verified: false, statusCode: 403, reason: "request_binding_mismatch" };
     }
@@ -273,7 +407,12 @@ function isEnabled() {
 }
 
 function isConfigured() {
-  return Boolean(config.PLAY_INTEGRITY_PACKAGE_NAME) && config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.length > 0;
+  // Standard/Classic JWS verification needs the package name + cert digests.
+  // Express (opaque) verification needs the package name + a service account.
+  const hasPackage = Boolean(config.PLAY_INTEGRITY_PACKAGE_NAME);
+  const hasStandardConfig = config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.length > 0;
+  const hasExpressConfig = Boolean(config.PLAY_INTEGRITY_SERVICE_ACCOUNT_JSON);
+  return hasPackage && (hasStandardConfig || hasExpressConfig);
 }
 
 function generateNonce() {
@@ -285,8 +424,11 @@ module.exports = {
   isConfigured,
   generateNonce,
   verifyIntegrityToken,
+  verifyExpressIntegrityToken,
   _deriveAesKey: deriveAesKey,
   _decryptPayload: decryptPayload,
   _evaluateVerdict: evaluateVerdict,
   _setReplayClientForTest,
+  _loadServiceAccount: loadServiceAccount,
+  _getExpressAuthClient: getExpressAuthClient,
 };
