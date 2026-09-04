@@ -91,13 +91,15 @@ function normalizeRequestHash(hash) {
 }
 
 function requestHashFromNonce(nonce) {
-  if (!nonce) return "";
-  try {
-    const bytes = b64urlDecode(nonce);
-    return b64urlEncode(crypto.createHash("sha256").update(bytes).digest());
-  } catch (e) {
-    return "";
-  }
+  if (!nonce || typeof nonce !== "string") return "";
+  // The Flutter client computes:
+  //   requestHash = base64url( SHA-256( UTF-8(nonceString) ) )
+  // We must recompute the exact same value: hash the UTF-8 bytes of the nonce
+  // STRING (not the base64url-decoded binary), then output unpadded base64url.
+  return crypto
+    .createHash("sha256")
+    .update(Buffer.from(nonce, "utf8"))
+    .digest("base64url");
 }
 /* ---------------------------------------------------------------------------
  * Express Integrity (opaque tokens) — server-side verification via Google.
@@ -150,11 +152,14 @@ function getExpressAuthClient() {
  *
  * @param {object} params
  * @param {string} params.token - opaque integrity token from the client
- * @param {string} [params.expectedHash] - request hash the client claims to
- *                                         have bound into the token
+ * @param {string} [params.nonce] - the base64url nonce string the client was
+ *                                  issued; we recompute SHA-256(UTF-8(nonce))
+ *                                  and compare it against the request hash
+ *                                  Google echoes back so the token is bound to
+ *                                  a challenge this server actually issued.
  * @returns {Promise<{ verified: boolean, statusCode?: number, reason?: string, requestHash?: string }>}
  */
-async function verifyExpressIntegrityToken({ token, expectedHash }) {
+async function verifyExpressIntegrityToken({ token, nonce }) {
   const auth = getExpressAuthClient();
   if (!auth) {
     return {
@@ -200,7 +205,7 @@ async function verifyExpressIntegrityToken({ token, expectedHash }) {
     return { verified: false, statusCode: 403, reason: "testing_response" };
   }
 
-  const result = evaluateVerdict(decoded, { nonce: expectedHash, express: true });
+  const result = evaluateVerdict(decoded, { nonce, express: true });
   if (!result.verified) return result;
 
   const requestHash = result.requestHash || "";
@@ -263,7 +268,7 @@ async function verifyIntegrityToken({ token, nonce }) {
     // as an Express integrity token and verify it server-side.
     if (!looksJson && loadServiceAccount()) {
       console.debug("[PlayIntegrity] routing to Express server-side verification");
-      return verifyExpressIntegrityToken({ token, expectedHash: nonce });
+      return verifyExpressIntegrityToken({ token, nonce });
     }
 
     return {
@@ -333,16 +338,38 @@ async function verifyIntegrityToken({ token, nonce }) {
 function evaluateVerdict(verdict, { nonce, express = false }) {
   const requestDetails = verdict.requestDetails || {};
   if (requestDetails.requestHash) {
-    // A Play Integrity request hash is base64url(SHA-256(nonce)). This holds for
-    // BOTH Standard (JWS) and Express (opaque) tokens: the client computes the
-    // request hash from the nonce it received, and the decoded payload echoes
-    // that request hash back. We recompute base64url(SHA-256(nonce)) and compare.
+    // The Flutter client computes:
+    //   requestHash = base64url( SHA-256( UTF-8(nonce) ) )
+    // and the decoded payload echoes that exact requestHash back. We recompute
+    // the same value (requestHashFromNonce hashes the UTF-8 nonce string) and
+    // compare — this holds for both Standard (JWS) and Express (opaque) tokens.
     const expected = normalizeRequestHash(requestHashFromNonce(nonce));
     const actual = normalizeRequestHash(requestDetails.requestHash);
     if (expected && expected !== actual) {
+      // Unexpected. The client ought to have computed
+      //   requestHash = base64url( SHA-256( UTF-8(nonce) ) )
+      // i.e. the `expected` value below. If `actual` doesn't match, the app
+      // probably derived its requestHash from a different nonce/encoding. Show
+      // candidate derivations (hashes are one-way, safe to log) for diagnosis:
+      //   1) sha256(utf8(nonceString))          base64url -> expected (correct)
+      //   2) sha256(decodedNonceBytes)          base64url
+      //   3) sha256(decodedNonceBytes)          standard base64
+      //   4) raw nonce passed as requestHash
+      const nonceBytes = b64urlDecode(nonce || "");
+      const candidates = {
+        sha256_utf8_string_b64url: requestHashFromNonce(nonce || ""),
+        sha256_decode_bytes_b64url: nonceBytes.length
+          ? b64urlEncode(crypto.createHash("sha256").update(nonceBytes).digest())
+          : "",
+        sha256_decode_bytes_b64: nonceBytes.length
+          ? crypto.createHash("sha256").update(nonceBytes).digest().toString("base64")
+          : "",
+        raw_nonce: nonce || "",
+      };
       console.debug(
-        `[PlayIntegrity] request_binding_mismatch — expected(lens=${expected.length}) vs actual(lens=${actual.length}); ` +
-        `expectedHash=${expected.slice(0, 12)}… actualHash=${actual.slice(0, 12)}…`
+        `[PlayIntegrity] request_binding_mismatch — expected=${expected} actual=${actual}\n` +
+          `  nonce=${nonce}\n` +
+          `  candidates=${JSON.stringify(candidates, null, 2)}`
       );
       return { verified: false, statusCode: 403, reason: "request_binding_mismatch" };
     }
