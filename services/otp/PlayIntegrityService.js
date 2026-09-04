@@ -333,16 +333,17 @@ async function verifyIntegrityToken({ token, nonce }) {
 function evaluateVerdict(verdict, { nonce, express = false }) {
   const requestDetails = verdict.requestDetails || {};
   if (requestDetails.requestHash) {
-    let expected;
-    if (express) {
-      // Express tokens echo back the exact request hash the client submitted;
-      // bind to the hash we received (normalized), no sha256 transform.
-      expected = normalizeRequestHash(nonce || "");
-    } else {
-      // Standard JWS tokens embed sha256(nonce) as the request hash.
-      expected = normalizeRequestHash(requestHashFromNonce(nonce));
-    }
-    if (expected && expected !== normalizeRequestHash(requestDetails.requestHash)) {
+    // A Play Integrity request hash is base64url(SHA-256(nonce)). This holds for
+    // BOTH Standard (JWS) and Express (opaque) tokens: the client computes the
+    // request hash from the nonce it received, and the decoded payload echoes
+    // that request hash back. We recompute base64url(SHA-256(nonce)) and compare.
+    const expected = normalizeRequestHash(requestHashFromNonce(nonce));
+    const actual = normalizeRequestHash(requestDetails.requestHash);
+    if (expected && expected !== actual) {
+      console.debug(
+        `[PlayIntegrity] request_binding_mismatch — expected(lens=${expected.length}) vs actual(lens=${actual.length}); ` +
+        `expectedHash=${expected.slice(0, 12)}… actualHash=${actual.slice(0, 12)}…`
+      );
       return { verified: false, statusCode: 403, reason: "request_binding_mismatch" };
     }
   }
