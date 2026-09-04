@@ -334,9 +334,13 @@ async function verifyIntegrityToken({ token, nonce }) {
   return result;
 }
 
-/** Evaluate the decrypted verdict against configured security policy. */
-function evaluateVerdict(verdict, { nonce, express = false }) {
+/** Evaluate the decrypted/decoded Play Integrity verdict against policy. */
+function evaluateVerdict(verdict, { nonce, express = false } = {}) {
   const requestDetails = verdict.requestDetails || {};
+
+  // ---------------------------------------------------------
+  // 1. Verify request binding
+  // ---------------------------------------------------------
   if (requestDetails.requestHash) {
     // The Flutter client computes:
     //   requestHash = base64url( SHA-256( UTF-8(nonce) ) )
@@ -346,15 +350,7 @@ function evaluateVerdict(verdict, { nonce, express = false }) {
     const expected = normalizeRequestHash(requestHashFromNonce(nonce));
     const actual = normalizeRequestHash(requestDetails.requestHash);
     if (expected && expected !== actual) {
-      // Unexpected. The client ought to have computed
-      //   requestHash = base64url( SHA-256( UTF-8(nonce) ) )
-      // i.e. the `expected` value below. If `actual` doesn't match, the app
-      // probably derived its requestHash from a different nonce/encoding. Show
-      // candidate derivations (hashes are one-way, safe to log) for diagnosis:
-      //   1) sha256(utf8(nonceString))          base64url -> expected (correct)
-      //   2) sha256(decodedNonceBytes)          base64url
-      //   3) sha256(decodedNonceBytes)          standard base64
-      //   4) raw nonce passed as requestHash
+      // Diagnostics — one-way hashes are safe to log.
       const nonceBytes = b64urlDecode(nonce || "");
       const candidates = {
         sha256_utf8_string_b64url: requestHashFromNonce(nonce || ""),
@@ -375,57 +371,93 @@ function evaluateVerdict(verdict, { nonce, express = false }) {
     }
   }
 
+  // ---------------------------------------------------------
+  // 2. App integrity
+  // ---------------------------------------------------------
   const appIntegrity = verdict.appIntegrity || verdict.appIntegrityVerdict || {};
-  const tokenVerification = verdict.tokenVerification || {};
-
   const appRecognition = appIntegrity.appRecognitionVerdict || appIntegrity.verdict || "";
-  const tokenVerdict = tokenVerification.verdict || "";
 
-  const strongVerified =
-    tokenVerdict === "MEETS_DEVICE_AND_APP_LEVEL_CHECKS" ||
-    tokenVerdict === "MEETS_STRONG_INTEGRITY" ||
-    appRecognition === "PLAY_RECOGNIZED" ||
-    appRecognition === "UNRECOGNIZED_VERSION";
+  console.debug("[PlayIntegrity] app integrity:", JSON.stringify(appIntegrity));
 
-  if (!strongVerified) {
-    return { verified: false, statusCode: 403, reason: "unacceptable_integrity_verdict" };
+  // For OTP we require Google Play to recognize our app.
+  if (appRecognition !== "PLAY_RECOGNIZED") {
+    console.debug(`[PlayIntegrity] app integrity failed: ${appRecognition || "missing"}`);
+    return { verified: false, statusCode: 403, reason: "app_integrity_failed" };
   }
 
+  // ---------------------------------------------------------
+  // 3. Package name
+  // ---------------------------------------------------------
+  if (appIntegrity.packageName && config.PLAY_INTEGRITY_PACKAGE_NAME) {
+    if (appIntegrity.packageName !== config.PLAY_INTEGRITY_PACKAGE_NAME) {
+      console.debug(
+        `[PlayIntegrity] package mismatch: ${appIntegrity.packageName} !== ${config.PLAY_INTEGRITY_PACKAGE_NAME}`
+      );
+      return { verified: false, statusCode: 403, reason: "package_mismatch" };
+    }
+  }
+
+  // ---------------------------------------------------------
+  // 4. Certificate digest
+  // ---------------------------------------------------------
+  const digests = Array.isArray(appIntegrity.certificateSha256Digest)
+    ? appIntegrity.certificateSha256Digest
+    : appIntegrity.certificateSha256Digest
+    ? [appIntegrity.certificateSha256Digest]
+    : [];
+
+  if (config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.length > 0 && digests.length > 0) {
+    const normalizedExpected = config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.map((d) =>
+      String(d).toUpperCase()
+    );
+    const certificateMatch = digests
+      .map((d) => String(d).toUpperCase())
+      .some((d) => normalizedExpected.includes(d));
+    if (!certificateMatch) {
+      console.debug(
+        "[PlayIntegrity] certificate digest mismatch",
+        JSON.stringify({ received: digests, expected: normalizedExpected })
+      );
+      return { verified: false, statusCode: 403, reason: "certificate_digest_mismatch" };
+    }
+  }
+
+  // ---------------------------------------------------------
+  // 5. Device integrity
+  // ---------------------------------------------------------
   const deviceIntegrity = verdict.deviceIntegrity || {};
   const deviceVerdicts = Array.isArray(deviceIntegrity.deviceRecognitionVerdict)
     ? deviceIntegrity.deviceRecognitionVerdict
     : deviceIntegrity.deviceRecognitionVerdict
     ? [deviceIntegrity.deviceRecognitionVerdict]
     : [];
-  if (
-    deviceVerdicts.length &&
-    !deviceVerdicts.some(
-      (v) => v === "MEETS_DEVICE_AND_APP_LEVEL_CHECKS" || v === "MEETS_STRONG_INTEGRITY"
-    )
-  ) {
+
+  console.debug("[PlayIntegrity] device integrity:", JSON.stringify(deviceIntegrity));
+
+  if (deviceVerdicts.length === 0) {
+    return { verified: false, statusCode: 403, reason: "device_integrity_missing" };
+  }
+
+  // Accept DEVICE or STRONG integrity for OTP.
+  const deviceAccepted = deviceVerdicts.some(
+    (v) => v === "MEETS_DEVICE_INTEGRITY" || v === "MEETS_STRONG_INTEGRITY"
+  );
+  if (!deviceAccepted) {
+    console.debug(`[PlayIntegrity] device integrity failed: ${deviceVerdicts.join(",")}`);
     return { verified: false, statusCode: 403, reason: "device_integrity_failed" };
   }
 
-  if (appIntegrity.packageName && config.PLAY_INTEGRITY_PACKAGE_NAME) {
-    if (appIntegrity.packageName !== config.PLAY_INTEGRITY_PACKAGE_NAME) {
-      return { verified: false, statusCode: 403, reason: "package_mismatch" };
-    }
-  }
-
-  const digests = Array.isArray(appIntegrity.certificateSha256Digest)
-    ? appIntegrity.certificateSha256Digest
-    : appIntegrity.certificateSha256Digest
-    ? [appIntegrity.certificateSha256Digest]
-    : [];
-  if (
-    digests.length &&
-    config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.length &&
-    !digests
-      .map((d) => d.toUpperCase())
-      .some((d) => config.PLAY_INTEGRITY_CERTIFICATE_DIGESTS.includes(d))
-  ) {
-    return { verified: false, statusCode: 403, reason: "certificate_digest_mismatch" };
-  }
+  // ---------------------------------------------------------
+  // 6. Success
+  // ---------------------------------------------------------
+  console.debug(
+    "[PlayIntegrity] integrity verification passed",
+    JSON.stringify({
+      appRecognition,
+      deviceVerdicts,
+      packageName: appIntegrity.packageName || null,
+    })
+  );
 
   return { verified: true, requestHash: normalizeRequestHash(requestDetails.requestHash || "") };
 }
