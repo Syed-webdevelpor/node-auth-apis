@@ -37,7 +37,6 @@ function logSecurity({ platform, operation, result, reason, details }) {
     ...safeDetails,
   };
 
-  console.log(JSON.stringify(entry));
 }
 
 module.exports = { logSecurity };

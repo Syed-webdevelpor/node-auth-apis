@@ -239,13 +239,6 @@ function verifyAttestation({ attestationObject, clientData, keyId, appId, produc
   const appIdHash = sha256(Buffer.from(appId, "utf8"));
   if (!bufEquals(authData.rpIdHash, appIdHash)) throw new Error("rp_id_hash_mismatch");
   if (authData.counter !== 0) throw new Error("counter_not_zero");
-  // TEMPORARY DEBUG LOG — remove after diagnosing invalid_aaguid.
-  console.log("App Attest AAGUID debug:", {
-    received: authData.attested.aaguid.toString("hex"),
-    expected: expectedAaguid(production).toString("hex"),
-    production,
-    appId,
-  });
   if (!bufEquals(authData.attested.aaguid, expectedAaguid(production))) {
     throw new Error("invalid_aaguid");
   }
@@ -267,14 +260,7 @@ function verifyAttestation({ attestationObject, clientData, keyId, appId, produc
   const extValue = extractExtensionValueByOid(credCert.raw, NONCE_EXTENSION_OID);
   if (!extValue) throw new Error("missing_nonce_extension");
   const nonceFromCert = extractNonceFromExtension(extValue);
-  // TEMPORARY DEBUG LOG — remove after diagnosing nonce_mismatch.
-  console.log("App Attest nonce debug:", {
-    expectedNonce: nonce.toString("hex"),
-    certificateNonce: nonceFromCert ? nonceFromCert.toString("hex") : null,
-    expectedLength: nonce.length,
-    certificateNonceLength: nonceFromCert ? nonceFromCert.length : null,
-    extensionValue: extValue.toString("hex"),
-  });
+
   if (!nonceFromCert || !bufEquals(nonceFromCert, nonce)) throw new Error("nonce_mismatch");
 
   // public key hash must equal the key identifier.
