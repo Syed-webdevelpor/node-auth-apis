@@ -77,11 +77,20 @@ function readTLV(buf, start) {
 }
 
 function extractNonceFromExtension(extValue) {
+  // Apple's App Attest nonce extension is:
+  //   SEQUENCE { [1] { OCTET STRING { 32-byte nonce } } }
+  // (NOT SEQUENCE { OCTET STRING } directly).
   const outer = readTLV(extValue, 0);
   if (!outer || outer.tag !== 0x30) return null; // SEQUENCE
-  const inner = readTLV(outer.value, 0);
-  if (!inner || inner.tag !== 0x04) return null; // OCTET STRING
-  return inner.value;
+
+  // Inside the SEQUENCE Apple uses a [1] context-specific wrapper.
+  const wrapper = readTLV(outer.value, 0);
+  if (!wrapper || wrapper.tag !== 0xa1) return null;
+
+  // Inside [1] is an OCTET STRING containing the nonce.
+  const nonce = readTLV(wrapper.value, 0);
+  if (!nonce || nonce.tag !== 0x04) return null; // OCTET STRING
+  return nonce.value;
 }
 
 /**
