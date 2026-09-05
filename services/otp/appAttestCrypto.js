@@ -258,6 +258,14 @@ function verifyAttestation({ attestationObject, clientData, keyId, appId, produc
   const extValue = extractExtensionValueByOid(credCert.raw, NONCE_EXTENSION_OID);
   if (!extValue) throw new Error("missing_nonce_extension");
   const nonceFromCert = extractNonceFromExtension(extValue);
+  // TEMPORARY DEBUG LOG — remove after diagnosing nonce_mismatch.
+  console.log("App Attest nonce debug:", {
+    expectedNonce: nonce.toString("hex"),
+    certificateNonce: nonceFromCert ? nonceFromCert.toString("hex") : null,
+    expectedLength: nonce.length,
+    certificateNonceLength: nonceFromCert ? nonceFromCert.length : null,
+    extensionValue: extValue.toString("hex"),
+  });
   if (!nonceFromCert || !bufEquals(nonceFromCert, nonce)) throw new Error("nonce_mismatch");
 
   // public key hash must equal the key identifier.
