@@ -102,7 +102,9 @@ function bufEquals(a, b) {
  * @param {Buffer} args.attestationObject - decoded attestationObject
  * @param {Buffer} args.clientData - raw clientData (JSON)
  * @param {Buffer} args.keyId - decoded key identifier bytes
- * @param {string} args.appId - configured App ID (e.g. com.example.app)
+ * @param {string} args.appId - full Apple App ID `<TeamID>.<BundleID>`
+ *                             (e.g. ABCDE12345.com.example.app); its SHA-256
+ *                             must equal the authenticator-data rpIdHash
  * @param {boolean} args.production - true for production environment
  * @returns {{ publicKeyPoint: Buffer }}
  */
@@ -169,7 +171,8 @@ function verifyAttestation({ attestationObject, clientData, keyId, appId, produc
  * @param {Buffer} args.assertion - decoded assertion CBOR
  * @param {Buffer} args.clientData - raw clientData (JSON)
  * @param {Buffer} args.publicKeyPoint - stored x963 public key (04||X||Y)
- * @param {string} args.appId - configured App ID
+ * @param {string} args.appId - full Apple App ID `<TeamID>.<BundleID>`;
+ *                              SHA-256 of this string must equal rpIdHash
  * @param {number} args.previousCounter - counter from the last verified assertion
  * @returns {{ counter: number }}
  */

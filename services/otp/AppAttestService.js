@@ -9,8 +9,21 @@ function isEnabled() {
   return config.APP_ATTEST_ENABLED;
 }
 
+/**
+ * The full Apple "App ID" used for App Attest: `<TeamID>.<BundleID>`.
+ * This exact string is what Apple hashes (SHA-256) into the authenticator
+ * data `rpIdHash`, so it MUST be `APPLE_TEAM_ID.APP_ATTEST_APP_ID` — never
+ * the bare bundle identifier alone.
+ */
+function getAppleAppId() {
+  const teamId = config.APPLE_TEAM_ID;
+  const bundleId = config.APP_ATTEST_APP_ID;
+  if (!teamId || !bundleId) return "";
+  return `${teamId}.${bundleId}`;
+}
+
 function isConfigured() {
-  if (!config.APP_ATTEST_APP_ID) return false;
+  if (!getAppleAppId()) return false;
   if (config.APP_ATTEST_ENVIRONMENT !== "production" && config.APP_ATTEST_ENVIRONMENT !== "development") {
     return false;
   }
@@ -103,7 +116,7 @@ async function register({ keyId, attestationObjectB64, clientDataB64, challenge,
       attestationObject,
       clientData,
       keyId: keyIdRaw,
-      appId: config.APP_ATTEST_APP_ID,
+      appId: getAppleAppId(),
       production: isProduction(),
     });
   } catch (e) {
@@ -168,7 +181,7 @@ async function verifyDevice({ keyId, assertionB64, clientDataB64, challenge, pho
       assertion,
       clientData,
       publicKeyPoint,
-      appId: config.APP_ATTEST_APP_ID,
+      appId: getAppleAppId(),
       previousCounter: stored.counter,
     });
     counter = verified.counter;

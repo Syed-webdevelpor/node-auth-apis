@@ -42,6 +42,10 @@ const config = {
 
   // iOS App Attest
   APP_ATTEST_ENABLED: toBool(process.env.APP_ATTEST_ENABLED, false),
+  // Apple Developer Team ID (e.g. "ABCDE12345"). Combines with APP_ATTEST_APP_ID
+  // (the iOS bundle identifier) to form the full Apple "App ID"
+  // (<TeamID>.<BundleID>) whose SHA-256 is the App Attest RP ID hash.
+  APPLE_TEAM_ID: process.env.APPLE_TEAM_ID || "",
   APP_ATTEST_APP_ID: process.env.APP_ATTEST_APP_ID || "",
   APP_ATTEST_ENVIRONMENT: process.env.APP_ATTEST_ENVIRONMENT || "production",
 
