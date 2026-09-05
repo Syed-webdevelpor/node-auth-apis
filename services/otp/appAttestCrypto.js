@@ -84,6 +84,104 @@ function extractNonceFromExtension(extValue) {
   return inner.value;
 }
 
+/**
+ * DER-encode an OID's content bytes (1.2.840.113635.100.8.2 style).
+ * Returns just the OID content (no tag/length wrapper) so it can be compared
+ * against the value of an `OBJECT IDENTIFIER` element read by readTLV.
+ */
+function encodeOid(oidString) {
+  const parts = String(oidString).split(".").map(Number);
+  const bytes = [40 * parts[0] + parts[1]];
+  for (let i = 2; i < parts.length; i++) {
+    let n = parts[i];
+    const stack = [n & 0x7f];
+    n >>= 7;
+    while (n > 0) {
+      stack.push((n & 0x7f) | 0x80);
+      n >>= 7;
+    }
+    for (let j = stack.length - 1; j >= 0; j--) bytes.push(stack[j]);
+  }
+  return Buffer.from(bytes);
+}
+
+/** Iterate the top-level TLV children of a DER SEQUENCE value. */
+function forEachTlv(buf, cb) {
+  let offset = 0;
+  while (offset < buf.length) {
+    const item = readTLV(buf, offset);
+    if (!item) return false;
+    const stop = cb(item);
+    if (stop) return true;
+    offset = item.next;
+  }
+  return false;
+}
+
+/**
+ * Extract the DER-encoded *value* of a named X.509 extension from a raw DER
+ * certificate. `crypto.X509Certificate` has no getExtension(), so we walk the
+ * certificate manually:
+ *
+ *   Certificate ::= SEQUENCE { tbsCertificate, ... }
+ *   TBSCertificate ::= SEQUENCE { ..., extensions [3] EXPLICIT Extensions }
+ *   Extension ::= SEQUENCE { extnID OID, critical BOOLEAN DEFAULT FALSE,
+ *                            extnValue OCTET STRING }
+ *
+ * We return the content of the `extnValue` OCTET STRING for the matching OID
+ * (i.e. the DER encoding of the extension's value), or null if not found.
+ */
+function extractExtensionValueByOid(certDer, oidString) {
+  const oidContent = encodeOid(oidString);
+
+  // Certificate ::= SEQUENCE { tbsCertificate ... }
+  const cert = readTLV(certDer, 0);
+  if (!cert || cert.tag !== 0x30) return null;
+
+  // TBSCertificate ::= SEQUENCE { ... extensions [3] EXPLICIT Extensions }
+  const tbs = readTLV(cert.value, 0);
+  if (!tbs || tbs.tag !== 0x30) return null;
+
+  let extensionsValue = null;
+  forEachTlv(tbs.value, (item) => {
+    if (item.tag === 0xa3) {
+      // [3] EXPLICIT -> content is the Extensions SEQUENCE
+      extensionsValue = item.value;
+      return true;
+    }
+    return false;
+  });
+  if (!extensionsValue) return null;
+
+  // Extensions ::= SEQUENCE OF Extension
+  const extensions = readTLV(extensionsValue, 0);
+  if (!extensions || extensions.tag !== 0x30) return null;
+
+  let foundValue = null;
+  forEachTlv(extensions.value, (extItem) => {
+    if (extItem.tag !== 0x30) return false; // only Extension SEQUENCEs
+    let oid = null;
+    let extnValue = null;
+    forEachTlv(extItem.value, (field) => {
+      if (field.tag === 0x06) {
+        if (oid === null) oid = field.value; // first OID is extnID
+      } else if (field.tag === 0x04) {
+        extnValue = field.value; // extnValue OCTET STRING content
+      } else if (field.tag === 0x01) {
+        // critical BOOLEAN, skip
+      }
+      return false;
+    });
+    if (oid && oid.equals(oidContent) && extnValue) {
+      foundValue = extnValue;
+      return true;
+    }
+    return false;
+  });
+
+  return foundValue;
+}
+
 function expectedAaguid(production) {
   const value = production ? "appattest" : "appattestdevelop";
   const aaguid = Buffer.alloc(16);
@@ -156,9 +254,10 @@ function verifyAttestation({ attestationObject, clientData, keyId, appId, produc
   const credCert = certs[0];
 
   // Verify the nonce extension in the credential certificate.
-  const ext = credCert.getExtension(NONCE_EXTENSION_OID);
-  if (!ext) throw new Error("missing_nonce_extension");
-  const nonceFromCert = extractNonceFromExtension(ext.value);
+  // crypto.X509Certificate has no getExtension(), so extract it manually.
+  const extValue = extractExtensionValueByOid(credCert.raw, NONCE_EXTENSION_OID);
+  if (!extValue) throw new Error("missing_nonce_extension");
+  const nonceFromCert = extractNonceFromExtension(extValue);
   if (!nonceFromCert || !bufEquals(nonceFromCert, nonce)) throw new Error("nonce_mismatch");
 
   // public key hash must equal the key identifier.
