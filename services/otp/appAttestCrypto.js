@@ -132,6 +132,13 @@ function verifyAttestation({ attestationObject, clientData, keyId, appId, produc
   const appIdHash = sha256(Buffer.from(appId, "utf8"));
   if (!bufEquals(authData.rpIdHash, appIdHash)) throw new Error("rp_id_hash_mismatch");
   if (authData.counter !== 0) throw new Error("counter_not_zero");
+  // TEMPORARY DEBUG LOG — remove after diagnosing invalid_aaguid.
+  console.log("App Attest AAGUID debug:", {
+    received: authData.attested.aaguid.toString("hex"),
+    expected: expectedAaguid(production).toString("hex"),
+    production,
+    appId,
+  });
   if (!bufEquals(authData.attested.aaguid, expectedAaguid(production))) {
     throw new Error("invalid_aaguid");
   }
