@@ -3557,7 +3557,13 @@ const sendDemoRequestEmail = async (demoData) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Demo request email sent!', info.messageId);
+        console.log('SES email response:', {
+            messageId: info.messageId,
+            response: info.response,
+            accepted: info.accepted,
+            rejected: info.rejected,
+            envelope: info.envelope,
+        });
         return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error('Error sending demo request email:', error);
