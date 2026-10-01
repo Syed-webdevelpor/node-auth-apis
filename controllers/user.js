@@ -546,6 +546,7 @@ module.exports = {
             {
               headers: {
                 "Content-Type": "application/json",
+                'X-Client-Type': 'mobile',
               },
               timeout: 30000,
             }
