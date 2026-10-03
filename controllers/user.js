@@ -534,6 +534,14 @@ module.exports = {
       let trading_group_id = null;
 
       const isMobile = platform === "mobile";
+      const [userCred] = await DB.execute(
+        `SELECT email, password FROM users WHERE id = ?`,
+        [user.id]
+      );
+
+      if (!userCred.length) {
+        throw new Error("User credentials not found");
+      }
 
       if (tradingServerUrl) {
         try {
@@ -541,7 +549,7 @@ module.exports = {
             `${tradingServerUrl}/auth/login`,
             {
               email: user.email,
-              password,
+              password: userCred[0].password,
             },
             {
               headers: {
