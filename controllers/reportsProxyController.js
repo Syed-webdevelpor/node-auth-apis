@@ -63,6 +63,133 @@ async function refreshTradingToken({ tradingRefreshToken }) {
   };
 }
 
+function defaultTradingExpiry() {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d;
+}
+
+async function upsertTradingSession({ userId, tradingUserId, tradingAccessToken, tradingRefreshToken, expiresAt }) {
+  const [existing] = await DB.execute(
+    `SELECT id FROM trading_sessions WHERE user_id = ? LIMIT 1`,
+    [userId]
+  );
+  if (existing.length > 0) {
+    await DB.execute(
+      `UPDATE trading_sessions
+       SET trading_user_id = ?,
+           trading_access_token = ?,
+           trading_refresh_token = ?,
+           expires_at = ?,
+           is_active = 1,
+           updated_at = NOW()
+       WHERE user_id = ?`,
+      [tradingUserId, tradingAccessToken, tradingRefreshToken, expiresAt, userId]
+    );
+  } else {
+    await DB.execute(
+      `INSERT INTO trading_sessions
+       (user_id, trading_user_id, trading_access_token, trading_refresh_token, expires_at, is_active)
+       VALUES (?, ?, ?, ?, ?, 1)`,
+      [userId, tradingUserId, tradingAccessToken, tradingRefreshToken, expiresAt]
+    );
+  }
+}
+
+async function tradingReLogin({ email, password }) {
+  // Mirrors the login flow in user.js / biometric.js:
+  // POST /auth/login with the stored email + password.
+  const url = `${TRADING_SERVER_URL}/auth/login`;
+  const resp = await axios.post(
+    url,
+    { email, password },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Type': 'mobile',
+      },
+      timeout: 30000,
+      validateStatus: () => true,
+    }
+  );
+
+  if (resp.status < 200 || resp.status >= 300) return null;
+
+  const d = resp.data || {};
+  const tradingAccessToken = d.access_token ?? d.accessToken ?? d.token ?? null;
+  if (!tradingAccessToken) return null;
+
+  return {
+    tradingAccessToken,
+    tradingRefreshToken: d.refresh_token ?? d.refreshToken ?? null,
+    tradingUserId: d.user?.id ?? null,
+    expiresAt: d.expires_at ?? d.expiresAt ?? null,
+  };
+}
+
+// Re-establishes a valid trading session entirely on the server so the
+// client never has to deal with an expired/invalid trading token.
+// 1) try /auth/refresh, 2) fall back to re-login via stored credentials.
+async function recoverTradingSession(userId, session) {
+  // 1) Try to refresh using the stored refresh token.
+  if (session.trading_refresh_token) {
+    try {
+      const refreshed = await refreshTradingToken({
+        tradingRefreshToken: session.trading_refresh_token,
+      });
+      if (refreshed.tradingAccessToken) {
+        const expiresAt = refreshed.expiresAt
+          ? new Date(refreshed.expiresAt)
+          : defaultTradingExpiry();
+        await updateTradingSessionTokens({
+          userId,
+          tradingAccessToken: refreshed.tradingAccessToken,
+          tradingRefreshToken: refreshed.tradingRefreshToken || session.trading_refresh_token,
+          expiresAt,
+        });
+        return { tradingAccessToken: refreshed.tradingAccessToken };
+      }
+    } catch (err) {
+      console.error(
+        '[proxyGetReport] token refresh failed, falling back to re-login:',
+        err?.response?.data || err.message
+      );
+    }
+  }
+
+  // 2) Fall back to re-login using the user's stored credentials so the
+  //    session is re-established on the server without bothering the client.
+  try {
+    const [rows] = await DB.execute(
+      `SELECT email, password FROM users WHERE id = ? LIMIT 1`,
+      [userId]
+    );
+    if (!rows.length) return null;
+
+    const relogin = await tradingReLogin({
+      email: rows[0].email,
+      password: rows[0].password,
+    });
+    if (!relogin) return null;
+
+    const expiresAt = relogin.expiresAt ? new Date(relogin.expiresAt) : defaultTradingExpiry();
+    await upsertTradingSession({
+      userId,
+      tradingUserId: relogin.tradingUserId || session.trading_user_id,
+      tradingAccessToken: relogin.tradingAccessToken,
+      tradingRefreshToken: relogin.tradingRefreshToken || session.trading_refresh_token,
+      expiresAt,
+    });
+    return { tradingAccessToken: relogin.tradingAccessToken };
+  } catch (err) {
+    console.error(
+      '[proxyGetReport] trading re-login failed:',
+      err?.response?.data || err.message
+    );
+    return null;
+  }
+}
+
 function buildTradingReportPath(reportKind, opts = {}) {
   // Matches requested basePath: TRADING_SERVER_URL + /trading/reports
   // All endpoints live under: /reports/trader/:userId/...
@@ -140,48 +267,30 @@ async function proxyGetReport(req, res) {
 
     let r = await doRequest(session.trading_access_token);
 
-    // If expired/unauthorized, refresh and retry once
+    // If the trading server rejects the token (expired/unauthorized), recover
+    // the session entirely on the server (refresh, then re-login fallback) and
+    // retry once. The client never sees the trading 401/403.
     if (r.status === 401 || r.status === 403) {
-      if (!session.trading_refresh_token) {
-        return res.status(r.status).json({
-          status: r.status,
-          message: 'Trading token expired and no refresh token available',
+      const recovered = await recoverTradingSession(callerUserId, session);
+
+      if (!recovered || !recovered.tradingAccessToken) {
+        // We genuinely could not re-establish a trading session. Do not leak the
+        // raw trading 401/403 to the client; log server-side and return a clean,
+        // actionable error instead.
+        console.error(
+          '[proxyGetReport] unable to recover trading session for user:',
+          callerUserId,
+          '| trading server responded with status:',
+          r.status
+        );
+        return res.status(503).json({
+          status: 503,
+          message: 'Trading session could not be re-established. Please try again or re-link your trading account.',
           details: r.data,
         });
       }
 
-      let refreshed;
-      try {
-        refreshed = await refreshTradingToken({
-          tradingRefreshToken: session.trading_refresh_token,
-        });
-      } catch (refreshErr) {
-        // Refresh token itself was rejected by the trading server.
-        // Return a clean 401 so the client knows to re-authenticate / re-link.
-        return res.status(401).json({
-          status: 401,
-          message: 'Trading session expired. Please re-authenticate your trading account.',
-          details: refreshErr?.response?.data ?? refreshErr.message,
-        });
-      }
-
-      // compute expiresAt if trading server didn't return it
-      const expiresAt = refreshed.expiresAt
-        ? new Date(refreshed.expiresAt)
-        : (() => {
-            const d = new Date();
-            d.setDate(d.getDate() + 7);
-            return d;
-          })();
-
-      await updateTradingSessionTokens({
-        userId: callerUserId,
-        tradingAccessToken: refreshed.tradingAccessToken,
-        tradingRefreshToken: refreshed.tradingRefreshToken || session.trading_refresh_token,
-        expiresAt,
-      });
-
-      r = await doRequest(refreshed.tradingAccessToken);
+      r = await doRequest(recovered.tradingAccessToken);
     }
 
     if (r.status < 200 || r.status >= 300) {
