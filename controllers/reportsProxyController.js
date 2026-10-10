@@ -150,9 +150,20 @@ async function proxyGetReport(req, res) {
         });
       }
 
-      const refreshed = await refreshTradingToken({
-        tradingRefreshToken: session.trading_refresh_token,
-      });
+      let refreshed;
+      try {
+        refreshed = await refreshTradingToken({
+          tradingRefreshToken: session.trading_refresh_token,
+        });
+      } catch (refreshErr) {
+        // Refresh token itself was rejected by the trading server.
+        // Return a clean 401 so the client knows to re-authenticate / re-link.
+        return res.status(401).json({
+          status: 401,
+          message: 'Trading session expired. Please re-authenticate your trading account.',
+          details: refreshErr?.response?.data ?? refreshErr.message,
+        });
+      }
 
       // compute expiresAt if trading server didn't return it
       const expiresAt = refreshed.expiresAt
@@ -164,7 +175,7 @@ async function proxyGetReport(req, res) {
           })();
 
       await updateTradingSessionTokens({
-        userId: userIdParam,
+        userId: callerUserId,
         tradingAccessToken: refreshed.tradingAccessToken,
         tradingRefreshToken: refreshed.tradingRefreshToken || session.trading_refresh_token,
         expiresAt,
