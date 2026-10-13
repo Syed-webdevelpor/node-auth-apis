@@ -32,6 +32,7 @@ const otpRoutes = require('./routers/otpVerification.js');
 const organizationalOwnershipInfo = require("./routers/organizationalOwnershipInfo.js");
 const orgInfoDoc = require("./routers/orgInfoDoc.js");
 const reportsRoutes = require('./routers/reports.js');
+const internalPositionsRoutes = require('./routers/internalPositions.js');
 const depositWithdrawalReportRoutes = require('./routers/depositWithdrawalReport.js');
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
@@ -127,6 +128,9 @@ app.use('/api', demoRequestRoutes);
 
 // ---- Trading Reports API (proxy to trading server) ----
 app.use('/api/trading/reports', reportsRoutes);
+
+// ---- Internal Trading Data API (proxy to trading server) ----
+app.use('/api/internal/positions', internalPositionsRoutes);
 
 // ---- CRM SSO Provider APIs ----
 const ssoRoutes = require('./routers/sso.js');
