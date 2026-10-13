@@ -39,6 +39,12 @@ class PositionSyncConnection {
     // Defaults to null => in-memory cache reconcile only.
     this._reconcileSink = options.reconcileSink || null;
 
+    // Optional event fan-out hook: fn(event) called once per well-formed
+    // position-sync envelope (after the cache has been reconciled). Used by
+    // app.js to push live updates to frontend WebSocket clients. The event is
+    // the raw PositionSyncEvent { type, accountId, data, timestamp }.
+    this._onEvent = options.onEvent || null;
+
     // Local position cache: accountId -> Map(positionId -> snapshot).
     this.cache = new Map();
   }
@@ -128,12 +134,28 @@ class PositionSyncConnection {
     const { type, accountId, data } = event;
     const snapshots = Array.isArray(data) ? data : [data];
 
+    let reconciled = 0;
     for (const snapshot of snapshots) {
       if (!snapshot || typeof snapshot !== 'object') continue;
       // The envelope accountId is always present and is the routing key; use it
       // as a fallback if a snapshot omits it.
       const normalized = snapshot.accountId ? snapshot : { ...snapshot, accountId };
+      if (!normalized.positionId || !normalized.accountId) {
+        console.error('❌ Missing positionId/accountId in snapshot; skipping');
+        continue;
+      }
       this.reconcilePosition(normalized, type);
+      reconciled++;
+    }
+
+    // Fan the raw envelope out once (only when at least one valid snapshot was
+    // reconciled) so downstream consumers never receive junk events.
+    if (reconciled > 0 && typeof this._onEvent === 'function') {
+      try {
+        this._onEvent(event);
+      } catch (e) {
+        console.error('❌ position-sync onEvent hook failed (non-fatal):', e.message);
+      }
     }
   }
 
@@ -261,6 +283,19 @@ class PositionSyncConnection {
     this._reconcileSink = fn;
     return () => {
       this._reconcileSink = prev;
+    };
+  }
+
+  /**
+   * Override the event fan-out hook. Returns a restore function.
+   * @param {Function|null} fn
+   * @returns {Function} restore
+   */
+  _setOnEventForTest(fn) {
+    const prev = this._onEvent;
+    this._onEvent = fn;
+    return () => {
+      this._onEvent = prev;
     };
   }
 }

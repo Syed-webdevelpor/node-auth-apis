@@ -36,6 +36,12 @@ const internalPositionsRoutes = require('./routers/internalPositions.js');
 const depositWithdrawalReportRoutes = require('./routers/depositWithdrawalReport.js');
 const apiKeyAuth = require('./middlewares/apikeyAuth.js');
 const nestJSConnection = require('./services/NestJSConnection.js');
+const PositionSyncConnection = require('./services/PositionSyncConnection.js');
+const {
+  sendPositionUpdateToAccount,
+  setAccountSnapshotProvider,
+} = require('./middlewares/websocket.js');
+const axios = require('axios');
 const demoRequestRoutes = require('./routers/demoRequest.js');
 const passwordSyncService = require('./services/passwordSyncService.js');
 const app = express();
@@ -157,6 +163,63 @@ dbConnection
       
       // Initialize NestJS WebSocket connection for real-time account financial sync
       nestJSConnection.initialize();
+
+      // Initialize real-time position sync (NestJS /position-sync namespace).
+      //
+      // The upstream feed subscribes to EVERY account (accountId: null) because
+      // each frontend client chooses which trading account to watch at runtime.
+      // Every incoming position event is routed by its accountId to the frontend
+      // WebSocket subscribers of that account. See services/PositionSyncConnection.js
+      // and middlewares/websocket.js.
+      const positionSync = new PositionSyncConnection({
+        accountId: null, // receive all accounts; route per-account to the frontend
+        onEvent: (event) => {
+          if (!event || !event.accountId) return;
+          sendPositionUpdateToAccount(event.accountId, {
+            type: 'POSITION_UPDATE',
+            event,
+          });
+        },
+      });
+
+      // When a frontend subscribes to an account, immediately send it the
+      // authoritative open-positions snapshot from the trading server so the UI
+      // is populated without waiting for the next market tick.
+      setAccountSnapshotProvider(async (accountId) => {
+        try {
+          const base = (process.env.TRADING_SERVER_URL || '').replace(/\/$/, '');
+          const res = await axios.get(
+            `${base}/internal/positions/account/${accountId}`,
+            {
+              headers: { 'x-internal-api-key': process.env.INTERNAL_API_KEY },
+              timeout: parseInt(
+                process.env.INTERNAL_POSITIONS_TIMEOUT_MS || '15000',
+                10
+              ),
+              validateStatus: () => true,
+            }
+          );
+          if (res.status >= 200 && res.status < 300) {
+            return {
+              type: 'POSITION_SNAPSHOT',
+              accountId,
+              positions: res.data.positions || [],
+            };
+          }
+          // Fall back to whatever the live feed already has cached for this account.
+          const cached = positionSync.getAccountPositions(accountId);
+          return { type: 'POSITION_SNAPSHOT', accountId, positions: cached };
+        } catch (err) {
+          console.error(
+            `Position snapshot fetch failed for ${accountId}:`,
+            err.message
+          );
+          const cached = positionSync.getAccountPositions(accountId);
+          return { type: 'POSITION_SNAPSHOT', accountId, positions: cached };
+        }
+      });
+
+      positionSync.initialize();
 
       // Start password sync retry worker (Redis-backed queue)
       passwordSyncService.startRetryWorker();
