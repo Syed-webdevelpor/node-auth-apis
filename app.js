@@ -40,6 +40,7 @@ const PositionSyncConnection = require('./services/PositionSyncConnection.js');
 const {
   sendPositionUpdateToAccount,
   setAccountSnapshotProvider,
+  setAccountSubscriptionHandlers,
 } = require('./middlewares/websocket.js');
 const axios = require('axios');
 const demoRequestRoutes = require('./routers/demoRequest.js');
@@ -164,22 +165,27 @@ dbConnection
       // Initialize NestJS WebSocket connection for real-time account financial sync
       nestJSConnection.initialize();
 
-      // Initialize real-time position sync (NestJS /position-sync namespace).
-      //
-      // The upstream feed subscribes to EVERY account (accountId: null) because
-      // each frontend client chooses which trading account to watch at runtime.
-      // Every incoming position event is routed by its accountId to the frontend
-      // WebSocket subscribers of that account. See services/PositionSyncConnection.js
-      // and middlewares/websocket.js.
-      const positionSync = new PositionSyncConnection({
-        accountId: null, // receive all accounts; route per-account to the frontend
-        onEvent: (event) => {
-          if (!event || !event.accountId) return;
-          sendPositionUpdateToAccount(event.accountId, {
-            type: 'POSITION_UPDATE',
-            event,
-          });
-        },
+      // Open one account-scoped NestJS position feed when a frontend subscribes.
+      const positionSyncConnections = new Map();
+      setAccountSubscriptionHandlers((accountId) => {
+        if (positionSyncConnections.has(accountId)) return;
+        const positionSync = new PositionSyncConnection({
+          accountId,
+          onEvent: (event) => {
+            if (!event || !event.accountId) return;
+            sendPositionUpdateToAccount(event.accountId, {
+              type: 'POSITION_UPDATE',
+              event,
+            });
+          },
+        });
+        positionSyncConnections.set(accountId, positionSync);
+        positionSync.initialize();
+      }, (accountId) => {
+        const positionSync = positionSyncConnections.get(accountId);
+        if (!positionSync) return;
+        positionSync.disconnect();
+        positionSyncConnections.delete(accountId);
       });
 
       // When a frontend subscribes to an account, immediately send it the
@@ -207,19 +213,23 @@ dbConnection
             };
           }
           // Fall back to whatever the live feed already has cached for this account.
-          const cached = positionSync.getAccountPositions(accountId);
+          const positionSync = positionSyncConnections.get(accountId);
+          const cached = positionSync
+            ? positionSync.getAccountPositions(accountId)
+            : [];
           return { type: 'POSITION_SNAPSHOT', accountId, positions: cached };
         } catch (err) {
           console.error(
             `Position snapshot fetch failed for ${accountId}:`,
             err.message
           );
-          const cached = positionSync.getAccountPositions(accountId);
+          const positionSync = positionSyncConnections.get(accountId);
+          const cached = positionSync
+            ? positionSync.getAccountPositions(accountId)
+            : [];
           return { type: 'POSITION_SNAPSHOT', accountId, positions: cached };
         }
       });
-
-      positionSync.initialize();
 
       // Start password sync retry worker (Redis-backed queue)
       passwordSyncService.startRetryWorker();

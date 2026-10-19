@@ -10,6 +10,8 @@ const clients = new Map();
 // accountId -> Set<ws>. A single socket may watch several accounts, and several
 // sockets may watch the same account.
 const accountClients = new Map();
+let accountSubscriptionHandler = null;
+let accountUnsubscriptionHandler = null;
 
 wss.on('connection', (ws) => {
   console.log('New client connected');
@@ -41,12 +43,27 @@ wss.on('connection', (ws) => {
           accountClients.get(accountId).add(ws);
           ws.accountSubscriptions.add(accountId);
           console.log(`Client subscribed to account ID: ${accountId}`);
+          if (accountSubscriptionHandler) {
+            try {
+              accountSubscriptionHandler(accountId);
+            } catch (err) {
+              console.error(
+                `Failed to start position sync for ${accountId}:`,
+                err.message
+              );
+            }
+          }
 
           // Push an immediate snapshot so the client is populated right away,
           // without waiting for the next market tick. Best-effort / non-fatal.
           if (accountSnapshotProvider) {
             Promise.resolve()
               .then(() => accountSnapshotProvider(accountId, ws))
+              .then((snapshot) => {
+                if (snapshot && ws.readyState === WebSocket.OPEN) {
+                  ws.send(JSON.stringify(snapshot));
+                }
+              })
               .catch((err) =>
                 console.error(
                   `Account snapshot provider failed for ${accountId}:`,
@@ -71,7 +88,19 @@ wss.on('connection', (ws) => {
         const set = accountClients.get(accountId);
         if (set) {
           set.delete(ws);
-          if (set.size === 0) accountClients.delete(accountId);
+          if (set.size === 0) {
+            accountClients.delete(accountId);
+            if (accountUnsubscriptionHandler) {
+              try {
+                accountUnsubscriptionHandler(accountId);
+              } catch (err) {
+                console.error(
+                  `Failed to stop position sync for ${accountId}:`,
+                  err.message
+                );
+              }
+            }
+          }
         }
       }
     }
@@ -92,6 +121,13 @@ function sendNotificationToUser(userId, notification) {
 let accountSnapshotProvider = null;
 function setAccountSnapshotProvider(fn) {
   accountSnapshotProvider = typeof fn === 'function' ? fn : null;
+}
+
+function setAccountSubscriptionHandlers(onSubscribe, onUnsubscribe) {
+  accountSubscriptionHandler =
+    typeof onSubscribe === 'function' ? onSubscribe : null;
+  accountUnsubscriptionHandler =
+    typeof onUnsubscribe === 'function' ? onUnsubscribe : null;
 }
 
 /**
@@ -116,5 +152,5 @@ module.exports = {
   sendNotificationToUser,
   sendPositionUpdateToAccount,
   setAccountSnapshotProvider,
+  setAccountSubscriptionHandlers,
 };
-

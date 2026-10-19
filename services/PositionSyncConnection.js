@@ -27,11 +27,11 @@ class PositionSyncConnection {
     this.serverId = options.serverId || process.env.SERVER_ID || 'express-server';
     this.apiKey =
       options.apiKey !== undefined ? options.apiKey : process.env.INTERNAL_API_KEY;
-    // Optional single-account restriction. null/omitted => receive every account.
+    // This connection subscribes to one account selected by a frontend client.
     this.accountId =
       options.accountId !== undefined
         ? options.accountId
-        : process.env.POSITION_SYNC_ACCOUNT_ID || null;
+        : null;
     this.socketPath = options.socketPath || process.env.SOCKET_IO_PATH || '/trading/socket.io';
 
     // Injectable socket.io factory - lets unit tests supply a fake socket.
@@ -59,14 +59,16 @@ class PositionSyncConnection {
       console.error('🔴 INTERNAL_API_KEY is not configured; position-sync connection not started');
       return;
     }
+    if (!this.accountId) {
+      console.error('🔴 Account ID is required; position-sync connection not started');
+      return;
+    }
 
     const query = {
       serverType: 'express-server',
       serverId: this.serverId,
     };
-    if (this.accountId) {
-      query.accountId = this.accountId;
-    }
+    query.accountId = this.accountId;
 
     this.socket = this._io(`${this.nestjsUrl}/position-sync`, {
       auth: { apiKey: this.apiKey },
@@ -96,6 +98,16 @@ class PositionSyncConnection {
         });
       } catch (e) {
         console.warn('register-server emit failed (non-fatal):', e.message);
+      }
+    });
+
+    this.socket.on('server-registered', (ack) => {
+      if (ack && ack.success) {
+        console.log(
+          `✅ position-sync subscribed to account: ${ack.accountId || 'ALL ACCOUNTS'}`
+        );
+      } else {
+        console.error('❌ position-sync subscription rejected:', ack);
       }
     });
 
