@@ -68,10 +68,17 @@ class PositionSyncConnection {
       serverType: 'express-server',
       serverId: this.serverId,
     };
-    query.accountId = this.accountId;
+    if (this.accountId) {
+      query.accountId = this.accountId;
+    }
+
+    const auth = { apiKey: this.apiKey };
+    if (this.accountId) {
+      auth.accountId = this.accountId;
+    }
 
     this.socket = this._io(`${this.nestjsUrl}/position-sync`, {
-      auth: { apiKey: this.apiKey },
+      auth,
       query,
       path: this.socketPath,
       transports: ['polling', 'websocket'],
@@ -202,22 +209,23 @@ class PositionSyncConnection {
       return;
     }
 
-    const isClosed = this.isClosed(snapshot, eventType);
-
     if (!this.cache.has(accountId)) {
       this.cache.set(accountId, new Map());
     }
     const accountCache = this.cache.get(accountId);
+    const current = accountCache.get(positionId) || {};
+    const mergedSnapshot = { ...current, ...snapshot };
+    const isClosed = this.isClosed(mergedSnapshot, eventType);
 
     if (isClosed) {
       accountCache.delete(positionId);
     } else {
-      accountCache.set(positionId, snapshot);
+      accountCache.set(positionId, mergedSnapshot);
     }
 
     if (typeof this._reconcileSink === 'function') {
       try {
-        this._reconcileSink(snapshot, { accountId, positionId, isClosed, eventType });
+        this._reconcileSink(mergedSnapshot, { accountId, positionId, isClosed, eventType });
       } catch (e) {
         console.error('❌ reconcile sink failed (non-fatal):', e.message);
       }
