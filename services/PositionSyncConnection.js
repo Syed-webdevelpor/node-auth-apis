@@ -26,7 +26,9 @@ class PositionSyncConnection {
     this.nestjsUrl = options.nestjsUrl || process.env.NESTJS_WS_URL || 'http://localhost:3000';
     this.serverId = options.serverId || process.env.SERVER_ID || 'express-server';
     this.apiKey =
-      options.apiKey !== undefined ? options.apiKey : process.env.INTERNAL_API_KEY;
+      options.apiKey !== undefined
+        ? options.apiKey
+        : process.env.POSITION_SYNC_SECRET || process.env.INTERNAL_API_KEY;
     // This connection subscribes to one account selected by a frontend client.
     this.accountId =
       options.accountId !== undefined
@@ -56,7 +58,9 @@ class PositionSyncConnection {
    */
   initialize() {
     if (!this.apiKey) {
-      console.error('🔴 INTERNAL_API_KEY is not configured; position-sync connection not started');
+      console.error(
+        '🔴 POSITION_SYNC_SECRET or INTERNAL_API_KEY is not configured; position-sync connection not started'
+      );
       return;
     }
     if (!this.accountId) {
