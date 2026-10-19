@@ -153,13 +153,20 @@ class PositionSyncConnection {
 
     const { type, accountId, data } = event;
     const snapshots = Array.isArray(data) ? data : [data];
+    console.log(
+      `📈 position-sync update received: type=${type || 'unknown'}, accountId=${accountId || 'unknown'}, positions=${snapshots.length}`
+    );
 
     let reconciled = 0;
     for (const snapshot of snapshots) {
       if (!snapshot || typeof snapshot !== 'object') continue;
       // The envelope accountId is always present and is the routing key; use it
       // as a fallback if a snapshot omits it.
-      const normalized = snapshot.accountId ? snapshot : { ...snapshot, accountId };
+      const normalized = {
+        ...snapshot,
+        positionId: snapshot.positionId || snapshot.id,
+        accountId: snapshot.accountId || snapshot.account_id || accountId,
+      };
       if (!normalized.positionId || !normalized.accountId) {
         console.error('❌ Missing positionId/accountId in snapshot; skipping');
         continue;

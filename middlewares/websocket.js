@@ -138,13 +138,16 @@ function setAccountSubscriptionHandlers(onSubscribe, onUnsubscribe) {
  */
 function sendPositionUpdateToAccount(accountId, payload) {
   const set = accountClients.get(accountId);
-  if (!set || set.size === 0) return;
+  if (!set || set.size === 0) return 0;
   const frame = JSON.stringify(payload);
+  let sent = 0;
   for (const client of set) {
     if (client.readyState === WebSocket.OPEN) {
       client.send(frame);
+      sent++;
     }
   }
+  return sent;
 }
 
 module.exports = {

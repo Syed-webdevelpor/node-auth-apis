@@ -173,10 +173,13 @@ dbConnection
           accountId,
           onEvent: (event) => {
             if (!event || !event.accountId) return;
-            sendPositionUpdateToAccount(event.accountId, {
+            const frontendClients = sendPositionUpdateToAccount(event.accountId, {
               type: 'POSITION_UPDATE',
               event,
             });
+            console.log(
+              `📤 Position update forwarded: type=${event.type || 'unknown'}, accountId=${event.accountId}, frontendClients=${frontendClients}`
+            );
           },
         });
         positionSyncConnections.set(accountId, positionSync);
