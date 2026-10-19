@@ -15,8 +15,14 @@ class NestJSConnection {
    * Initialize the connection to NestJS WebSocket server
    */
   initialize() {
+    const apiKey = process.env.INTERNAL_API_KEY;
+    if (!apiKey) {
+      console.error('🔴 INTERNAL_API_KEY is not configured; account-financial-sync connection not started');
+      return;
+    }
 
     this.socket = io(`${this.nestjsUrl}/account-financial-sync`, {
+      auth: { apiKey },
       query: {
         serverType: 'express-server',
         serverId: this.serverId
@@ -152,4 +158,3 @@ class NestJSConnection {
 const nestJSConnection = new NestJSConnection();
 
 module.exports = nestJSConnection;
-

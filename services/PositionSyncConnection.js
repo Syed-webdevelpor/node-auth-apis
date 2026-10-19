@@ -25,6 +25,8 @@ class PositionSyncConnection {
     // Connection config - mirror NestJSConnection so both feeds share env vars.
     this.nestjsUrl = options.nestjsUrl || process.env.NESTJS_WS_URL || 'http://localhost:3000';
     this.serverId = options.serverId || process.env.SERVER_ID || 'express-server';
+    this.apiKey =
+      options.apiKey !== undefined ? options.apiKey : process.env.INTERNAL_API_KEY;
     // Optional single-account restriction. null/omitted => receive every account.
     this.accountId =
       options.accountId !== undefined
@@ -53,6 +55,11 @@ class PositionSyncConnection {
    * Initialize the connection to the NestJS /position-sync namespace.
    */
   initialize() {
+    if (!this.apiKey) {
+      console.error('🔴 INTERNAL_API_KEY is not configured; position-sync connection not started');
+      return;
+    }
+
     const query = {
       serverType: 'express-server',
       serverId: this.serverId,
@@ -62,6 +69,7 @@ class PositionSyncConnection {
     }
 
     this.socket = this._io(`${this.nestjsUrl}/position-sync`, {
+      auth: { apiKey: this.apiKey },
       query,
       path: this.socketPath,
       transports: ['polling', 'websocket'],
@@ -304,4 +312,3 @@ class PositionSyncConnection {
 module.exports = PositionSyncConnection;
 module.exports.PositionSyncConnection = PositionSyncConnection;
 module.exports.positionSyncConnection = new PositionSyncConnection();
-
