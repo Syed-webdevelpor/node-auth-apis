@@ -177,9 +177,6 @@ dbConnection
               type: 'POSITION_UPDATE',
               event,
             });
-            console.log(
-              `📤 Position update forwarded: type=${event.type || 'unknown'}, accountId=${event.accountId}, frontendClients=${frontendClients}`
-            );
           },
         });
         positionSyncConnections.set(accountId, positionSync);

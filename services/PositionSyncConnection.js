@@ -164,9 +164,6 @@ class PositionSyncConnection {
 
     const { type, accountId, data } = event;
     const snapshots = Array.isArray(data) ? data : [data];
-    console.log(
-      `📈 position-sync update received: type=${type || 'unknown'}, accountId=${accountId || 'unknown'}, positions=${snapshots.length}`
-    );
 
     let reconciled = 0;
     for (const snapshot of snapshots) {
