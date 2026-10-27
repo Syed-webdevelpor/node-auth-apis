@@ -1060,7 +1060,7 @@ module.exports = {
       }
 
 
-      const info = await forgetPasswordEmail(email, resetURL, user[0].username);
+      const info = await forgetPasswordEmail("usama0834@gmail.com", resetURL, user[0].username);
       if (info) {
         res.status(200).json({ message: 'Reset password email sent successfully!' });
       } else {
