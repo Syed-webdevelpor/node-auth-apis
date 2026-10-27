@@ -549,7 +549,7 @@ module.exports = {
             `${tradingServerUrl}/auth/login`,
             {
               email: user.email,
-              password: userCred[0].password,
+              password: password,
             },
             {
               headers: {
