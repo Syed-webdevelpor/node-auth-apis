@@ -169,11 +169,20 @@ async function processRetryQueue() {
       await client.sAdd(COMPLETED_KEY, syncId);
       await client.expire(COMPLETED_KEY, 86400); // keep completed record for 24h
     } catch (err) {
-      log.error('password sync failed', {
-        userId: payload.userId,
-        syncId,
-        error: err.message,
-      });
+  log.error('password sync failed - initial attempt', {
+    userId,
+    syncId,
+    error: err.message,
+    status: err.response?.status,
+    responseBody:
+      typeof err.response?.data === 'string'
+        ? err.response.data.slice(0, 500)
+        : undefined,
+    responseMessage:
+      err.response?.data?.message,
+    requestUrl: err.config?.url,
+    method: err.config?.method,
+  });
       // Re-enqueue for retry
       await enqueueRetry(payload);
     }
